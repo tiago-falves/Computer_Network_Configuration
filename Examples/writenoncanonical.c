@@ -5,6 +5,10 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>	
+#include <strings.h>
 
 #define BAUDRATE B38400
 #define MODEMDEVICE "/dev/ttyS1"
@@ -58,7 +62,7 @@ int main(int argc, char** argv)
 
   /* 
     VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
-    leitura do(s) próximo(s) caracter(es)
+    leitura do(s) prÃ³ximo(s) caracter(es)
   */
 
 
@@ -72,25 +76,21 @@ int main(int argc, char** argv)
 
     printf("New termios structure set\n");
 
-
-
-    for (i = 0; i < 255; i++) {
-      buf[i] = 'a';
-    }
+	/* reading from stdin */
+	char str[255];
+	printf("Enter a string: ");
+	gets(str);
+	printf("Received: %s\n", str);
+	
+	/* determining number of chars */
+	int num = 0;
+    for (i = 0; i < 255; i++){
+		if (str[i] != '\0') num++;
+	}
     
-    /*testing*/
-    buf[25] = '\n';
-    
-    res = write(fd,buf,255);   
-    printf("%d bytes written\n", res);
- 
-
-  /* 
-    O ciclo FOR e as instruções seguintes devem ser alterados de modo a respeitar 
-    o indicado no guião 
-  */
-
-
+    /*writing*/ 
+    res = write(fd,str,num+1);   
+    printf("%d bytes written\n%d bytes expected\n", res, num+1);
 
    
     if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
 
 
 
-
+	sleep(1);	
     close(fd);
     return 0;
 }
