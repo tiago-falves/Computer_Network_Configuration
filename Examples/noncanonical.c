@@ -5,6 +5,10 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <strings.h>
 
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
@@ -56,7 +60,7 @@ int main(int argc, char** argv)
 
   /* 
     VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
-    leitura do(s) prÛximo(s) caracter(es)
+    leitura do(s) pr√≥ximo(s) caracter(es)
   */
 
 
@@ -70,22 +74,24 @@ int main(int argc, char** argv)
 
     printf("New termios structure set\n");
 
-
-    while (STOP==FALSE) {       /* loop for input */
-      res = read(fd,buf,255);   /* returns after 5 chars have been input */
-      buf[res]=0;               /* so we can printf... */
-      printf(":%s:%d\n", buf, res);
-      if (buf[0]=='z') STOP=TRUE;
-    }
+	int pos = 0;
+	char str[255];
+	while (STOP==FALSE) {
+		res = read(fd,buf,1);
+		strcat(str, buf);
+		printf(":%s:%d\n", buf, res);
+		if (buf[0]=='\0') STOP=TRUE;
+	}
+  	printf("%s\n", str);
 
 
 
   /* 
-    O ciclo WHILE deve ser alterado de modo a respeitar o indicado no gui„o 
+    O ciclo WHILE deve ser alterado de modo a respeitar o indicado no gui√£o 
   */
 
 
-
+	sleep(1);
     tcsetattr(fd,TCSANOW,&oldtio);
     close(fd);
     return 0;
