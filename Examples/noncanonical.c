@@ -84,6 +84,8 @@ int main(int argc, char** argv)
 	}
   	printf("%s\n", str);
 
+	res = write(fd, str, strlen(str));
+	printf("%d bytes written\n", res);
 
 
   /* 

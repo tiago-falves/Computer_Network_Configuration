@@ -92,6 +92,11 @@ int main(int argc, char** argv)
 	res = write(fd,str,num+1);   
 	printf("%d bytes written\n%d bytes expected\n", res, num+1);
 
+	/*read message back*/
+	char reply[255];
+	res = read(fd, reply, 255);
+	printf("Message: %s\n", reply);
+
 
 	if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
 		perror("tcsetattr");
