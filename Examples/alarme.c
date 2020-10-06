@@ -12,18 +12,16 @@ void atende()                   // atende alarme
 }
 
 
-main()
+main() 
 {
+	(void) signal(SIGALRM, atende);  // instala  rotina que atende interrupcao
 
-(void) signal(SIGALRM, atende);  // instala  rotina que atende interrupcao
-
-while(conta < 4){
-   if(flag){
-      alarm(3);                 // activa alarme de 3s
-      flag=0;
-   }
-}
-printf("Vou terminar.\n");
-
+	while(conta < 4){
+	if(flag){
+		alarm(3);                 // activa alarme de 3s
+		flag=0;
+	}
+	}
+	printf("Vou terminar.\n");
 }
 
