@@ -23,9 +23,10 @@ int main(int argc, char** argv)
     struct termios oldtio,newtio;
     char buf[255];
 
+    //Alterado para porta 10 e 11 (estava 0 e 1)
     if ( (argc < 2) || 
-  	     ((strcmp("/dev/ttyS0", argv[1])!=0) && 
-  	      (strcmp("/dev/ttyS1", argv[1])!=0) )) {
+  	     ((strcmp("/dev/ttyS10", argv[1])!=0) && 
+  	      (strcmp("/dev/ttyS11", argv[1])!=0) )) {
       printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1\n");
       exit(1);
     }
@@ -74,20 +75,26 @@ int main(int argc, char** argv)
 
     printf("New termios structure set\n");
 
+
+
+  //1 Aula
 	int pos = 0;
+	int stringSize = 0;
 	char str[255];
 	while (STOP==FALSE) {
 		res = read(fd,buf,1);
+		stringSize++;
 		strcat(str, buf);
 		printf(":%s:%d\n", buf, res);
 		if (buf[0]=='\0') STOP=TRUE;
 	}
   	printf("%s\n", str);
+	printf("%s%d","String size\n",stringSize);
 
 	res = write(fd, str, strlen(str));
 	printf("%d bytes written\n", res);
 
-
+  
   /* 
     O ciclo WHILE deve ser alterado de modo a respeitar o indicado no guião 
   */
