@@ -80,19 +80,19 @@ int main(int argc, char** argv)
   //1 Aula
 	int pos = 0;
 	int stringSize = 0;
-	char str[255];
-	while (STOP==FALSE) {
-		res = read(fd,buf,1);
-		stringSize++;
-		strcat(str, buf);
-		printf(":%s:%d\n", buf, res);
-		if (buf[0]=='\0') STOP=TRUE;
-	}
-  	printf("%s\n", str);
-	printf("%s%d","String size\n",stringSize);
+	char l[2];
+	memset(buf, 0, strlen(buf));
 
-	res = write(fd, str, strlen(str));
-	printf("%d bytes written\n", res);
+	while (STOP==FALSE) {
+		res = read(fd,l,1);
+		buf[stringSize++] = l[0];
+		printf("Read letter: %s\n", l);
+		printf("String so far: %s\n", buf);
+		if (l[0]=='\0') STOP=TRUE;
+	}
+
+  	printf("Read string '%s' with size: %d\n", buf, stringSize);
+	res = write(fd, buf, stringSize);
 
   
   /* 

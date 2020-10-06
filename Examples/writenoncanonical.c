@@ -83,7 +83,6 @@ int main(int argc, char** argv)
 	char str[255];
 	printf("Enter a string: ");
 	gets(str);
-	printf("Received: %s\n", str);
 	
 	/* determining number of chars */
 	int num = 0;
@@ -97,9 +96,9 @@ int main(int argc, char** argv)
 	printf("%d bytes written\n%d bytes expected\n", res, num+1);
 
 	/*read message back*/
-	char reply[res];
-	//sleep(10);
-	res = read(fd, reply, res);
+	char reply[255];
+	memset(reply, 0, strlen(reply));
+	read(fd, reply, res);
 	printf("Message: %s\n", reply);
 
 	//________________________________________
