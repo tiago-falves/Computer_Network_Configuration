@@ -1,2 +1,2 @@
-gcc ../noncanonical.c -o noncanonical
-./noncanonical /dev/ttyS0
+gcc ../receptor.c -o receptor
+./receptor /dev/ttyS0

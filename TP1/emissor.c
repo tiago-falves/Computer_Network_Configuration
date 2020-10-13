@@ -10,6 +10,8 @@
 #include <string.h>	
 #include <strings.h>
 
+#include "tramas.h"
+
 #define BAUDRATE B38400
 #define MODEMDEVICE "/dev/ttyS1"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
@@ -65,6 +67,11 @@ int main(int argc, char** argv)
 	leitura do(s) próximo(s) caracter(es)
 	*/
 
+	tramaS trama;
+	trama.F1 = F;
+	trama.F2 = F;
+	trama.C = SET;
+	trama.A = AREC;
 
 
 	tcflush(fd, TCIOFLUSH);
@@ -75,30 +82,17 @@ int main(int argc, char** argv)
 	}
 
 	printf("New termios structure set\n");
-
-	//1 Aula
-
-	/* reading from stdin */
-	char str[255];
-	printf("Enter a string: ");
-	gets(str);
-	
-	/* determining number of chars */
-	int num = 0;
-	for (i = 0; i < 255; i++){
-		if (str[i] != '\0') num++;
-		else break;
-	}
 		
-	/*writing*/ 
-	res = write(fd,str,num+1);   
-	printf("%d bytes written\n%d bytes expected\n", res, num+1);
+	/* writing */ 
+	res = write(fd, &trama, sizeof(trama));
 
-	/*read message back*/
-	char reply[255];
-	memset(reply, 0, strlen(reply));
-	read(fd, reply, res);
-	printf("Message: %s\n", reply);
+	/* read message back */
+	tramaS received;
+
+	read(fd, &received, sizeof(tramaS));
+	printf("F1: %04x  F2: %04x\n", received.F1, received.F2);
+	printf("C: %04x\n", received.C);
+	printf("A: %04x\n", received.A);
 
 	//________________________________________
 

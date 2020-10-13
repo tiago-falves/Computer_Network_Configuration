@@ -1,0 +1,1 @@
+rm noncanonical && rm writecanonical

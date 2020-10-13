@@ -19,7 +19,7 @@
 #define SUBSESC 0x5e
 #define SUBF 0x5d
 
-typedef struct
+typedef struct tramaI
 {
     unsigned char F1;
     unsigned char A;
@@ -27,13 +27,13 @@ typedef struct
     unsigned char BCC1;
     unsigned char BCC2;
     unsigned char F2;
-} tramaI;
+};
 
-typedef struct
+typedef struct tramaS
 {
     unsigned char F1;
     unsigned char A;
     unsigned char C;
     unsigned char BCC1;
     unsigned char F2;
-} tramaS;
+};

@@ -1,2 +1,2 @@
-gcc ../writenoncanonical.c -o writecanonical
-./writecanonical /dev/ttyS1
+gcc ../emissor.c -o emissor
+./emissor /dev/ttyS1

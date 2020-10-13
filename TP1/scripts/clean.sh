@@ -1,1 +1,1 @@
-rm noncanonical && rm writecanonical
+rm receptor && rm emissor
