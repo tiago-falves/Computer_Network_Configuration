@@ -7,11 +7,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h>	
+#include <string.h>
 #include <strings.h>
 
 #define BAUDRATE B38400
-#define MODEMDEVICE "/dev/ttyS1"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 #define FALSE 0
 #define TRUE 1
@@ -23,14 +22,12 @@ int main(int argc, char** argv)
 	int fd,c, res;
 	struct termios oldtio,newtio;
 	char buf[255];
-	int i, sum = 0, speed = 0;
 
-	//Alterado para porta 10 e 11 (estava 0 e 1)
 	if ( (argc < 2) || 
-			((strcmp("/dev/ttyS10", argv[1])!=0) && 
-			(strcmp("/dev/ttyS11", argv[1])!=0) )) {
-		printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1\n");
-		exit(1);
+		((strcmp("/dev/ttyS0", argv[1])!=0) && 
+		(strcmp("/dev/ttyS1", argv[1])!=0) )) {
+	printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1\n");
+	exit(1);
 	}
 
 
@@ -77,38 +74,27 @@ int main(int argc, char** argv)
 
 	printf("New termios structure set\n");
 
+
+
 	//1 Aula
+	int pos = 0;
+	int stringSize = 0;
+	char l[2];
+	memset(buf, 0, strlen(buf));
 
-	/* reading from stdin */
-	char str[255];
-	printf("Enter a string: ");
-	gets(str);
-	
-	/* determining number of chars */
-	int num = 0;
-	for (i = 0; i < 255; i++){
-		if (str[i] != '\0') num++;
-		else break;
-	}
-		
-	/*writing*/ 
-	res = write(fd,str,num+1);   
-	printf("%d bytes written\n%d bytes expected\n", res, num+1);
-
-	/*read message back*/
-	char reply[255];
-	memset(reply, 0, strlen(reply));
-	read(fd, reply, res);
-	printf("Message: %s\n", reply);
-
-	//________________________________________
-
-	if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
-		perror("tcsetattr");
-		exit(-1);
+	while (STOP==FALSE) {
+		res = read(fd,l,1);
+		buf[stringSize++] = l[0];
+		printf("String so far: %s\n", buf);
+		if (l[0]=='\0') STOP=TRUE;
 	}
 
-	sleep(1);	
+	printf("Read string '%s' with size: %d\n", buf, stringSize);
+	res = write(fd, buf, stringSize);
+	//-------
+
+	sleep(1);
+	tcsetattr(fd,TCSANOW,&oldtio);
 	close(fd);
 	return 0;
 }
