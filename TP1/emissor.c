@@ -4,7 +4,7 @@ volatile int STOP=FALSE;
 
 int flag=1, conta=1;
 
-void atende()
+void atende(int signo)
 {
 	printf("alarme # %d\n", conta);
 	flag=1;
@@ -20,10 +20,18 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 
+	struct sigaction action;
+    action.sa_handler = atende;
+    sigemptyset(&action.sa_mask);
+    action.sa_flags = 0;
+
+    if (sigaction(SIGALRM,&action,NULL) < 0){
+        fprintf(stderr,"Unable to install SIGALRM handler\n");
+        exit(1);
+    }
+
 	struct termios oldtio;
 	int fd = llopen(argv[1], &oldtio);
-
-	(void) signal(SIGALRM, atende);
 
 	char trama[5], received[5];
 
@@ -39,21 +47,17 @@ int main(int argc, char** argv)
 
 	while(conta < 4 && !success){
 		if(flag){
+			alarm(3);
 			flag=0;
 
 			/* writing */ 
 			llwrite(fd, trama, strlen(trama) + 1);
-			printf("Sent!\n");
-			alarm(3);
 
 			/* read message back */
 			rd = llread(fd, received);
 			
 			if (rd != sizeof(received)) success = FALSE;
-			else {
-				success = TRUE;
-				alarm(0);
-			}
+			else success = TRUE;
 		}
 	}
 

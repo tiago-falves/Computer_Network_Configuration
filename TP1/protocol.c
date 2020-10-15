@@ -65,7 +65,7 @@ int llread(int fd, char* buffer) {
 	while (!finished){
 		rd = read(fd, r, 1);
 		if (rd <= 0){
-			continue;
+			return -1;
 		}
 		else if (r[0] == '\0'){
 			finished = TRUE;
