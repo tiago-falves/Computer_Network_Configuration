@@ -1,6 +1,6 @@
 #include "protocol.h"
 
-int establishConnection(char* arg, struct termios* oldtio) {
+int llopen(char* arg, struct termios* oldtio) {
     int fd, c, res;
 	struct termios newtio;
 	char buf[255];
@@ -25,8 +25,8 @@ int establishConnection(char* arg, struct termios* oldtio) {
 	/* set input mode (non-canonical, no echo,...) */
 	newtio.c_lflag = 0;
 
-	newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
-	newtio.c_cc[VMIN]     = 5;   /* blocking read until 5 chars received */
+	newtio.c_cc[VTIME]    = 20;   /* inter-character timer unused */
+	newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
 
     tcflush(fd, TCIOFLUSH);
 
@@ -38,7 +38,7 @@ int establishConnection(char* arg, struct termios* oldtio) {
     return fd;
 }
 
-int closeConnection(int fd, struct termios* oldtio) {
+int llclose(int fd, struct termios* oldtio) {
     if ( tcsetattr(fd,TCSANOW,oldtio) == -1) {
 		perror("tcsetattr");
 		exit(-1);
@@ -46,4 +46,31 @@ int closeConnection(int fd, struct termios* oldtio) {
 
 	sleep(1);	
 	close(fd);
+	return 0;
+}
+
+int llwrite(int fd, char* buffer, int length) {
+	int wr = write(fd, buffer, length);
+
+	if (wr != length){
+		return -1;
+	}
+	return 0;
+}
+
+int llread(int fd, char* buffer) {
+	char r[2];
+	int finished = FALSE, rd, pos = 0;
+
+	while (!finished){
+		rd = read(fd, r, 1);
+		if (rd <= 0){
+			continue;
+		}
+		else if (r[0] == '\0'){
+			finished = TRUE;
+		}
+		buffer[pos++] = r[0];
+	}
+	return pos;
 }

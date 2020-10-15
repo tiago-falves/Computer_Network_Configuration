@@ -1,5 +1,4 @@
 #include "protocol.h"
-#include "tramas.h"
 
 volatile int STOP=FALSE;
 
@@ -22,18 +21,20 @@ int main(int argc, char** argv)
 	}
 
 	struct termios oldtio;
-	int fd = establishConnection(argv[1], &oldtio);
+	int fd = llopen(argv[1], &oldtio);
 
 	(void) signal(SIGALRM, atende);
 
-	tramaS trama, received;
+	char trama[5], received[5];
 
-	trama.F1 = F;
-	trama.F2 = F;
-	trama.C = SET;
-	trama.A = AREC;
+	trama[0] = F;
+	trama[1] = F;
+	trama[2] = SET;
+	trama[3] = AREC;
+	trama[4] = '\0';
+	memset(received, 0, strlen(received));
 
-	int wr, rd;
+	int rd;
 	int success = FALSE;
 
 	while(conta < 4 && !success){
@@ -41,22 +42,26 @@ int main(int argc, char** argv)
 			flag=0;
 
 			/* writing */ 
-			wr = write(fd, &trama, sizeof(trama));
+			llwrite(fd, trama, strlen(trama) + 1);
+			printf("Sent!\n");
 			alarm(3);
 
 			/* read message back */
-			rd = read(fd, &received, sizeof(received));
+			rd = llread(fd, received);
 			
 			if (rd != sizeof(received)) success = FALSE;
-			else success = TRUE;
+			else {
+				success = TRUE;
+				alarm(0);
+			}
 		}
 	}
 
 	/* verification */
-	printf("F1: %04x  F2: %04x\n", received.F1, received.F2);
-	printf("C: %04x\n", received.C);
-	printf("A: %04x\n", received.A);
+	printf("F1: %04x  F2: %04x\n", received[0], received[1]);
+	printf("C: %04x\n", received[2]);
+	printf("A: %04x\n", received[3]);
 
-	closeConnection(fd, &oldtio);
+	llclose(fd, &oldtio);
 	return 0;
 }

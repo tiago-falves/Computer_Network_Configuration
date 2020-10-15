@@ -1,5 +1,4 @@
 #include "protocol.h"
-#include "tramas.h"
 
 volatile int STOP=FALSE;
 
@@ -13,21 +12,19 @@ int main(int argc, char** argv)
 	}
 
 	struct termios oldtio;
-	int fd = establishConnection(argv[1], &oldtio);
+	int fd = llopen(argv[1], &oldtio);
 
-	tramaS trama;
+	char trama[5];
 
-	int check = read(fd, &trama, sizeof(trama));
+	int check = llread(fd, trama);
 	printf("CHECK: %d\n", check);
 
-	sleep(10);
+	printf("F1: %04x  F2: %04x\n", trama[0], trama[1]);
+	printf("C: %04x\n", trama[2]);
+	printf("A: %04x\n", trama[3]);
 
-	printf("F1: %04x  F2: %04x\n", trama.F1, trama.F2);
-	printf("C: %04x\n", trama.C);
-	printf("A: %04x\n", trama.A);
+	llwrite(fd, trama, check);
 
-	write(fd, &trama, sizeof(trama));
-
-	closeConnection(fd, &oldtio);
+	llclose(fd, &oldtio);
 	return 0;
 }
