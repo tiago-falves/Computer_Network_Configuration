@@ -13,20 +13,21 @@ int main(int argc, char** argv)
 	}
 
 	struct termios oldtio;
-	int fd = establish_connection(argv[1], &oldtio);
+	int fd = establishConnection(argv[1], &oldtio);
 
 	tramaS trama;
 
 	int check = read(fd, &trama, sizeof(trama));
 	printf("CHECK: %d\n", check);
 
+	sleep(10);
+
 	printf("F1: %04x  F2: %04x\n", trama.F1, trama.F2);
 	printf("C: %04x\n", trama.C);
 	printf("A: %04x\n", trama.A);
 
 	write(fd, &trama, sizeof(trama));
-	//-------
 
-	close_connection(fd, &oldtio);
+	closeConnection(fd, &oldtio);
 	return 0;
 }

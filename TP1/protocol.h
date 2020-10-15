@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <string.h>	
 #include <strings.h>
+#include <signal.h>
 
-int establish_connection(char* arg, struct termios* oldtio);
-int close_connection(int fd, struct termios* oldtio);
+int establishConnection(char* arg, struct termios* oldtio);
+int closeConnection(int fd, struct termios* oldtio);

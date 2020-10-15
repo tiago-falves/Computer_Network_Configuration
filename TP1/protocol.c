@@ -1,6 +1,6 @@
 #include "protocol.h"
 
-int establish_connection(char* arg, struct termios* oldtio) {
+int establishConnection(char* arg, struct termios* oldtio) {
     int fd, c, res;
 	struct termios newtio;
 	char buf[255];
@@ -38,7 +38,7 @@ int establish_connection(char* arg, struct termios* oldtio) {
     return fd;
 }
 
-int close_connection(int fd, struct termios* oldtio) {
+int closeConnection(int fd, struct termios* oldtio) {
     if ( tcsetattr(fd,TCSANOW,oldtio) == -1) {
 		perror("tcsetattr");
 		exit(-1);
@@ -46,4 +46,4 @@ int close_connection(int fd, struct termios* oldtio) {
 
 	sleep(1);	
 	close(fd);
-} 
+}
