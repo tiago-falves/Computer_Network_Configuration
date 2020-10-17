@@ -26,9 +26,9 @@ int main(int argc, char** argv)
 	}
 
 	printf("Reading UA Message\n");
-	/*if(!readSupervisionMessage(fd)){
+	if(!readSupervisionMessage(fd)){
 		printf("Error recieving unnumbered acknowledgment)\n");
-	}*/
+	}
 
 	llclose(fd);
 	return 0;

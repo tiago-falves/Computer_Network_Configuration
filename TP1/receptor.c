@@ -27,7 +27,6 @@ int main(int argc, char** argv)
 		printf("A: %04x\n", trama[3]);
 	}
 
-	
 	if(llwrite(fd, trama, check)==-1) printf("Error wrting message\n");
 
 	llclose(fd);

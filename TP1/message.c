@@ -44,7 +44,7 @@ int write_supervision_message_retry(int fd,int cc_value){
 		}
 	}
 	if (success == TRUE){
-		printf("CHGUEI AQUI\n");
+
 		/* verification */
 		printf("F1: %04x  F2: %04x\n", received[0], received[1]);
 		printf("C: %04x\n", received[2]);
