@@ -19,17 +19,6 @@ int main(int argc, char** argv)
 
 	int fd = llopen(argv[1],EMISSOR);
 
-	printf("Writing SET message\n");
-
-	if(!write_supervision_message_retry(fd,SET)){
-		printf("Error establishing connection\n");
-	}
-
-	printf("Reading UA Message\n");
-	if(!readSupervisionMessage(fd)){
-		printf("Error recieving unnumbered acknowledgment)\n");
-	}
-
 	llclose(fd);
 	return 0;
 }

@@ -13,7 +13,25 @@ int write_supervision_message(int fd,int cc_value){
 	trama[PC_POSITION] = F;//???? 
 	trama[FLAGF_POSTION] = '\0'; //TODO Mudar para FLAG depois de implementar a maquina de estados
 
-    return llwrite(fd,trama,MESSAGE_LENGTH);
+
+    return write(fd,trama,MESSAGE_LENGTH);
+}
+
+int write_info_message(int fd,char * data,int data_size,int cc_value){
+	if(data_size==0) return -1;
+	char * trama = malloc(INFO_SIZE_MSG(data_size));
+    trama[FLAGI_POSTION] = F;
+	trama[ADRESS_POSITION] = AREC;
+	trama[CC_POSITION] = cc_value; //0S00000
+	trama[PC_POSITION] = F;//???? 
+
+	memcpy(trama + DATA_INF_BYTE,data,data_size);
+
+	return write(fd,trama,INFO_SIZE_MSG(data_size));
+
+	
+
+
 }
 
 int write_supervision_message_retry(int fd,int cc_value){

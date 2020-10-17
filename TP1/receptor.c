@@ -1,4 +1,5 @@
 #include "protocol.h"
+#include "message.h"
 
 volatile int STOP=FALSE;
 
@@ -14,20 +15,7 @@ int main(int argc, char** argv)
 	struct termios oldtio;
 	int fd = llopen(argv[1],RECEPTOR);
 
-	char trama[5];
 	
-	int check = llread(fd, trama);
-	//printf("CHECK: %d\n", check);
-
-	if(check==-1) printf("Error reading message\n");
-	else{
-		printf("Message recieved correctly\n");
-		printf("F1: %04x  F2: %04x\n", trama[0], trama[1]);
-		printf("C: %04x\n", trama[2]);
-		printf("A: %04x\n", trama[3]);
-	}
-
-	if(llwrite(fd, trama, check)==-1) printf("Error wrting message\n");
 
 	llclose(fd);
 	return 0;
