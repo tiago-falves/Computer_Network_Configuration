@@ -8,28 +8,22 @@ int llopen(char* port, connection_type connection_type) {
 	layer.baud_rate = BAUDRATE;
   	layer.num_transmissions = NUM_TRANSMISSIONS;
   	layer.timeout = LAYER_TIMEOUT;
+	  
 	int fd = open_connection(layer);
 	if(connection_type == EMISSOR){
 		printf("Writing SET message\n");
 
 		if(!write_supervision_message_retry(fd,SET)){
 			printf("Error establishing connection\n");
-			return -1;
-		}
-		printf("Reading UA Message\n");
-		if(!readSupervisionMessage(fd)){
-			printf("Error recieving unnumbered acknowledgment)\n");
-			return -1;
-		}
-		
-		}else if (connection_type == RECEPTOR){
-			if(!readSupervisionMessage(fd)) printf("Error reading SET message\n");
+		}	
+	}else if (connection_type == RECEPTOR){
+		if(!readSupervisionMessage(fd)) printf("Error reading SET message\n");
 
-			//if(llwrite(fd, trama, check)==-1) printf("Error wrting message\n");
-			if(write_supervision_message(fd,UA)){
-				printf("Error writing UA\n");
-			}
+		//if(llwrite(fd, trama, check)==-1) printf("Error wrting message\n");
+		if(write_supervision_message(fd,UA) == -1){
+			printf("Error writing UA\n");
 		}
+	}
 	return fd;
 }
 

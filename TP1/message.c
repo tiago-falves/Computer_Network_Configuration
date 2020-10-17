@@ -6,13 +6,14 @@ int flag=1, conta=1;
 
 
 int write_supervision_message(int fd,int cc_value){
+
+
     char trama[5];
     trama[FLAGI_POSTION] = F;
 	trama[ADRESS_POSITION] = AREC;
 	trama[CC_POSITION] = cc_value;
 	trama[PC_POSITION] = F;//???? 
 	trama[FLAGF_POSTION] = '\0'; //TODO Mudar para FLAG depois de implementar a maquina de estados
-
 
     return write(fd,trama,MESSAGE_LENGTH);
 }
@@ -79,6 +80,9 @@ int readSupervisionMessage(int fd){
 		printf("Error reading message\n");
 		return 0;
 	} 
+	if(check != sizeof(trama)){
+		return 0;
+	}
 	printSupervisionMessage(trama);	
 	return 1;
 

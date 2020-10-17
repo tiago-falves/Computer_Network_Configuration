@@ -11,7 +11,6 @@
 
 static struct termios oldtio;
 
-
 int open_connection(link_layer layer) {
     int fd, c, res;
 	struct termios newtio;
