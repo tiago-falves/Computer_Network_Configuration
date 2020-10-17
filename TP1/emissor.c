@@ -36,8 +36,7 @@ int main(int argc, char** argv)
 
 	install_alarm();
 
-	struct termios oldtio;
-	int fd = llopen(argv[1], &oldtio);
+	int fd = llopen(argv[1]);
 
 	char trama[5], received[5];
 
@@ -78,6 +77,6 @@ int main(int argc, char** argv)
 	}
 	
 
-	llclose(fd, &oldtio);
+	llclose(fd);
 	return 0;
 }

@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 	}
 
 	struct termios oldtio;
-	int fd = llopen(argv[1], &oldtio);
+	int fd = llopen(argv[1]);
 
 	char trama[5];
 	
@@ -30,6 +30,6 @@ int main(int argc, char** argv)
 	
 	if(llwrite(fd, trama, check)==-1) printf("Error wrting message\n");
 
-	llclose(fd, &oldtio);
+	llclose(fd);
 	return 0;
 }

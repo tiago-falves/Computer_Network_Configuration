@@ -46,7 +46,7 @@
 #define FLAG_STUFFING_BYTE 0x5e
 #define ESC_STUFFING_BYTE 0x5d
 
-int llopen(char* arg, struct termios* oldtio);
-int llclose(int fd, struct termios* oldtio);
+int llopen(char* arg);
+int llclose(int fd);
 int llwrite(int fd, char* buffer, int length);
 int llread(int fd, char* buffer);
