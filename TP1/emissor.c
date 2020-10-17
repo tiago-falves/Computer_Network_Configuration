@@ -11,15 +11,7 @@ void atende(int signo)
 	conta++;
 }
 
-int main(int argc, char** argv)
-{	
-	if ( (argc < 2) || 
-			((strcmp("/dev/ttyS0", argv[1])!=0) && 
-			(strcmp("/dev/ttyS1", argv[1])!=0) )) {
-		printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1\n");
-		exit(1);
-	}
-
+void install_alarm(){
 	struct sigaction action;
     action.sa_handler = atende;
     sigemptyset(&action.sa_mask);
@@ -29,6 +21,20 @@ int main(int argc, char** argv)
         fprintf(stderr,"Unable to install SIGALRM handler\n");
         exit(1);
     }
+}
+
+
+
+int main(int argc, char** argv)
+{	
+	if ( (argc < 2) || 
+			((strcmp("/dev/ttyS0", argv[1])!=0) && 
+			(strcmp("/dev/ttyS1", argv[1])!=0) )) {
+		printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1\n");
+		exit(1);
+	}
+
+	install_alarm();
 
 	struct termios oldtio;
 	int fd = llopen(argv[1], &oldtio);

@@ -15,7 +15,7 @@ int main(int argc, char** argv)
 	int fd = llopen(argv[1], &oldtio);
 
 	char trama[5];
-
+	
 	int check = llread(fd, trama);
 	printf("CHECK: %d\n", check);
 
