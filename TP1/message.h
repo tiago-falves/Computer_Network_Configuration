@@ -28,8 +28,11 @@
 #define FLAG_STUFFING_BYTE 0x5e
 #define ESC_STUFFING_BYTE 0x5d
 
-int write_set_message(int fd);
+int write_supervision_message(int fd,int cc_value);
 
 void atende(int signo);
 void install_alarm();
-void write_set_retry(int fd);
+int write_supervision_message_retry(int fd,int cc_value);
+
+int readSupervisionMessage(int fd);
+void printSupervisionMessage(char * trama);

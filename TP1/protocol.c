@@ -9,9 +9,9 @@ int llopen(char* port, connection_type connection_type) {
   	layer.timeout = LAYER_TIMEOUT;
 	int fd = open_connection(layer);
 	if(connection_type == EMISSOR){
-		printf("EMISSOR\n");
+		
 	}else if (connection_type == RECEPTOR){
-		printf("RECEPTOR\n");
+		
 	}
 	return fd;
 }

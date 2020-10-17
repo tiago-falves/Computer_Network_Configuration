@@ -3,18 +3,20 @@
 
 int flag=1, conta=1;
 
-int write_set_message(int fd){
+
+
+int write_supervision_message(int fd,int cc_value){
     char trama[5];
     trama[FLAGI_POSTION] = F;
 	trama[ADRESS_POSITION] = AREC;
-	trama[CC_POSITION] = SET;
+	trama[CC_POSITION] = cc_value;
 	trama[PC_POSITION] = F;//???? 
 	trama[FLAGF_POSTION] = '\0'; //TODO Mudar para FLAG depois de implementar a maquina de estados
 
     return llwrite(fd,trama,MESSAGE_LENGTH);
 }
 
-void write_set_retry(int fd){
+int write_supervision_message_retry(int fd,int cc_value){
 	char received[5];
 
 	memset(received, 0, strlen(received));
@@ -28,7 +30,9 @@ void write_set_retry(int fd){
 			flag=0;
 
 			/* writing */ 
-			write_set_message(fd);
+			if(write_supervision_message(fd,cc_value)==-1){
+				printf("Error writing supervision message\n");
+			}else success = TRUE;
 
 			/* read message back */
 			rd = llread(fd, received);
@@ -36,19 +40,38 @@ void write_set_retry(int fd){
 			if (rd != sizeof(received)) success = FALSE;
 			else{
 				success = TRUE;
-				printf("Connection established correctly\n");
 			} 
 		}
 	}
-	if(conta==4) printf("Error establishing connection\n");
 	if (success == TRUE){
+		printf("CHGUEI AQUI\n");
 		/* verification */
 		printf("F1: %04x  F2: %04x\n", received[0], received[1]);
 		printf("C: %04x\n", received[2]);
 		printf("A: %04x\n", received[3]);
+		return 1;
 	}
+	return 0;
 }
 
+int readSupervisionMessage(int fd){
+	char trama[5];
+	int check = llread(fd, trama);
+	if(check==-1){
+		printf("Error reading message\n");
+		return 0;
+	} 
+	printSupervisionMessage(trama);	
+	return 1;
+
+}
+
+void printSupervisionMessage(char * trama){
+	printf("Message recieved correctly\n");
+	printf("F1: %04x  F2: %04x\n", trama[0], trama[1]);
+	printf("C: %04x\n", trama[2]);
+	printf("A: %04x\n", trama[3]);
+}
 
 void atende(int signo)
 {
