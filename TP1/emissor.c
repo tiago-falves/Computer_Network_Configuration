@@ -41,11 +41,11 @@ int main(int argc, char** argv)
 
 	char trama[5], received[5];
 
-	trama[0] = F;
-	trama[1] = F;
-	trama[2] = SET;
-	trama[3] = AREC;
-	trama[4] = '\0';
+	trama[FLAGI_POSTION] = F;
+	trama[ADRESS_POSITION] = AREC;
+	trama[CC_POSITION] = SET;
+	trama[PC_POSITION] = F;//???? 
+	trama[FLAGF_POSTION] = '\0'; //TODO Mudar para FLAG depois de implementar a maquina de estados
 	memset(received, 0, strlen(received));
 
 	int rd;
@@ -63,14 +63,20 @@ int main(int argc, char** argv)
 			rd = llread(fd, received);
 			
 			if (rd != sizeof(received)) success = FALSE;
-			else success = TRUE;
+			else{
+				success = TRUE;
+				printf("Connection established correctly\n");
+			} 
 		}
 	}
-
-	/* verification */
-	printf("F1: %04x  F2: %04x\n", received[0], received[1]);
-	printf("C: %04x\n", received[2]);
-	printf("A: %04x\n", received[3]);
+	if(conta==4) printf("Error establishing connection\n");
+	if (success == TRUE){
+		/* verification */
+		printf("F1: %04x  F2: %04x\n", received[0], received[1]);
+		printf("C: %04x\n", received[2]);
+		printf("A: %04x\n", received[3]);
+	}
+	
 
 	llclose(fd, &oldtio);
 	return 0;
