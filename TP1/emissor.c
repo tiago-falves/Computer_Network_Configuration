@@ -51,9 +51,9 @@ int main(int argc, char** argv)
 	int rd;
 	int success = FALSE;
 
-	while(conta < 4 && !success){
+	while(conta <= WRITE_NUM_TRIES && !success){
 		if(flag){
-			alarm(3);
+			alarm(RESEND_DELAY);
 			flag=0;
 
 			/* writing */ 

@@ -1,5 +1,3 @@
-#define BAUDRATE B38400
-#define _POSIX_SOURCE 1 /* POSIX compliant source */
 #define FALSE 0
 #define TRUE 1
 
@@ -28,7 +26,9 @@
 #define PC_POSITION 3 //Protection camp position
 #define FLAGF_POSTION 4
 
-
+//Message configurations
+#define RESEND_DELAY 3
+#define WRITE_NUM_TRIES 3
 
 
 
@@ -42,9 +42,9 @@
 /* Escape byte*/
 #define ESC 0x7d
 
-/* MACROS for byte stuffing */
-#define SUBSESC 0x5e
-#define SUBF 0x5d
+/* MACROS for byte stuffing */ 
+#define FLAG_STUFFING_BYTE 0x5e
+#define ESC_STUFFING_BYTE 0x5d
 
 int llopen(char* arg, struct termios* oldtio);
 int llclose(int fd, struct termios* oldtio);
