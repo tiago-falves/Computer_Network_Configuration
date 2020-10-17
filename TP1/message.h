@@ -1,3 +1,5 @@
+
+
 /* SET & DISC are commands, the rest are answers */
 #define SET 0x03
 #define DISC 0x0b 
@@ -33,11 +35,11 @@
 
 #define DATA_INF_BYTE 4
 
-int write_supervision_message(int fd,int cc_value);
+int write_supervision_message(int fd, char cc_value);
 
 void atende(int signo);
 void install_alarm();
-int write_supervision_message_retry(int fd,int cc_value);
+int write_supervision_message_retry(int fd, char cc_value);
 
 int readSupervisionMessage(int fd);
 void printSupervisionMessage(char * trama);

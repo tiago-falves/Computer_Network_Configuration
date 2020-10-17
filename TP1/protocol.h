@@ -14,6 +14,8 @@
 
 
 
+
+
 //Message configurations
 #define RESEND_DELAY 3
 #define WRITE_NUM_TRIES 3
@@ -28,3 +30,5 @@ int llopen(char* arg,connection_type connection_type);
 int llclose(int fd);
 int llwrite(int fd, char* buffer, int length);
 int llread(int fd, char* buffer);
+
+

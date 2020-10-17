@@ -1,24 +1,25 @@
 #include "message.h"
 #include "protocol.h"
+#include "state_machine.h"
+
 
 int flag=1, conta=1;
 
 
 
-int write_supervision_message(int fd,int cc_value){
-
-
+int write_supervision_message(int fd, char cc_value){
     char trama[5];
     trama[FLAGI_POSTION] = F;
 	trama[ADRESS_POSITION] = AREC;
 	trama[CC_POSITION] = cc_value;
-	trama[PC_POSITION] = F;//???? 
+	trama[PC_POSITION] = AREC ^ F;
+
 	trama[FLAGF_POSTION] = '\0'; //TODO Mudar para FLAG depois de implementar a maquina de estados
 
     return write(fd,trama,MESSAGE_LENGTH);
 }
 
-int write_info_message(int fd,char * data,int data_size,int cc_value){
+int write_info_message(int fd,char * data,int data_size, char cc_value){
 	if(data_size==0) return -1;
 	char * trama = malloc(INFO_SIZE_MSG(data_size));
     trama[FLAGI_POSTION] = F;
@@ -29,13 +30,9 @@ int write_info_message(int fd,char * data,int data_size,int cc_value){
 	memcpy(trama + DATA_INF_BYTE,data,data_size);
 
 	return write(fd,trama,INFO_SIZE_MSG(data_size));
-
-	
-
-
 }
 
-int write_supervision_message_retry(int fd,int cc_value){
+int write_supervision_message_retry(int fd,char cc_value){
 	char received[5];
 
 	memset(received, 0, strlen(received));
@@ -63,7 +60,6 @@ int write_supervision_message_retry(int fd,int cc_value){
 		}
 	}
 	if (success == TRUE){
-
 		/* verification */
 		printf("F1: %04x  F2: %04x\n", received[0], received[1]);
 		printf("C: %04x\n", received[2]);
@@ -83,6 +79,8 @@ int readSupervisionMessage(int fd){
 	if(check != sizeof(trama)){
 		return 0;
 	}
+
+	handleState(trama);
 	printSupervisionMessage(trama);	
 	return 1;
 
