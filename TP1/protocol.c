@@ -1,15 +1,18 @@
 #include "protocol.h"
 #include "connection.h"
 
-int llopen(char* port) {
+int llopen(char* port, connection_type connection_type) {
 	link_layer layer;
 	strcpy(layer.port,port);
 	layer.baud_rate = BAUDRATE;
   	layer.num_transmissions = NUM_TRANSMISSIONS;
   	layer.timeout = LAYER_TIMEOUT;
 	int fd = open_connection(layer);
-
-
+	if(connection_type == EMISSOR){
+		printf("EMISSOR\n");
+	}else if (connection_type == RECEPTOR){
+		printf("RECEPTOR\n");
+	}
 	return fd;
 }
 

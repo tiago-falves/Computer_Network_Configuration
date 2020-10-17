@@ -12,7 +12,7 @@ int main(int argc, char** argv)
 	}
 
 	struct termios oldtio;
-	int fd = llopen(argv[1]);
+	int fd = llopen(argv[1],RECEPTOR);
 
 	char trama[5];
 	
