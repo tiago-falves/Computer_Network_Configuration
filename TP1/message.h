@@ -1,5 +1,3 @@
-
-
 /* SET & DISC are commands, the rest are answers */
 #define SET 0x03
 #define DISC 0x0b 
@@ -13,8 +11,6 @@
 #define CC_POSITION 2 //Control camp position
 #define PC_POSITION 3 //Protection camp position
 #define FLAGF_POSTION 4
-
-#define MESSAGE_LENGTH 5
 
 /* Trama delimiting flag */
 #define F 0x7e
@@ -34,6 +30,8 @@
 #define INFO_SIZE_MSG(data_size)    ((data_size) + 7)   
 
 #define DATA_INF_BYTE 4
+
+#define SUPERVISION_TRAMA_SIZE 6
 
 int write_supervision_message(int fd, char cc_value);
 

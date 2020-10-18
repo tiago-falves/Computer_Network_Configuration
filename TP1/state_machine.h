@@ -8,12 +8,12 @@ typedef enum {
 } state_machine;
 
 
-void handleState(char * msg);
-void handleStartState(char * msg);
-void handleFlagReceived(char * msg);
-void handleAddrReceived(char * msg);
-void handleCtrlState(char * msg,char addr,char ctrl);
-void handleBccState(char * msg);
+void handleState(char msg);
+void handleStartState(char msg);
+void handleFlagReceived(char msg);
+void handleAddrReceived(char msg);
+void handleCtrlState(char msg,char addr,char ctrl);
+void handleBccState(char msg);
 
 void update_state(state_machine state);
 state_machine getStateMachine();

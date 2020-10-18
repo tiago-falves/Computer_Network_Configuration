@@ -14,9 +14,7 @@ int main(int argc, char** argv)
 
 	struct termios oldtio;
 	int fd = llopen(argv[1],RECEPTOR);
-
 	
-
 	llclose(fd);
 	return 0;
 }

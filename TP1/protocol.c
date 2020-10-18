@@ -19,11 +19,9 @@ int llopen(char* port, connection_type connection_type) {
 
 		if(!write_supervision_message_retry(fd,SET)){
 			printf("Error establishing connection\n");
-		} else current_state = FLAG_RCV;
+		}
 	}else if (connection_type == RECEPTOR){
 		if(!readSupervisionMessage(fd)) printf("Error reading SET message\n");
-
-		//if(llwrite(fd, trama, check)==-1) printf("Error wrting message\n");
 		if(write_supervision_message(fd,UA) == -1){
 			printf("Error writing UA\n");
 		}
@@ -48,15 +46,16 @@ int llread(int fd, char* buffer) {
 	char r[2];
 	int finished = FALSE, rd, pos = 0;
 	while (!finished){
+		printf("State machine: %d \n", getStateMachine());
 		rd = read(fd, r, 1);
 		if (rd <= 0){
 			return -1;
 		}
-		else if (getStateMachine() == STOP ){
+		else if (getStateMachine() == STOP){
 			finished = TRUE;
-			update_state(START);
-
 		}
+
+		handleState(r[0]);
 		buffer[pos++] = r[0];
 	}
 	return pos;

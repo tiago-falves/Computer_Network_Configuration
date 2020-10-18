@@ -2,21 +2,18 @@
 #include "protocol.h"
 #include "state_machine.h"
 
-
 int flag=1, conta=1;
 
-
-
 int write_supervision_message(int fd, char cc_value){
-    char trama[5];
+    char trama[SUPERVISION_TRAMA_SIZE];
     trama[FLAGI_POSTION] = F;
 	trama[ADRESS_POSITION] = AREC;
 	trama[CC_POSITION] = cc_value;
-	trama[PC_POSITION] = AREC ^ F;
+	trama[PC_POSITION] = (AREC) ^ (cc_value);
+	trama[FLAGF_POSTION] = F;
+	trama[SUPERVISION_TRAMA_SIZE - 1] = '\0';
 
-	trama[FLAGF_POSTION] = '\0'; //TODO Mudar para FLAG depois de implementar a maquina de estados
-
-    return write(fd,trama,MESSAGE_LENGTH);
+    return write(fd,trama,SUPERVISION_TRAMA_SIZE);
 }
 
 int write_info_message(int fd,char * data,int data_size, char cc_value){
@@ -33,7 +30,7 @@ int write_info_message(int fd,char * data,int data_size, char cc_value){
 }
 
 int write_supervision_message_retry(int fd,char cc_value){
-	char received[5];
+	char received[SUPERVISION_TRAMA_SIZE];
 
 	memset(received, 0, strlen(received));
 
@@ -52,26 +49,22 @@ int write_supervision_message_retry(int fd,char cc_value){
 
 			/* read message back */
 			rd = llread(fd, received);
-			
-			if (rd != sizeof(received)) success = FALSE;
-			else{
-				success = TRUE;
-			} 
+			if (rd != sizeof(received)) 
+				success = FALSE;
+			else success = TRUE;
 		}
 	}
 	if (success == TRUE){
-		/* verification */
-		printf("F1: %04x  F2: %04x\n", received[0], received[1]);
-		printf("C: %04x\n", received[2]);
-		printf("A: %04x\n", received[3]);
+		printSupervisionMessage(received);
 		return 1;
 	}
 	return 0;
 }
 
 int readSupervisionMessage(int fd){
-	char trama[5];
+	char trama[SUPERVISION_TRAMA_SIZE];
 	int check = llread(fd, trama);
+
 	if(check==-1){
 		printf("Error reading message\n");
 		return 0;
@@ -79,8 +72,6 @@ int readSupervisionMessage(int fd){
 	if(check != sizeof(trama)){
 		return 0;
 	}
-
-	handleState(trama);
 	printSupervisionMessage(trama);	
 	return 1;
 
@@ -88,13 +79,12 @@ int readSupervisionMessage(int fd){
 
 void printSupervisionMessage(char * trama){
 	printf("Message recieved correctly\n");
-	printf("F1: %04x  F2: %04x\n", trama[0], trama[1]);
+	printf("F: %04x\nA: %04x\n", trama[0], trama[1]);
 	printf("C: %04x\n", trama[2]);
-	printf("A: %04x\n", trama[3]);
+	printf("BCC: %04x\n", trama[3]);
 }
 
-void atende(int signo)
-{
+void atende(int signo){
 	printf("alarme # %d\n", conta);
 	flag=1;
 	conta++;

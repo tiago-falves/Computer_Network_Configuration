@@ -36,7 +36,7 @@ int open_connection(link_layer layer) {
 	/* set input mode (non-canonical, no echo,...) */
 	newtio.c_lflag = 0;
 
-	newtio.c_cc[VTIME]    = 20;   /* inter-character timer unused */
+	newtio.c_cc[VTIME]    = 30;   /* inter-character timer unused */
 	newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
 
     tcflush(fd, TCIOFLUSH);
