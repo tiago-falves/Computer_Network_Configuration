@@ -33,6 +33,10 @@
 
 #define SUPERVISION_TRAMA_SIZE 6
 
+
+//Info Message
+#define CC_INFO_MSG(s)           (((s) % 2) << 6) 
+
 int write_supervision_message(int fd, char cc_value);
 
 void atende(int signo);
@@ -40,4 +44,10 @@ void install_alarm();
 int write_supervision_message_retry(int fd, char cc_value);
 
 int readSupervisionMessage(int fd);
+
+int readTrama(int fd,char * buffer);
+
+
 void printSupervisionMessage(char * trama);
+
+int write_info_message(int fd,char * data,int data_size, char cc_value);

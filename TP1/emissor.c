@@ -1,5 +1,6 @@
 #include "protocol.h"
 #include "message.h"
+#include "file_handler.h"
 
 volatile int STOP=FALSE;
 
@@ -15,6 +16,13 @@ int main(int argc, char** argv)
 	install_alarm();
 
 	int fd = llopen(argv[1],EMISSOR);
+
+
+	//char* buffer = read_file("test.txt");
+	//char* buffer = "Avé";
+
+
+	//llwrite(fd,buffer,strlen(buffer));
 
 	llclose(fd);
 	return 0;
