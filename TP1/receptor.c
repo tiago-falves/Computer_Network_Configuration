@@ -5,6 +5,8 @@ volatile int STOP=FALSE;
 
 int main(int argc, char** argv)
 {
+
+	char * initialBufferSize;
 	if ( (argc < 2) || 
 		((strcmp("/dev/ttyS0", argv[1])!=0) && 
 		(strcmp("/dev/ttyS1", argv[1])!=0) )) {
@@ -15,7 +17,7 @@ int main(int argc, char** argv)
 	struct termios oldtio;
 	int fd = llopen(argv[1],RECEPTOR);
 
-	//llread(fd,)
+	llread(fd,initialBufferSize);
 	
 	llclose(fd);
 	return 0;

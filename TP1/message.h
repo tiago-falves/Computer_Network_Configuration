@@ -46,9 +46,14 @@ int write_supervision_message_retry(int fd, char cc_value);
 
 int readSupervisionMessage(int fd);
 
-int readTrama(int fd,char * buffer);
+int readMessage(int fd,char * buffer);
 
 
 void printSupervisionMessage(char * trama);
+void printInformMessage(char * trama,int dataSize);
+
+int write_inform_message_retry(int fd,char cc_value,int dataSize,char * buffer);
 
 int write_info_message(int fd,char * data,int data_size, char cc_value);
+
+char buildBCC2(char * data, int data_size);

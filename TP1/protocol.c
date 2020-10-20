@@ -53,7 +53,7 @@ int llclose(int fd) {
 
 int llwrite(int fd, char* buffer, int length) {
 
-	int wr = write_info_message(fd,buffer,length,1);
+	int wr = write_inform_message_retry(fd, 1 ,length, buffer);
 
 	if (wr != length){
 		return -1;
@@ -62,5 +62,8 @@ int llwrite(int fd, char* buffer, int length) {
 }
 
 int llread(int fd, char* buffer) {
+	readMessage(fd,buffer);
+
+
 	return 0;
 }
