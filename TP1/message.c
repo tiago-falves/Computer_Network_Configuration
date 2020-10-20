@@ -21,8 +21,11 @@ int write_info_message(int fd,char * data,int data_size, char cc_value){
 	char * trama = malloc(INFO_SIZE_MSG(data_size));
     trama[FLAGI_POSTION] = F;
 	trama[ADRESS_POSITION] = AREC;
-	trama[CC_POSITION] = cc_value; //0S00000
-	trama[PC_POSITION] = F;//???? 
+	trama[CC_POSITION] = CC_INFO_MSG(cc_value); //0S00000
+	trama[PC_POSITION] = (AREC) ^ (CC_INFO_MSG(cc_value));
+	
+
+	
 
 	memcpy(trama + DATA_INF_BYTE,data,data_size);
 
@@ -48,7 +51,7 @@ int write_supervision_message_retry(int fd,char cc_value){
 			}else success = TRUE;
 
 			/* read message back */
-			rd = llread(fd, received);
+			rd = readTrama(fd, received);
 			if (rd != sizeof(received)) 
 				success = FALSE;
 			else{
@@ -66,7 +69,7 @@ int write_supervision_message_retry(int fd,char cc_value){
 
 int readSupervisionMessage(int fd){
 	char trama[SUPERVISION_TRAMA_SIZE];
-	int check = llread(fd, trama);
+	int check = readTrama(fd, trama);
 
 	if(check==-1){
 		printf("Error reading message\n");
@@ -109,4 +112,23 @@ void reset_alarm(){
 	flag = 1;
 	conta = 1;
 	alarm(0);
+}
+
+int readTrama(int fd,char * buffer){
+	char r;
+	int finished = FALSE, rd, pos = 0;
+	while (!finished){
+		//printf("State machine: %d \n", getStateMachine());
+		rd = read(fd, &r, 1);
+		if (rd <= 0){
+			return -1;
+		}
+		else if (getStateMachine() == STOP){
+			finished = TRUE;
+		}
+
+		handleState(r);
+		buffer[pos++] = r;
+	}
+	return pos;
 }

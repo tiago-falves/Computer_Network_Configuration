@@ -52,7 +52,8 @@ int llclose(int fd) {
 }
 
 int llwrite(int fd, char* buffer, int length) {
-	int wr = write(fd, buffer, length);
+
+	int wr = write_info_message(fd,buffer,length,1);
 
 	if (wr != length){
 		return -1;
@@ -61,20 +62,5 @@ int llwrite(int fd, char* buffer, int length) {
 }
 
 int llread(int fd, char* buffer) {
-	char r;
-	int finished = FALSE, rd, pos = 0;
-	while (!finished){
-		//printf("State machine: %d \n", getStateMachine());
-		rd = read(fd, &r, 1);
-		if (rd <= 0){
-			return -1;
-		}
-		else if (getStateMachine() == STOP){
-			finished = TRUE;
-		}
-
-		handleState(r);
-		buffer[pos++] = r;
-	}
-	return pos;
+	return 0;
 }
