@@ -37,6 +37,7 @@ int write_supervision_message(int fd, char cc_value);
 
 void atende(int signo);
 void install_alarm();
+void reset_alarm();
 int write_supervision_message_retry(int fd, char cc_value);
 
 int readSupervisionMessage(int fd);

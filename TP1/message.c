@@ -51,7 +51,10 @@ int write_supervision_message_retry(int fd,char cc_value){
 			rd = llread(fd, received);
 			if (rd != sizeof(received)) 
 				success = FALSE;
-			else success = TRUE;
+			else{
+				success = TRUE;
+				reset_alarm();
+			} 
 		}
 	}
 	if (success == TRUE){
@@ -102,4 +105,8 @@ void install_alarm(){
     }
 }
 
-//TODO desactivar o alarme
+void reset_alarm(){
+	flag = 1;
+	conta = 1;
+	alarm(0);
+}
