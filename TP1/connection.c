@@ -52,11 +52,13 @@ int open_connection(link_layer layer) {
 }
 
 int close_connection(int fd){
+	
+	sleep(1);	
+
 	if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
 		perror("tcsetattr");
 		exit(-1);
 	}
 
-	sleep(1);	
 	close(fd);
 }
