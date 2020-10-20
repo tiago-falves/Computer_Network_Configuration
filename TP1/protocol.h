@@ -24,9 +24,9 @@
 
 
 
-typedef enum { EMISSOR,RECEPTOR} connection_type;
+typedef enum {EMISSOR, RECEPTOR} connection_type;
 
-int llopen(char* arg,connection_type connection_type);
+int llopen(char* arg, connection_type connection_type);
 int llclose(int fd);
 int llwrite(int fd, char* buffer, int length);
 int llread(int fd, char* buffer);
