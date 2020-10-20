@@ -60,5 +60,5 @@ int close_connection(int fd){
 		exit(-1);
 	}
 
-	close(fd);
+	return close(fd);
 }

@@ -3,6 +3,7 @@
 #include "message.h"
 #include "state_machine.h"
 
+connection_type connection;
 
 int llopen(char* port, connection_type connection_type) {
 	link_layer layer;
@@ -11,7 +12,7 @@ int llopen(char* port, connection_type connection_type) {
   	layer.num_transmissions = NUM_TRANSMISSIONS;
   	layer.timeout = LAYER_TIMEOUT;
 	state_machine current_state	= getStateMachine();
-	
+	connection = connection_type;
 	  
 	int fd = open_connection(layer);
 	if(connection_type == EMISSOR){
@@ -30,7 +31,24 @@ int llopen(char* port, connection_type connection_type) {
 }
 
 int llclose(int fd) {
-    close_connection(fd);
+	if(connection == EMISSOR){
+		printf("Writing DISC message\n");
+
+		if(!write_supervision_message_retry(fd,DISC)){
+			printf("Error establishing connection\n");
+		}
+		if(write_supervision_message(fd,UA) == -1){
+			printf("Error writing UA\n");
+		}
+	}else if (connection == RECEPTOR){
+		if(!readSupervisionMessage(fd)) printf("Error reading DISC message\n");
+		if(write_supervision_message(fd,DISC) == -1){
+			printf("Error writing UA\n");
+		}
+		if(!readSupervisionMessage(fd)) printf("Error reading UA message\n");
+	}
+
+    return close_connection(fd);
 }
 
 int llwrite(int fd, char* buffer, int length) {
@@ -46,7 +64,7 @@ int llread(int fd, char* buffer) {
 	char r;
 	int finished = FALSE, rd, pos = 0;
 	while (!finished){
-		printf("State machine: %d \n", getStateMachine());
+		//printf("State machine: %d \n", getStateMachine());
 		rd = read(fd, &r, 1);
 		if (rd <= 0){
 			return -1;
