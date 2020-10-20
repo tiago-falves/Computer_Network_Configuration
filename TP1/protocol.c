@@ -43,11 +43,11 @@ int llwrite(int fd, char* buffer, int length) {
 }
 
 int llread(int fd, char* buffer) {
-	char r[2];
+	char r;
 	int finished = FALSE, rd, pos = 0;
 	while (!finished){
 		printf("State machine: %d \n", getStateMachine());
-		rd = read(fd, r, 1);
+		rd = read(fd, &r, 1);
 		if (rd <= 0){
 			return -1;
 		}
@@ -55,8 +55,8 @@ int llread(int fd, char* buffer) {
 			finished = TRUE;
 		}
 
-		handleState(r[0]);
-		buffer[pos++] = r[0];
+		handleState(r);
+		buffer[pos++] = r;
 	}
 	return pos;
 }
