@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 
 	//char* buffer = read_file("test.txt");
 	char buffer[] = "Avé";
-	llwrite(fd,buffer,strlen(buffer));
+	//llwrite(fd,buffer,strlen(buffer));
 
 	llclose(fd);
 	return 0;

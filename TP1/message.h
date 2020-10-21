@@ -46,7 +46,7 @@ int write_supervision_message_retry(int fd, char cc_value);
 
 int readSupervisionMessage(int fd);
 
-int readMessage(int fd,char * buffer);
+char* readMessage(int fd, int* size);
 
 
 void printSupervisionMessage(char * trama);

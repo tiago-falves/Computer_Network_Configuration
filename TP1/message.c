@@ -37,12 +37,8 @@ int write_info_message(int fd,char * data,int data_size, char cc_value){
 }
 
 int write_supervision_message_retry(int fd,char cc_value){
-	char received[SUPERVISION_TRAMA_SIZE];
-
-	memset(received, 0, strlen(received));
-
-	int rd;
-	int success = FALSE;
+	int success = FALSE, rd;
+	char* buffer;
 
 	while(conta <= WRITE_NUM_TRIES && !success){
 		if(flag){
@@ -50,13 +46,14 @@ int write_supervision_message_retry(int fd,char cc_value){
 			flag=0;
 
 			/* writing */ 
-			if(write_supervision_message(fd,cc_value)==-1){
+			int n_bytes = write_supervision_message(fd,cc_value);
+			if(n_bytes == -1){
 				printf("Error writing supervision message\n");
 			}
 
 			/* read message back */
-			rd = readMessage(fd, received);
-			if (rd != sizeof(received)) 
+			buffer = readMessage(fd, &rd);
+			if (rd != n_bytes || buffer == NULL) 
 				success = FALSE;
 			else{
 				success = TRUE;
@@ -65,35 +62,30 @@ int write_supervision_message_retry(int fd,char cc_value){
 		}
 	}
 	if (success == TRUE){
-		printSupervisionMessage(received);
-		return 1;
+		printSupervisionMessage(buffer);
+		return 0;
 	}
-	return 0;
+	return -1;
 }
 
-int write_inform_message_retry(int fd,char cc_value,int dataSize,char * buffer){
-	printf("BEGGINING WRTE RETRY\n");
-	char received[INFO_SIZE_MSG(dataSize)];
-
-
-	memset(received, 0, strlen(received));
-
-	int rd;
-	int success = FALSE;
+int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data){
+	int success = FALSE, rd;
+	char* buffer;
 
 	while(conta <= WRITE_NUM_TRIES && !success){
 		if(flag){
 			alarm(RESEND_DELAY);
 			flag=0;
 
-			/* writing */ 
-			if(write_info_message(fd,buffer,dataSize,cc_value)==-1){
+			/* writing */
+			int n_bytes = write_info_message(fd, data, dataSize, cc_value); 
+			if(n_bytes == -1){
 				printf("Error writing Inform message\n");
 			}
 
 			/* read message back */
-			rd = readMessage(fd, received);
-			if (rd != sizeof(received)) 
+			buffer = readMessage(fd, &rd);
+			if (rd != n_bytes || buffer == NULL) 
 				success = FALSE;
 			else{
 				success = TRUE;
@@ -102,33 +94,27 @@ int write_inform_message_retry(int fd,char cc_value,int dataSize,char * buffer){
 		}
 	}
 
-
 	if (success == TRUE){
-		printf("END WRTE RETRY SUCCESS\n");
-
-		printInformMessage(received,dataSize);
-		return 1;
+		printInformMessage(buffer ,dataSize);
+		return 0;
 	}
-	printf("END WRTE RETRY FAIL\n");
-
-	return 0;
+	return -1;
 }
 
 
 int readSupervisionMessage(int fd){
-	char trama[SUPERVISION_TRAMA_SIZE];
-	int check = readMessage(fd, trama);
+	int trama_size;
+	char* trama = readMessage(fd, &trama_size);
 
-	if(check==-1){
+	if(trama_size==-1){
 		printf("Error reading message\n");
-		return 0;
+		return -1;
 	} 
-	if(check != sizeof(trama)){
-		return 0;
+	if(trama_size != SUPERVISION_TRAMA_SIZE){
+		return -1;
 	}
 	printSupervisionMessage(trama);	
-	return 1;
-
+	return 0;
 }
 
 void printSupervisionMessage(char * trama){
@@ -175,26 +161,28 @@ void reset_alarm(){
 	alarm(0);
 }
 
-int readMessage(int fd,char * buffer){  
+char* readMessage(int fd, int* size){  
 	char r;
 	int finished = FALSE, rd, pos = 0;
+	char* buffer = malloc(1);
+
 	while (!finished){
 		//printf("State machine: %d \n", getStateMachine());
 		rd = read(fd, &r, 1);
 		if (rd <= 0){
-			return -1;
+			return 0;
 		}
 		else if (getStateMachine() == STOP){
 			finished = TRUE;
 		}
 
+		buffer = realloc(buffer, pos + 2);
 		handleState(r,0);
 		buffer[pos++] = r;
 	}
-	return pos;
+	*size = pos;
+	return buffer;
 }
-
-
 
 char buildBCC2(char * data, int data_size) {
 	char xor = data[0] ^ data[1];

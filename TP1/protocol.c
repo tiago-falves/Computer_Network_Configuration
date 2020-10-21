@@ -18,11 +18,13 @@ int llopen(char* port, connection_type connection_type) {
 	if(connection_type == EMISSOR){
 		printf("Writing SET message\n");
 
-		if(!write_supervision_message_retry(fd,SET)){
+		if(write_supervision_message_retry(fd,SET) == -1){
 			printf("Error establishing connection\n");
 		}
 	}else if (connection_type == RECEPTOR){
-		if(!readSupervisionMessage(fd)) printf("Error reading SET message\n");
+		if(readSupervisionMessage(fd) == -1){
+			printf("Error reading SET message\n");
+		}
 		if(write_supervision_message(fd,UA) == -1){
 			printf("Error writing UA\n");
 		}
@@ -34,18 +36,22 @@ int llclose(int fd) {
 	if(connection == EMISSOR){
 		printf("Writing DISC message\n");
 
-		if(!write_supervision_message_retry(fd,DISC)){
+		if(write_supervision_message_retry(fd,DISC) == -1){
 			printf("Error establishing connection\n");
 		}
 		if(write_supervision_message(fd,UA) == -1){
 			printf("Error writing UA\n");
 		}
 	}else if (connection == RECEPTOR){
-		if(!readSupervisionMessage(fd)) printf("Error reading DISC message\n");
+		if(readSupervisionMessage(fd) == -1){ 
+			printf("Error reading DISC message\n");
+		}
 		if(write_supervision_message(fd,DISC) == -1){
 			printf("Error writing UA\n");
 		}
-		if(!readSupervisionMessage(fd)) printf("Error reading UA message\n");
+		if(readSupervisionMessage(fd) == -1){
+			printf("Error reading UA message\n");
+		}
 	}
 
     return close_connection(fd);
@@ -62,8 +68,7 @@ int llwrite(int fd, char* buffer, int length) {
 }
 
 int llread(int fd, char* buffer) {
-	readMessage(fd,buffer);
-
-
+	int buffer_size;
+	buffer = readMessage(fd, &buffer_size);
 	return 0;
 }
