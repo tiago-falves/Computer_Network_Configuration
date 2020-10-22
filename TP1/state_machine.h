@@ -3,22 +3,24 @@ typedef enum {
   FLAG_RCV = 1,
   A_RCV = 2,
   C_RCV = 3,
-  BCC_OK = 4,
-  BCC1_INF = 5,
-  DATA_INF = 6,
-  BCC2_INF = 7,
+  BCC1_OK = 4,
+  DATA_INF = 5,
+  DATA_FINISHED = 6,
+  BCC2_OK = 7,
   STOP = 8
 } state_machine;
 
 
-void handleState(char msg,int dataSize);
+void handleState(char msg, int i_message);
 void handleStartState(char msg);
 void handleFlagReceived(char msg);
 void handleAddrReceived(char msg);
-void handleCtrlState(char msg,char addr,char ctrl,int inform);
-void handleBccState(char msg);
-void handleBccStateInf1(char msg);
-void handleDataState(char msg,int dataSize);
+void handleCtrlState(char msg,char addr,char ctrl);
+void handleBcc1State(char msg, int i_message);
+void handleBcc2State(char msg);
+void handleDataState(char msg);
+void handleDataFinishedState(char msg);
+void handleStopState(char msg);
 
 void update_state(state_machine state);
 state_machine getStateMachine();

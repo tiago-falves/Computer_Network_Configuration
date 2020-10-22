@@ -27,7 +27,7 @@
 #define ESC_STUFFING_BYTE 0x5d
 
 //Size of the information message
-#define INFO_SIZE_MSG(data_size)    ((data_size) + 7)   
+#define INFO_SIZE_MSG(data_size)    ((data_size) + 8)   
 
 #define DATA_INF_BYTE 4
 
@@ -37,23 +37,21 @@
 //Info Message
 #define CC_INFO_MSG(s)           (((s) % 2) << 6) 
 
-int write_supervision_message(int fd, char cc_value);
-
 void atende(int signo);
 void install_alarm();
 void reset_alarm();
-int write_supervision_message_retry(int fd, char cc_value);
 
 int readSupervisionMessage(int fd);
 
-char* readMessage(int fd, int* size);
-
+char* readMessage(int fd, int* size, int i_message);
 
 void printSupervisionMessage(char * trama);
 void printInformMessage(char * trama,int dataSize);
 
-int write_inform_message_retry(int fd,char cc_value,int dataSize,char * buffer);
+int write_supervision_message(int fd, char cc_value);
+int write_supervision_message_retry(int fd, char cc_value);
 
+int write_inform_message_retry(int fd,char cc_value,int dataSize,char * buffer);
 int write_info_message(int fd,char * data,int data_size, char cc_value);
 
 char buildBCC2(char * data, int data_size);

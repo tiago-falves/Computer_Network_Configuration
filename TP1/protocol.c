@@ -69,6 +69,13 @@ int llwrite(int fd, char* buffer, int length) {
 
 int llread(int fd, char* buffer) {
 	int buffer_size;
-	buffer = readMessage(fd, &buffer_size);
+	buffer = readMessage(fd, &buffer_size, 1);
+	if (buffer == NULL){
+		printf("LLREAD: error reading message");
+	}
+
+	if (write(fd, buffer, buffer_size) == -1){
+		printf("LLREAD: error writing message back");
+	}
 	return 0;
 }

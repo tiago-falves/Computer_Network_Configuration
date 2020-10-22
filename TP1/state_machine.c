@@ -9,11 +9,9 @@ state_machine getStateMachine(){
 }
 
 char addr, ctrl;
-int dataCounter = 0;
-char bcc2 = 0xF;
+char bcc2 = 0x0;
 
-void handleState(char msg,int dataSize){
-
+void handleState(char msg, int i_message){
     state_machine state_machine = getStateMachine();
 
     switch (state_machine){
@@ -29,22 +27,22 @@ void handleState(char msg,int dataSize){
             ctrl = msg;
             break;
         case C_RCV:
-            handleCtrlState(msg,addr,ctrl,0);
+            handleCtrlState(msg,addr,ctrl);
             break;
-        case BCC_OK:
-            handleBccState(msg);
-            break;
-        case BCC1_INF:
-            handleBccStateInf1(msg);
+        case BCC1_OK:
+            handleBcc1State(msg, i_message);
             break;
         case DATA_INF:
-            handleDataState(msg,dataSize);
+            handleDataState(msg);
             break;
-        case BCC2_INF:
-            handleBccState(msg);
+        case DATA_FINISHED:
+            handleDataFinishedState(msg);
+            break;
+        case BCC2_OK:
+            handleBcc2State(msg);
             break;
         case STOP:
-            update_state(START);
+            handleStopState(msg);
             break;
         
         default:
@@ -84,7 +82,7 @@ void handleAddrReceived(char msg) {
             update_state(C_RCV);
 			break;
         case CC_INFO_MSG(0): case CC_INFO_MSG(1):
-            update_state(BCC1_INF);
+            update_state(C_RCV);
             break;
         default:
             update_state(START);
@@ -92,43 +90,66 @@ void handleAddrReceived(char msg) {
     }
 }
 
-void handleCtrlState(char msg, char addr, char ctrl,int inform){
+void handleCtrlState(char msg, char addr, char ctrl){
     switch (msg){
 		case F:
             update_state(FLAG_RCV);
             break;
         default:
-            if(msg == (addr) ^ (ctrl)){
-                if(inform) update_state(BCC1_INF);
-                else update_state(BCC_OK);
-            } else update_state(START);
+            if(msg == (addr) ^ (ctrl))
+                update_state(BCC1_OK);
+            else 
+                update_state(START);
             break;
     }
 
 }
 
-
-//1
-//dataSize Numero de bytes dentro de uma trama de informaçao
-void handleDataState(char msg,int dataSize){
-    switch (msg)
-    {
-    case F:
-        update_state(STOP);
-        break;
-    default:
-        dataCounter++;
-        if(dataCounter <= dataSize) bcc2 = msg ^ bcc2;
-        if(dataCounter == (dataSize+1)){
-            if(msg == bcc2) update_state(BCC2_INF);
-        }
-
-        break;
+void handleBcc1State(char msg, int i_message) {
+    switch (msg) {
+        case F:
+            update_state(STOP);
+            break;
+        default:
+            if (i_message){
+                update_state(DATA_INF);
+                bcc2 = msg ^ bcc2;
+            }
+            else
+                update_state(START);
+            break;
     }
 }
 
+void handleDataState(char msg){
+    switch (msg){
+        case F:
+            update_state(FLAG_RCV);
+            break;
+        case '\0':
+            update_state(DATA_FINISHED);
+            break;
+        default:
+            bcc2 = msg ^ bcc2;
+            break;
+    }
+}
 
-void handleBccState(char msg) {
+void handleDataFinishedState(char msg){
+    switch (msg){
+        case F:
+            update_state(FLAG_RCV);
+            break;
+        default:
+            if(msg == bcc2) 
+                update_state(BCC2_OK);
+            else
+                update_state(START);
+            break;
+    }
+}
+
+void handleBcc2State(char msg) {
     switch (msg) {
         case F:
             update_state(STOP);
@@ -139,13 +160,13 @@ void handleBccState(char msg) {
     }
 }
 
-void handleBccStateInf1(char msg) {
+void handleStopState(char msg) {
     switch (msg) {
         case F:
             update_state(FLAG_RCV);
             break;
         default:
-            update_state(DATA_INF);
+            update_state(START);
             break;
     }
 }

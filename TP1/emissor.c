@@ -12,15 +12,14 @@ int main(int argc, char** argv)
 		printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1\n");
 		exit(1);
 	}
-
 	install_alarm();
 
 	int fd = llopen(argv[1],EMISSOR);
 
 
 	//char* buffer = read_file("test.txt");
-	char buffer[] = "Avé";
-	//llwrite(fd,buffer,strlen(buffer));
+	char buffer[] = "Ave";
+	llwrite(fd,buffer,strlen(buffer));
 
 	llclose(fd);
 	return 0;
