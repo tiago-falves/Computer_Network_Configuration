@@ -12,10 +12,8 @@
 static struct termios oldtio;
 
 int open_connection(link_layer layer) {
-    int fd, c, res;
+    int fd;
 	struct termios newtio;
-	char buf[255];
-	int i, sum = 0, speed = 0;
 
     fd = open(layer.port, O_RDWR | O_NOCTTY );
 	if (fd <0) {

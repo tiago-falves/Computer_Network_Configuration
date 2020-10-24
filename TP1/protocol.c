@@ -3,15 +3,14 @@
 #include "message.h"
 #include "state_machine.h"
 
-connection_type connection;
+conn_type connection;
 
-int llopen(char* port, connection_type connection_type) {
+int llopen(char* port, conn_type connection_type) {
 	link_layer layer;
 	strcpy(layer.port,port);
 	layer.baud_rate = BAUDRATE;
   	layer.num_transmissions = NUM_TRANSMISSIONS;
   	layer.timeout = LAYER_TIMEOUT;
-	state_machine current_state	= getStateMachine();
 	connection = connection_type;
 	  
 	int fd = open_connection(layer);
@@ -52,8 +51,7 @@ int llwrite(int fd, char* buffer, int length) {
 }
 
 int llread(int fd, char* buffer) {
-	int buffer_size = 0, r = 1;
-	int counter = 0;
+	int buffer_size = 0;
 
 	while (TRUE) {
 		buffer = readMessage(fd, &buffer_size, 1);

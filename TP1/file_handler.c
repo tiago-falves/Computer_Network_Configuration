@@ -21,7 +21,7 @@ char* read_file(char* file_path) {
         }
 
         strncat(buffer, line, strlen(line));
-        memset(line, 0, sizeof(line));
+        memset(line, 0, 1024);
     }
 
     free(line);

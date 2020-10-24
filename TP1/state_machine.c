@@ -99,7 +99,7 @@ void handleCtrlState(char msg, char addr, char ctrl){
             update_state(FLAG_RCV);
             break;
         default:
-            if(msg == (addr) ^ (ctrl))
+            if(msg == (addr ^ ctrl))
                 update_state(BCC1_OK);
             else 
                 update_state(START);
