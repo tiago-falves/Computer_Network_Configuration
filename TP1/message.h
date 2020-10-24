@@ -41,6 +41,9 @@
 //Information frame data block size
 #define DATA_BLOCK_SIZE 255
 
+//Control fiel frame position
+#define CTRL_POS 2
+
 typedef struct {
     int stuffed_data;      /** Number of data bytes that were processed and stuffed */
     int stuffed_data_size;     /** Number of bytes that were occupied in the stuffing buffer */
@@ -55,7 +58,7 @@ int readSupervisionMessage(int fd);
 
 char* readMessage(int fd, int* size, int i_message);
 
-void printSupervisionMessage(char * trama);
+void printSupervisionMessage(char * trama, int onlyC);
 void printInformMessage(char * trama,int dataSize,int data);
 
 int write_supervision_message(int fd, char cc_value);

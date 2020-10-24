@@ -1,6 +1,7 @@
 #include "protocol.h"
 #include "message.h"
 #include "file_handler.h"
+#include "connection.h"
 
 volatile int STOP=FALSE;
 
@@ -18,10 +19,12 @@ int main(int argc, char** argv)
 	struct termios oldtio;
 	int fd = llopen(argv[1],RECEPTOR);
 
-	if(!llread(fd, buffer)){
-		//write_file("new_file.txt",buffer);
+	if (llread(fd, buffer) == 0){
+		printf("File received successfully!\n");
+	}else {
+		printf("LLREAD failure\n");
 	}
-	
+
 	llclose(fd);
 	return 0;
 }

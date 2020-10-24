@@ -10,6 +10,7 @@ state_machine getStateMachine(){
 
 char addr, ctrl;
 char bcc2 = 0x0;
+int counter = 0;
 
 void handleState(char msg, int i_message){
     state_machine state_machine = getStateMachine();
@@ -116,6 +117,7 @@ void handleBcc1State(char msg, int i_message) {
             if (i_message){
                 update_state(DATA_INF);
                 bcc2 = msg ^ bcc2;
+                counter++;
             }
             else
                 update_state(START);
@@ -130,9 +132,15 @@ void handleDataState(char msg){
             break;
         case '\0':
             update_state(DATA_FINISHED);
+            counter = 0;
             break;
         default:
+            if (counter == DATA_BLOCK_SIZE){
+                update_state(DATA_FINISHED);
+                counter = 0;
+            } 
             bcc2 = msg ^ bcc2;
+            counter++;
             break;
     }
 }
@@ -143,10 +151,11 @@ void handleDataFinishedState(char msg){
             update_state(FLAG_RCV);
             break;
         default:
-            if(msg == bcc2) 
+            if(msg == bcc2)
                 update_state(BCC2_OK);
             else
                 update_state(START);
+            bcc2 = 0x0;
             break;
     }
 }

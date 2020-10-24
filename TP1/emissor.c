@@ -18,7 +18,20 @@ int main(int argc, char** argv)
 
 	char* buffer = read_file("test.txt");
 	
-	llwrite(fd, buffer, strlen(buffer));
+	int iterations = 0;
+	char** divided_buffer = divideBuffer(buffer, &iterations);
+	if (iterations == 0 || buffer == NULL){
+		printf("Error dividing buffer");
+	}
+
+	free(buffer);
+	printf("Writing data\n");
+
+	for (int i = 0; i < iterations; i++) {
+		if (llwrite(fd, divided_buffer[i], strlen(divided_buffer[i])) == -1) {
+			printf("LLWRITE: error\n");
+		}
+	}
 
 	llclose(fd);
 	return 0;
