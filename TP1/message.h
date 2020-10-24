@@ -60,6 +60,7 @@ char* readMessage(int fd, int* size, int i_message);
 
 void printSupervisionMessage(char * trama, int onlyC);
 void printInformMessage(char * trama,int dataSize,int data);
+void printDataInfoMsg(char * trama,int trama_size);
 
 int write_supervision_message(int fd, char cc_value);
 int write_supervision_message_retry(int fd, char cc_value);

@@ -62,7 +62,7 @@ int write_supervision_message_retry(int fd, char cc_value){
 		}
 	}
 	if (success == TRUE){
-		printSupervisionMessage(buffer, 1);
+		//printSupervisionMessage(buffer, 1);
 		return 0;
 	}
 	return -1;
@@ -96,7 +96,7 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 	}
 
 	if (success == TRUE){
-		printSupervisionMessage(buffer, 1);
+		//printSupervisionMessage(buffer, 1);
 		return 0;
 	}
 	return -1;
@@ -138,13 +138,18 @@ void printInformMessage(char * trama, int dataSize, int data){
 		printf("BCC: %04x\n\n", trama[3]);
 		printf("Data: ");
 	}
-	for (size_t i = 4; i < dataSize+4; i++)
+	for (size_t i = DATA_INF_BYTE; i < dataSize+DATA_INF_BYTE; i++)
 		printf("%c", trama[i]);
 	if(!data){
 		printf("\n");
-		printf("BCC2: %04x\n", trama[dataSize+5]);
-		printf("FLAG: %04x\n", trama[dataSize+6]);
+		printf("BCC2: %04x\n", trama[dataSize+DATA_INF_BYTE+1]);
+		printf("FLAG: %04x\n", trama[dataSize+DATA_INF_BYTE+2]);
 	}
+}
+
+void printDataInfoMsg(char * trama,int trama_size){
+	for (int i = DATA_INF_BYTE; i < trama_size-2; i++)
+		printf("%c", trama[i]);	
 }
 
 void atende(int signo){

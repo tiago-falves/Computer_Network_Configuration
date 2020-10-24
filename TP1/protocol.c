@@ -55,11 +55,13 @@ int llread(int fd, char* buffer) {
 
 	while (TRUE) {
 		buffer = readMessage(fd, &buffer_size, 1);
+		
 
 		if (buffer == NULL || buffer_size == 0){
 			printf("LLREAD: error reading message\n");
 			break;
 		}
+
 
 		if (buffer[CTRL_POS] == DISC) {
 			if (write_supervision_message(fd, DISC) == -1){
@@ -73,12 +75,18 @@ int llread(int fd, char* buffer) {
 			printf("LLREAD: error writing message back\n");
 			return -1;
 		}
+
+		printDataInfoMsg(buffer,buffer_size);
+	
+
+		
 	}
 
 	buffer = readMessage(fd, &buffer_size, 1);
 	if (buffer == NULL || buffer_size == 0){
 		printf("LLREAD: error reading UA message after sending DISC\n");
 	}
+
 	if (buffer[CTRL_POS] == UA) {
 		return 0;
 	}
