@@ -22,10 +22,6 @@
 /* Escape byte*/
 #define ESC 0x7d
 
-/* MACROS for byte stuffing */ 
-#define FLAG_STUFFING_BYTE 0x5e
-#define ESC_STUFFING_BYTE 0x5d
-
 //Size of the information message
 #define INFO_SIZE_MSG(data_size)    ((data_size) + 8)   
 
@@ -41,10 +37,7 @@
 //Information frame data block size
 #define DATA_BLOCK_SIZE 255
 
-typedef struct {
-    int stuffed_data;      /** Number of data bytes that were processed and stuffed */
-    int stuffed_data_size;     /** Number of bytes that were occupied in the stuffing buffer */
-} data_stuffing_t;
+
 
 
 void atende(int signo);

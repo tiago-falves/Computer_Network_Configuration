@@ -2,6 +2,7 @@
 #include "connection.h"
 #include "message.h"
 #include "state_machine.h"
+#include "data_stuffing.h"
 
 connection_type connection;
 
@@ -60,7 +61,11 @@ int llclose(int fd) {
 int llwrite(int fd, char* buffer, int length) {
 	//divide buffer and determine number of information tramas
 	int num_iterations = 0;
-	int wr = write_inform_message_retry(fd, 1 ,length, buffer);
+
+	data_stuff stuffedData = stuffData(buffer,length);
+	
+	//int wr = write_inform_message_retry(fd, 1 ,length, buffer);
+	int wr = write_inform_message_retry(fd, 1 ,stuffedData.data_size, stuffedData.data);
 
 	if (wr != length){
 		return -1;

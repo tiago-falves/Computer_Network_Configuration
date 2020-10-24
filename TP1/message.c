@@ -1,6 +1,7 @@
 #include "message.h"
 #include "protocol.h"
 #include "state_machine.h"
+#include "data_stuffing.h"
 
 int flag=1, conta=1;
 
@@ -188,10 +189,12 @@ char* readMessage(int fd, int* size, int i_message){
 	}
 	*size = pos;
 
-	printInformMessage(buffer,*size,1);
+	data_stuff unstuffedDataStruct = unstuffData(buffer,pos);
+
+	printInformMessage(unstuffedDataStruct.data,unstuffedDataStruct.data_size,1);
 
 	
-	return buffer;
+	return unstuffedDataStruct.data;
 }
 
 char buildBCC2(char * data, int data_size) {
@@ -221,15 +224,5 @@ char** divideBuffer(char* buffer, int* size) {
 	return divided_data;
 }
 
-/*void stuffData(char* buffer,int length){
-	data_stuffing_t stuffData;
-	char stuffed_data_buffer[2*length];
-	for (int i = DATA_INF_BYTE; i < length-2; i++)
-	{
-		if(buffer[i] == FLAG){
-			
-		}
-	}
-	
-}
-*/
+
+

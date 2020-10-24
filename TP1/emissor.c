@@ -1,6 +1,7 @@
 #include "protocol.h"
 #include "message.h"
 #include "file_handler.h"
+#include "data_stuffing.h"
 
 volatile int STOP=FALSE;
 
@@ -23,3 +24,4 @@ int main(int argc, char** argv)
 	llclose(fd);
 	return 0;
 }
+
