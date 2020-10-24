@@ -50,7 +50,7 @@ int readSupervisionMessage(int fd);
 char* readMessage(int fd, int* size, int i_message);
 
 void printSupervisionMessage(char * trama);
-void printInformMessage(char * trama,int dataSize);
+void printInformMessage(char * trama,int dataSize,int data);
 
 int write_supervision_message(int fd, char cc_value);
 int write_supervision_message_retry(int fd, char cc_value);

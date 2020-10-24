@@ -62,7 +62,7 @@ int write_supervision_message_retry(int fd, char cc_value){
 		}
 	}
 	if (success == TRUE){
-		printSupervisionMessage(buffer);
+		//printSupervisionMessage(buffer);
 		return 0;
 	}
 	return -1;
@@ -96,7 +96,7 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 	}
 
 	if (success == TRUE){
-		printSupervisionMessage(buffer);
+		//printSupervisionMessage(buffer);
 		return 0;
 	}
 	return -1;
@@ -114,7 +114,7 @@ int readSupervisionMessage(int fd){
 	if(trama_size != SUPERVISION_TRAMA_SIZE){
 		return -1;
 	}
-	printSupervisionMessage(trama);	
+	//printSupervisionMessage(trama);	
 	return 0;
 }
 
@@ -125,17 +125,21 @@ void printSupervisionMessage(char * trama){
 	printf("BCC: %04x\n", trama[3]);
 }
 
-void printInformMessage(char * trama, int dataSize){
+void printInformMessage(char * trama, int dataSize,int data){
 	printf("Inform message recieved correctly\n");
-	printf("F: %04x\nA: %04x\n", trama[0], trama[1]);
-	printf("C: %04x\n", trama[2]);
-	printf("BCC: %04x\n", trama[3]);
-	printf("Data: ");
+	if(!data){
+		printf("F: %04x\nA: %04x\n", trama[0], trama[1]);
+		printf("C: %04x\n", trama[2]);
+		printf("BCC: %04x\n\n", trama[3]);
+		printf("Data: ");
+	}
 	for (size_t i = 4; i < dataSize+4; i++)
 		printf("%c", trama[i]);
-	printf("\n");
-	printf("BCC2: %04x\n", trama[dataSize+5]);
-	printf("F: %04x\n", trama[dataSize+6]);
+	if(!data){
+		printf("\n");
+		printf("BCC2: %04x\n", trama[dataSize+5]);
+		printf("F: %04x\n", trama[dataSize+6]);
+	}
 }
 
 void atende(int signo){
@@ -183,6 +187,10 @@ char* readMessage(int fd, int* size, int i_message){
 		buffer[pos++] = r;
 	}
 	*size = pos;
+
+	printInformMessage(buffer,*size,1);
+
+	
 	return buffer;
 }
 
