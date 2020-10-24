@@ -52,7 +52,7 @@ void handleState(char msg, int i_message){
 
 void handleStartState(char msg){
     switch (msg) {
-        case F:
+        case FLAG:
             update_state(FLAG_RCV);
             break;
         default:
@@ -61,7 +61,7 @@ void handleStartState(char msg){
 }
 void handleFlagReceived(char msg) {
     switch (msg) {
-        case F:
+        case FLAG:
             break;
         case AREC: case AEM:
             update_state(A_RCV);
@@ -74,7 +74,7 @@ void handleFlagReceived(char msg) {
 
 void handleAddrReceived(unsigned char msg) {
     switch (msg) {
-        case F:
+        case FLAG:
             update_state(FLAG_RCV);
             break;
         case DISC: case SET: case UA:
@@ -94,7 +94,7 @@ void handleAddrReceived(unsigned char msg) {
 
 void handleCtrlState(char msg, char addr, char ctrl){
     switch (msg){
-		case F:
+		case FLAG:
             update_state(FLAG_RCV);
             break;
         default:
@@ -109,7 +109,7 @@ void handleCtrlState(char msg, char addr, char ctrl){
 
 void handleBcc1State(char msg, int i_message) {
     switch (msg) {
-        case F:
+        case FLAG:
             update_state(STOP);
             break;
         default:
@@ -125,7 +125,7 @@ void handleBcc1State(char msg, int i_message) {
 
 void handleDataState(char msg){
     switch (msg){
-        case F:
+        case FLAG:
             update_state(FLAG_RCV);
             break;
         case '\0':
@@ -139,7 +139,7 @@ void handleDataState(char msg){
 
 void handleDataFinishedState(char msg){
     switch (msg){
-        case F:
+        case FLAG:
             update_state(FLAG_RCV);
             break;
         default:
@@ -153,7 +153,7 @@ void handleDataFinishedState(char msg){
 
 void handleBcc2State(char msg) {
     switch (msg) {
-        case F:
+        case FLAG:
             update_state(STOP);
             break;
         default:
@@ -164,7 +164,7 @@ void handleBcc2State(char msg) {
 
 void handleStopState(char msg) {
     switch (msg) {
-        case F:
+        case FLAG:
             update_state(FLAG_RCV);
             break;
         default:

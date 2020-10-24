@@ -13,7 +13,7 @@
 #define FLAGF_POSTION 4
 
 /* Trama delimiting flag */
-#define F 0x7e
+#define FLAG 0x7e
 
 /* A field for commands sent by receptor(REC) and emissor(EM) */
 #define AREC 0x03 //Commands sent by emissor and responses by receptor
@@ -40,6 +40,12 @@
 
 //Information frame data block size
 #define DATA_BLOCK_SIZE 255
+
+typedef struct {
+    int stuffed_data;      /** Number of data bytes that were processed and stuffed */
+    int stuffed_data_size;     /** Number of bytes that were occupied in the stuffing buffer */
+} data_stuffing_t;
+
 
 void atende(int signo);
 void install_alarm();

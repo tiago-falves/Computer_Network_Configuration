@@ -6,11 +6,11 @@ int flag=1, conta=1;
 
 int write_supervision_message(int fd, char cc_value){
     char trama[SUPERVISION_TRAMA_SIZE];
-    trama[FLAGI_POSTION] = F;
+    trama[FLAGI_POSTION] = FLAG;
 	trama[ADRESS_POSITION] = AREC;
 	trama[CC_POSITION] = cc_value;
 	trama[PC_POSITION] = (AREC) ^ (cc_value);
-	trama[FLAGF_POSTION] = F;
+	trama[FLAGF_POSTION] = FLAG;
 	trama[SUPERVISION_TRAMA_SIZE - 1] = '\0';
 
     return write(fd,trama,SUPERVISION_TRAMA_SIZE);
@@ -23,12 +23,12 @@ int write_info_message(int fd, char* data, int data_size, char cc_value){
 
 	char* trama = malloc(trama_size);
 
-    trama[FLAGI_POSTION] = F;
+    trama[FLAGI_POSTION] = FLAG;
 	trama[ADRESS_POSITION] = AREC;
 	trama[CC_POSITION] = CC_INFO_MSG(cc_value); //0S00 0000
 	trama[PC_POSITION] = (AREC) ^ CC_INFO_MSG(cc_value);
 	trama[trama_size - 3] = buildBCC2(data, data_size);
-	trama[trama_size - 2] = F;
+	trama[trama_size - 2] = FLAG;
 	trama[trama_size - 1] = '\0';
 
 	memcpy(trama + DATA_INF_BYTE, data, data_size + 1);
@@ -120,7 +120,7 @@ int readSupervisionMessage(int fd){
 
 void printSupervisionMessage(char * trama){
 	printf("Supervision message recieved correctly\n");
-	printf("F: %04x\nA: %04x\n", trama[0], trama[1]);
+	printf("FLAG: %04x\nA: %04x\n", trama[0], trama[1]);
 	printf("C: %04x\n", trama[2]);
 	printf("BCC: %04x\n", trama[3]);
 }
@@ -128,7 +128,7 @@ void printSupervisionMessage(char * trama){
 void printInformMessage(char * trama, int dataSize,int data){
 	printf("Inform message recieved correctly\n");
 	if(!data){
-		printf("F: %04x\nA: %04x\n", trama[0], trama[1]);
+		printf("FLAG: %04x\nA: %04x\n", trama[0], trama[1]);
 		printf("C: %04x\n", trama[2]);
 		printf("BCC: %04x\n\n", trama[3]);
 		printf("Data: ");
@@ -138,7 +138,7 @@ void printInformMessage(char * trama, int dataSize,int data){
 	if(!data){
 		printf("\n");
 		printf("BCC2: %04x\n", trama[dataSize+5]);
-		printf("F: %04x\n", trama[dataSize+6]);
+		printf("FLAG: %04x\n", trama[dataSize+6]);
 	}
 }
 
@@ -220,3 +220,16 @@ char** divideBuffer(char* buffer, int* size) {
     *size = position + 1;
 	return divided_data;
 }
+
+/*void stuffData(char* buffer,int length){
+	data_stuffing_t stuffData;
+	char stuffed_data_buffer[2*length];
+	for (int i = DATA_INF_BYTE; i < length-2; i++)
+	{
+		if(buffer[i] == FLAG){
+			
+		}
+	}
+	
+}
+*/
