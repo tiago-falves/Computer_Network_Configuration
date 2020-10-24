@@ -1,1 +1,0 @@
-rm receptor && rm emissor

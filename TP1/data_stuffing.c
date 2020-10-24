@@ -1,5 +1,7 @@
 #include "data_stuffing.h"
 #include "message.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 data_stuff stuffData(char* buffer,int length){
 	int stuff_data_index = 0;
@@ -42,12 +44,12 @@ data_stuff unstuffData(char * buffer,int length){
                 unstuffed_data[unstuffed_data_index++] = FLAG;
             } else if(buffer[i] == ESC_STUFFING_BYTE){
                 unstuffed_data[unstuffed_data_index++] = ESC;
-            } else return data_stuff;
+            } else printf("ERROR UNSTUFFING DATA\n");
         } else unstuffed_data[unstuffed_data_index++] = buffer[i];
         i++;
     }
 
-    for (i; i < length; i++){
+    for (; i < length; i++){
         unstuffed_data[unstuffed_data_index++] = buffer[i];
     }
 
@@ -55,11 +57,5 @@ data_stuff unstuffData(char * buffer,int length){
     data_stuff.data_size = unstuffed_data_index;
 
     return  data_stuff;
-
-    
-    
-    
-
-
 }
 

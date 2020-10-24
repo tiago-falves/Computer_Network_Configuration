@@ -4,15 +4,14 @@
 #include "state_machine.h"
 #include "data_stuffing.h"
 
-connection_type connection;
+conn_type connection;
 
-int llopen(char* port, connection_type connection_type) {
+int llopen(char* port, conn_type connection_type) {
 	link_layer layer;
 	strcpy(layer.port,port);
 	layer.baud_rate = BAUDRATE;
   	layer.num_transmissions = NUM_TRANSMISSIONS;
   	layer.timeout = LAYER_TIMEOUT;
-	state_machine current_state	= getStateMachine();
 	connection = connection_type;
 	  
 	int fd = open_connection(layer);
@@ -43,16 +42,6 @@ int llclose(int fd) {
 		if(write_supervision_message(fd,UA) == -1){
 			printf("Error writing UA\n");
 		}
-	}else if (connection == RECEPTOR){
-		if(readSupervisionMessage(fd) == -1){ 
-			printf("Error reading DISC message\n");
-		}
-		if(write_supervision_message(fd,DISC) == -1){
-			printf("Error writing UA\n");
-		}
-		if(readSupervisionMessage(fd) == -1){
-			printf("Error reading UA message\n");
-		}
 	}
 
     return close_connection(fd);
@@ -60,30 +49,56 @@ int llclose(int fd) {
 
 int llwrite(int fd, char* buffer, int length) {
 	//divide buffer and determine number of information tramas
-	int num_iterations = 0;
+	//int num_iterations = 0;
 
 	data_stuff stuffedData = stuffData(buffer,length);
-	
-	//int wr = write_inform_message_retry(fd, 1 ,length, buffer);
-	int wr = write_inform_message_retry(fd, 1 ,stuffedData.data_size, stuffedData.data);
 
-	if (wr != length){
-		return -1;
-	}
-	return wr;
+	return write_inform_message_retry(fd, 1 ,stuffedData.data_size, stuffedData.data);
+	
+	//return write_inform_message_retry(fd, 1 ,length, buffer);
 }
 
 int llread(int fd, char* buffer) {
-	int buffer_size = 0, r = 1;
+	int buffer_size = 0;
+
+	while (TRUE) {
+		buffer = readMessage(fd, &buffer_size, 1);
+
+		if (buffer == NULL || buffer_size == 0){
+			printf("LLREAD: error reading message\n");
+			break;
+		}
+
+		if (buffer[CTRL_POS] == DISC) {
+			if (write_supervision_message(fd, DISC) == -1){
+				printf("LLREAD: error writing DISC message back\n");
+				return -1;
+			}
+			break;
+		}
+
+		if (write_supervision_message(fd, RR(1)) == -1){
+			printf("LLREAD: error writing message back\n");
+			return -1;
+		}
+
+		data_stuff unstuffedData = unstuffData(buffer,buffer_size);
+
+		printInformMessage(unstuffedData.data,unstuffedData.data_size,1);
+	}
 
 	buffer = readMessage(fd, &buffer_size, 1);
 	if (buffer == NULL || buffer_size == 0){
-		printf("LLREAD: error reading message\n");
+		printf("LLREAD: error reading UA message after sending DISC\n");
+	}
+	if (buffer[CTRL_POS] == UA) {
+		return 0;
+	}
+	else {
+		printf("LLREAD: wrong message after sending DISC\n");
+		return -1;
 	}
 
-	if (write_supervision_message(fd, RR(1)) == -1){
-		printf("LLREAD: error writing message back\n");
-	}
-
+	free(buffer);
 	return 0;
 }
