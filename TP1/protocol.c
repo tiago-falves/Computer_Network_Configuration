@@ -58,7 +58,8 @@ int llclose(int fd) {
 }
 
 int llwrite(int fd, char* buffer, int length) {
-
+	//divide buffer and determine number of information tramas
+	int num_iterations = 0;
 	int wr = write_inform_message_retry(fd, 1 ,length, buffer);
 
 	if (wr != length){
@@ -68,14 +69,16 @@ int llwrite(int fd, char* buffer, int length) {
 }
 
 int llread(int fd, char* buffer) {
-	int buffer_size;
+	int buffer_size = 0, r = 1;
+
 	buffer = readMessage(fd, &buffer_size, 1);
-	if (buffer == NULL){
-		printf("LLREAD: error reading message");
+	if (buffer == NULL || buffer_size == 0){
+		printf("LLREAD: error reading message\n");
 	}
 
-	if (write(fd, buffer, buffer_size) == -1){
-		printf("LLREAD: error writing message back");
+	if (write_supervision_message(fd, RR(1)) == -1){
+		printf("LLREAD: error writing message back\n");
 	}
+
 	return 0;
 }

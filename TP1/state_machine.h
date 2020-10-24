@@ -14,7 +14,7 @@ typedef enum {
 void handleState(char msg, int i_message);
 void handleStartState(char msg);
 void handleFlagReceived(char msg);
-void handleAddrReceived(char msg);
+void handleAddrReceived(unsigned char msg);
 void handleCtrlState(char msg,char addr,char ctrl);
 void handleBcc1State(char msg, int i_message);
 void handleBcc2State(char msg);

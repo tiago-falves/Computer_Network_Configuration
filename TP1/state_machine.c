@@ -72,8 +72,7 @@ void handleFlagReceived(char msg) {
     }
 }
 
-
-void handleAddrReceived(char msg) {
+void handleAddrReceived(unsigned char msg) {
     switch (msg) {
         case F:
             update_state(FLAG_RCV);
@@ -82,6 +81,9 @@ void handleAddrReceived(char msg) {
             update_state(C_RCV);
 			break;
         case CC_INFO_MSG(0): case CC_INFO_MSG(1):
+            update_state(C_RCV);
+            break;
+        case RR(1):
             update_state(C_RCV);
             break;
         default:

@@ -86,7 +86,7 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 			/* read message back */
 			buffer = readMessage(fd, &rd, 1);
 
-			if (rd != n_bytes || buffer == NULL) 
+			if (rd != SUPERVISION_TRAMA_SIZE || buffer == NULL) 
 				success = FALSE;
 			else{
 				success = TRUE;
@@ -96,7 +96,7 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 	}
 
 	if (success == TRUE){
-		printInformMessage(buffer ,dataSize);
+		printSupervisionMessage(buffer);
 		return 0;
 	}
 	return -1;
@@ -120,9 +120,9 @@ int readSupervisionMessage(int fd){
 
 void printSupervisionMessage(char * trama){
 	printf("Supervision message recieved correctly\n");
-	//printf("F: %04x\nA: %04x\n", trama[0], trama[1]);
-	//printf("C: %04x\n", trama[2]);
-	//printf("BCC: %04x\n", trama[3]);
+	printf("F: %04x\nA: %04x\n", trama[0], trama[1]);
+	printf("C: %04x\n", trama[2]);
+	printf("BCC: %04x\n", trama[3]);
 }
 
 void printInformMessage(char * trama, int dataSize){
@@ -192,4 +192,23 @@ char buildBCC2(char * data, int data_size) {
 		xor = xor ^ data[i];
 	}
 	return xor;
+}
+
+char** divideBuffer(char* buffer, int* size) {
+	int position = 0, pos = 0;
+
+	char** divided_data = malloc(sizeof(char*));
+    divided_data[0] = malloc(255);
+
+	for (int i = 0; i < strlen(buffer); i++){
+		pos = i % 255;
+		if (pos == 0 && i != 0){
+			position++;
+			divided_data = realloc(divided_data, (position + 1) * sizeof(char*));
+			divided_data[position] = (char*)calloc(255, sizeof(char));
+		}
+		divided_data[position][pos] = buffer[i];
+	}
+    *size = position + 1;
+	return divided_data;
 }

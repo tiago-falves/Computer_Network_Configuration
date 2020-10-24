@@ -16,10 +16,9 @@ int main(int argc, char** argv)
 
 	int fd = llopen(argv[1],EMISSOR);
 
-
-	//char* buffer = read_file("test.txt");
-	char buffer[] = "Ave";
-	llwrite(fd,buffer,strlen(buffer));
+	char* buffer = read_file("test.txt");
+	
+	llwrite(fd, buffer, strlen(buffer));
 
 	llclose(fd);
 	return 0;

@@ -2,8 +2,8 @@
 #define SET 0x03
 #define DISC 0x0b 
 #define UA 0x07
-#define RR 0x05    //RR and REJ need to be changed, meaning of bit R (?)
-#define REJ 0x01 
+#define RR(s) (((s) << 7) | 0x03)
+#define REJ(s) (((s) << 7) | 0x01) 
 
 // Trama array positions
 #define FLAGI_POSTION 0
@@ -29,13 +29,17 @@
 //Size of the information message
 #define INFO_SIZE_MSG(data_size)    ((data_size) + 8)   
 
+//Initial position of data blocks in information frame
 #define DATA_INF_BYTE 4
 
+//Supervision frame size
 #define SUPERVISION_TRAMA_SIZE 6
-
 
 //Info Message
 #define CC_INFO_MSG(s)           (((s) % 2) << 6) 
+
+//Information frame data block size
+#define DATA_BLOCK_SIZE 255
 
 void atende(int signo);
 void install_alarm();
@@ -55,3 +59,5 @@ int write_inform_message_retry(int fd,char cc_value,int dataSize,char * buffer);
 int write_info_message(int fd,char * data,int data_size, char cc_value);
 
 char buildBCC2(char * data, int data_size);
+
+char** divideBuffer(char* buffer, int* size);
