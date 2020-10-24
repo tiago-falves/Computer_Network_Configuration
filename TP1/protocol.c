@@ -11,7 +11,6 @@ int llopen(char* port, conn_type connection_type) {
 	layer.baud_rate = BAUDRATE;
   	layer.num_transmissions = NUM_TRANSMISSIONS;
   	layer.timeout = LAYER_TIMEOUT;
-	state_machine current_state	= getStateMachine();
 	connection = connection_type;
 	  
 	int fd = open_connection(layer);
@@ -42,43 +41,52 @@ int llclose(int fd) {
 		if(write_supervision_message(fd,UA) == -1){
 			printf("Error writing UA\n");
 		}
-	}else if (connection == RECEPTOR){
-		if(readSupervisionMessage(fd) == -1){ 
-			printf("Error reading DISC message\n");
-		}
-		if(write_supervision_message(fd,DISC) == -1){
-			printf("Error writing UA\n");
-		}
-		if(readSupervisionMessage(fd) == -1){
-			printf("Error reading UA message\n");
-		}
 	}
 
     return close_connection(fd);
 }
 
 int llwrite(int fd, char* buffer, int length) {
-	//divide buffer and determine number of information tramas
-	int num_iterations = 0;
-	int wr = write_inform_message_retry(fd, 1 ,length, buffer);
-
-	if (wr != length){
-		return -1;
-	}
-	return wr;
+	return write_inform_message_retry(fd, 1, length, buffer);
 }
 
 int llread(int fd, char* buffer) {
-	int buffer_size = 0, r = 1;
+	int buffer_size = 0;
+
+	while (TRUE) {
+		buffer = readMessage(fd, &buffer_size, 1);
+
+		if (buffer == NULL || buffer_size == 0){
+			printf("LLREAD: error reading message\n");
+			break;
+		}
+
+		if (buffer[CTRL_POS] == DISC) {
+			if (write_supervision_message(fd, DISC) == -1){
+				printf("LLREAD: error writing DISC message back\n");
+				return -1;
+			}
+			break;
+		}
+
+		if (write_supervision_message(fd, RR(1)) == -1){
+			printf("LLREAD: error writing message back\n");
+			return -1;
+		}
+	}
 
 	buffer = readMessage(fd, &buffer_size, 1);
 	if (buffer == NULL || buffer_size == 0){
-		printf("LLREAD: error reading message\n");
+		printf("LLREAD: error reading UA message after sending DISC\n");
+	}
+	if (buffer[CTRL_POS] == UA) {
+		return 0;
+	}
+	else {
+		printf("LLREAD: wrong message after sending DISC\n");
+		return -1;
 	}
 
-	if (write_supervision_message(fd, RR(1)) == -1){
-		printf("LLREAD: error writing message back\n");
-	}
-
+	free(buffer);
 	return 0;
 }

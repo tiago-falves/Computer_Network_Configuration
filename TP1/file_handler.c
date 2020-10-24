@@ -21,7 +21,7 @@ char* read_file(char* file_path) {
         }
 
         strncat(buffer, line, strlen(line));
-        memset(line, 0, sizeof(line));
+        memset(line, 0, 1024);
     }
 
     free(line);
@@ -46,14 +46,13 @@ int write_file(char* file_path, char* buffer) {
 
 /*
 char** divideBuffer(char* buffer, int* size) {
-	int position = 0, pos = 0;
+	int position = -1, pos = 0;
 
-	char** divided_data = malloc(sizeof(char*));
-    divided_data[0] = malloc(255);
+    char** divided_data;
 
 	for (int i = 0; i < strlen(buffer); i++){
 		pos = i % 255;
-		if (pos == 0 && i != 0){
+		if (pos == 0){
 			position++;
 			divided_data = realloc(divided_data, (position + 1) * sizeof(char*));
 			divided_data[position] = (char*)calloc(255, sizeof(char));
@@ -70,7 +69,7 @@ int main(){
     char** divided_buffer = divideBuffer(buffer, &divided_size);
 
     for (int i = 0; i < divided_size; i++) {
-        printf("Line %d \n %s\n\n", i, divided_buffer[i]);
+        printf("line %d size %ld\n %s \n\n", i, strlen(divided_buffer[i]), divided_buffer[i]);
     }
     
     write_file("hmmm.txt", buffer);

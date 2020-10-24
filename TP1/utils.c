@@ -25,25 +25,21 @@ bool check_arg(int argc, char* argv[]){
 }
 
 arguments parse_arguments(int argc, char *argv[]) {
-  if (!check_arg(argc, argv)){
-      printf("Usage: main <serial port number> emitter/receptor (filename)\n");
-      exit(1);
-  }
+    if (!check_arg(argc, argv)){
+        printf("Usage: main <serial port number> emitter/receptor (filename)\n");
+        exit(1);
+    }
 
-  char * port = concat(PORT_ARG,argv[1]);
-  arguments args;
-  if (argc == 3) args.role = RECEPTOR;   
-  else{
-      args.role = EMISSOR;
-      args.filename = argv[3];
-  }
-  args.port_num = port;
-  
+    char * port = concat(PORT_ARG,argv[1]);
+    arguments args;
+    if (argc == 3) args.role = RECEPTOR;   
+    else{
+        args.role = EMISSOR;
+        args.filename = argv[3];
+    }
+    args.port_num = port;
 
     return args;
-
-
-
 }
 
   

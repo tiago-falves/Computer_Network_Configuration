@@ -62,7 +62,7 @@ int write_supervision_message_retry(int fd, char cc_value){
 		}
 	}
 	if (success == TRUE){
-		//printSupervisionMessage(buffer);
+		printSupervisionMessage(buffer, 1);
 		return 0;
 	}
 	return -1;
@@ -96,7 +96,7 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 	}
 
 	if (success == TRUE){
-		//printSupervisionMessage(buffer);
+		printSupervisionMessage(buffer, 1);
 		return 0;
 	}
 	return -1;
@@ -114,18 +114,23 @@ int readSupervisionMessage(int fd){
 	if(trama_size != SUPERVISION_TRAMA_SIZE){
 		return -1;
 	}
-	//printSupervisionMessage(trama);	
+	printSupervisionMessage(trama, 1);	
 	return 0;
 }
 
-void printSupervisionMessage(char * trama){
-	printf("Supervision message recieved correctly\n");
-	printf("FLAG: %04x\nA: %04x\n", trama[0], trama[1]);
-	printf("C: %04x\n", trama[2]);
-	printf("BCC: %04x\n", trama[3]);
+void printSupervisionMessage(char * trama, int onlyC){
+	if (onlyC){
+		printf("Supervision message C: %04x recieved correctly\n", trama[2]);
+	}else {
+		printf("Supervision message recieved correctly\n");
+		printf("FLAG: %04x\nA: %04x\n", trama[0], trama[1]);
+		printf("C: %04x\n", trama[2]);
+		printf("BCC: %04x\n", trama[3]);
+	}
+	
 }
 
-void printInformMessage(char * trama, int dataSize,int data){
+void printInformMessage(char * trama, int dataSize, int data){
 	printf("Inform message recieved correctly\n");
 	if(!data){
 		printf("FLAG: %04x\nA: %04x\n", trama[0], trama[1]);
@@ -188,9 +193,6 @@ char* readMessage(int fd, int* size, int i_message){
 	}
 	*size = pos;
 
-	printInformMessage(buffer,*size,1);
-
-	
 	return buffer;
 }
 
@@ -203,14 +205,13 @@ char buildBCC2(char * data, int data_size) {
 }
 
 char** divideBuffer(char* buffer, int* size) {
-	int position = 0, pos = 0;
+	int position = -1, pos = 0;
 
-	char** divided_data = malloc(sizeof(char*));
-    divided_data[0] = malloc(255);
+    char** divided_data;
 
 	for (int i = 0; i < strlen(buffer); i++){
 		pos = i % 255;
-		if (pos == 0 && i != 0){
+		if (pos == 0){
 			position++;
 			divided_data = realloc(divided_data, (position + 1) * sizeof(char*));
 			divided_data[position] = (char*)calloc(255, sizeof(char));
