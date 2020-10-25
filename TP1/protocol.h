@@ -28,7 +28,7 @@
 
 int llopen(char* arg, conn_type connection_type);
 int llclose(int fd);
-int llwrite(int fd, char* buffer, int length);
+int llwrite(int fd, char* data, int data_size);
 int llread(int fd, char* buffer);
 
 

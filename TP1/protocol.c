@@ -46,8 +46,8 @@ int llclose(int fd) {
     return close_connection(fd);
 }
 
-int llwrite(int fd, char* buffer, int length) {
-	return write_inform_message_retry(fd, 1, length, buffer);
+int llwrite(int fd, char* data, int data_size) {
+	return write_inform_message_retry(fd, 1, data_size, data);
 }
 
 int llread(int fd, char* buffer) {
