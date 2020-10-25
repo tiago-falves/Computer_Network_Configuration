@@ -18,9 +18,20 @@ int sendFile(char * port_num,char * filename){
     }
 
     free(buffer);
+
+    /*int fileSize = findSize(filename);
+
+    if(sendControlPacket(fd,filename,fileSize,PACKET_CTRL_START) != 0){
+        printf("Error sendng controll packet\n");
+        return 0;
+    }*/
+
     printf("Writing data\n");
 
     for (int i = 0; i < iterations; i++) {
+        /*if(sendDataPacket(fd,divided_buffer[i],strlen(divided_buffer[i]),i) != 0){
+            printf("Error sending data packet\n");
+        }*/
         if (llwrite(fd, divided_buffer[i], strlen(divided_buffer[i])) == -1) {
             printf("LLWRITE: error\n");
         }
@@ -35,6 +46,8 @@ int retrieveFile(char * port_num){
     char buffer[] = "";
     int fd = llopen(port_num,RECEPTOR);
 
+    //Como esta a funcionar o llread?
+    //Poe a data no buffer? senap devia right?
     if (llread(fd, buffer) == 0){
         printf("File received successfully!\n");
     }else {
@@ -74,4 +87,24 @@ int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
     free(controlPacket);
 
     return ret;
+}
+
+
+int sendDataPacket(int fd,char * data,short dataSize,int nseq){
+    int dataPacketSize = DATA_PACKET_SIZE(dataSize);
+    char * dataPacket = malloc(dataPacketSize);
+
+    dataPacket[DATA_CTRL_IDX] = DATA_CTRL_VALUE;
+    dataPacket[DATA_N_SEQ_IDX] = nseq % 255;
+    dataPacket[DATA_L1_IDX] = (u_int8_t) (dataSize);
+    dataPacket[DATA_L2_IDX] = (u_int8_t) (dataSize >> 8);
+
+    for (int i = 0; i < dataSize; i++){
+        dataPacket[i + DATA_P_INITIAL_IDX] = data[i];
+    }
+
+    int ret = llwrite(fd,dataPacket,dataPacketSize);
+    free(dataPacket);
+    return ret;
+
 }

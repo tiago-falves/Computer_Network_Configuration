@@ -85,6 +85,7 @@ int llread(int fd, char* buffer) {
 	buffer = readMessage(fd, &buffer_size, 1);
 	if (buffer == NULL || buffer_size == 0){
 		printf("LLREAD: error reading UA message after sending DISC\n");
+		return -1;
 	}
 
 	if (buffer[CTRL_POS] == UA) {
