@@ -46,7 +46,7 @@ int retrieveFile(char * port_num){
     return 1;
 }
 
-ctrl_packet createControlPacket(char * filename,int fileSize,int ctrl){
+int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
     u_int file_name_size = strlen(filename) + 1;  
     u_int file_size_size = sizeof(u_int);
     if(file_name_size > 255) {
@@ -70,19 +70,8 @@ ctrl_packet createControlPacket(char * filename,int fileSize,int ctrl){
     for (int i = 0; i < file_name_size; i++)
         controlPacket[CTRL_NAME_V_IDX+i] = filename[i];
     
-    ctrl_packet packet;
-    packet.control_packet = controlPacket;
-    packet.size = controlPacketSize;
+    int ret = llwrite(fd, controlPacket, controlPacketSize);
+    free(controlPacket);
 
-    return packet;
-
-
-
-    
-
-
-
-    
-
-
+    return ret;
 }
