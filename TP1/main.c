@@ -10,6 +10,7 @@ int main(int argc, char** argv)
     if(args.role == EMISSOR){
         install_alarm();
         int fd = llopen(args.port_num,EMISSOR);
+        //char* buffer = read_file(args.filename);
         char* buffer = read_file(args.filename);
         int iterations = 0;
         char** divided_buffer = divideBuffer(buffer, &iterations);

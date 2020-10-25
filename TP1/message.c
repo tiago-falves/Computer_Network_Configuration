@@ -87,8 +87,10 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 			/* read message back */
 			buffer = readMessage(fd, &rd, 1);
 
-			if (rd != SUPERVISION_TRAMA_SIZE || buffer == NULL) 
+			if (rd != SUPERVISION_TRAMA_SIZE || buffer == NULL) {
 				success = FALSE;
+				printf("%d POR ALGUMA RAZAO ELE LE ESTA MENSAGEM GIGANTE? ou 0 \n",rd);
+			}
 			else{
 				success = TRUE;
 				reset_alarm();
@@ -98,6 +100,7 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 
 	if (success == TRUE){
 		//printSupervisionMessage(buffer, 1);
+		printf("SUCCESS\n");
 		return 0;
 	}
 	return -1;
