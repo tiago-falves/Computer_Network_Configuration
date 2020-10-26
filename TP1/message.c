@@ -141,13 +141,13 @@ void printInformMessage(char * trama, int dataSize, int data){
 		printf("BCC: %04x\n\n", trama[3]);
 		printf("Data: ");
 	}
-	for (size_t i = 4; i < dataSize+4; i++)
+	for (size_t i = 4; i < dataSize-3; i++)
 		printf("%c", trama[i]);
 	printf("\n\n");
 	if(!data){
 		printf("\n");
-		printf("BCC2: %04x\n", trama[dataSize+5]);
-		printf("FLAG: %04x\n", trama[dataSize+6]);
+		printf("BCC2: %04x\n", trama[dataSize-2]);
+		printf("FLAG: %04x\n", trama[dataSize-1]);
 	}
 }
 

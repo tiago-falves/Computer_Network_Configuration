@@ -80,8 +80,8 @@ int llread(int fd, char* buffer) {
 		}
 		data_stuff unstuffedData = unstuffData(buffer,buffer_size);
 
-		//printInformMessage(unstuffedData.data, unstuffedData.data_size, 1);
-		printInformMessage(buffer,buffer_size,1);
+		printInformMessage(unstuffedData.data, unstuffedData.data_size, 1);
+		//printInformMessage(buffer,buffer_size,1);
 	}
 
 	buffer = readMessage(fd, &buffer_size, 1);
