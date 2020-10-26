@@ -2,10 +2,11 @@
 #include "message.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 data_stuff stuffData(char* buffer,int length){
 	int stuff_data_index = 0;
-	char stuffed_data_buffer[2*length];
+	char* stuffed_data_buffer = calloc(2*length, sizeof(char));
 	for (int i = 0; i < length; i++)
 	{
 		if(buffer[i] == FLAG){
@@ -32,13 +33,12 @@ data_stuff unstuffData(char * buffer,int length){
 
     int i = DATA_INF_BYTE;
     int unstuffed_data_index = 0;
-    char unstuffed_data[length];
-    for (int i = 0; i < DATA_INF_BYTE; i++){
-        unstuffed_data[unstuffed_data_index++] = buffer[i];
+    char* unstuffed_data = calloc(length, sizeof(char));
+    for (int j = 0; j < DATA_INF_BYTE; j++){
+        unstuffed_data[unstuffed_data_index++] = buffer[j];
     }
     while (i < length-2){
-        if (buffer[i] == ESC)
-        {
+        if (buffer[i] == ESC){
             i++;
             if(buffer[i] == FLAG_STUFFING_BYTE){
                 unstuffed_data[unstuffed_data_index++] = FLAG;

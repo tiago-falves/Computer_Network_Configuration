@@ -63,7 +63,7 @@ int write_supervision_message_retry(int fd, char cc_value){
 		}
 	}
 	if (success == TRUE){
-		//printSupervisionMessage(buffer, 1);
+		printSupervisionMessage(buffer, 1);
 		return 0;
 	}
 	return -1;
@@ -99,8 +99,7 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 	}
 
 	if (success == TRUE){
-		//printSupervisionMessage(buffer, 1);
-		printf("SUCCESS\n");
+		printSupervisionMessage(buffer, 1);
 		return 0;
 	}
 	return -1;
@@ -144,6 +143,7 @@ void printInformMessage(char * trama, int dataSize, int data){
 	}
 	for (size_t i = 4; i < dataSize+4; i++)
 		printf("%c", trama[i]);
+	printf("\n\n");
 	if(!data){
 		printf("\n");
 		printf("BCC2: %04x\n", trama[dataSize+5]);

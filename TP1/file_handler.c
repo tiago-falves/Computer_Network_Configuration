@@ -5,6 +5,9 @@
 
 #include "file_handler.h"
 
+//remove
+#include "data_stuffing.h"
+
 char* read_file(char* file_path) {
     FILE* file = fopen(file_path, "r");
     if (file == NULL){
@@ -64,15 +67,22 @@ char** divideBuffer(char* buffer, int* size) {
 }
 
 int main(){
-    char* buffer = read_file("scripts/test.txt");
-    int divided_size = 0;
-    char** divided_buffer = divideBuffer(buffer, &divided_size);
+    char* buffer = read_file("test.txt");
+    int num_of_divisions = 0;
+    char** divided_buffer = divideBuffer(buffer, &num_of_divisions);
 
-    for (int i = 0; i < divided_size; i++) {
-        printf("line %d size %ld\n %s \n\n", i, strlen(divided_buffer[i]), divided_buffer[i]);
+    for (int i = 0; i < num_of_divisions; i++){
+        data_stuff ds = stuffData(divided_buffer[i], strlen(divided_buffer[i]));
+        if (i == num_of_divisions - 1){
+            for (int j = 0; j < ds.data_size; j++){
+                printf("%c ", ds.data[i]);
+            }
+            printf("\nStuffed:\n%s\n\n", ds.data);
+            printf("\nBuffer:\n%s\n\n", divided_buffer[i]);
+        }
     }
     
-    write_file("hmmm.txt", buffer);
+    //write_file("hmmm.txt", buffer);
     return 0;
 }
 */

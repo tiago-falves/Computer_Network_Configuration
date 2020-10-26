@@ -49,12 +49,10 @@ int llclose(int fd) {
 
 int llwrite(int fd, char* buffer, int length) {
 	data_stuff stuffedData = stuffData(buffer,length); 
-	printf("BUFFER: %s     DATASIZE: %d\n",buffer,length);
-	printf("STUFFEDBUFFER: %s     DATASIZE: %d\n",stuffedData.data,stuffedData.data_size);
 
-	//return write_inform_message_retry(fd, 1 ,stuffedData.data_size, stuffedData.data);
+	return write_inform_message_retry(fd, 1, stuffedData.data_size, stuffedData.data);
 	
-	return write_inform_message_retry(fd, 1 ,length, buffer);
+	//return write_inform_message_retry(fd, 1 ,length, buffer);
 }
 
 int llread(int fd, char* buffer) {
@@ -80,9 +78,9 @@ int llread(int fd, char* buffer) {
 			printf("LLREAD: error writing message back\n");
 			return -1;
 		}
-		//data_stuff unstuffedData = unstuffData(buffer,buffer_size);
+		data_stuff unstuffedData = unstuffData(buffer,buffer_size);
 
-		//printInformMessage(unstuffedData.data,unstuffedData.data_size,1);
+		//printInformMessage(unstuffedData.data, unstuffedData.data_size, 1);
 		printInformMessage(buffer,buffer_size,1);
 	}
 
