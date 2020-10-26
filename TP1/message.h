@@ -22,10 +22,6 @@
 /* Escape byte*/
 #define ESC 0x7d
 
-/* MACROS for byte stuffing */ 
-#define FLAG_STUFFING_BYTE 0x5e
-#define ESC_STUFFING_BYTE 0x5d
-
 //Size of the information message
 #define INFO_SIZE_MSG(data_size)    ((data_size) + 8)   
 

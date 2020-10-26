@@ -126,19 +126,23 @@ void handleBcc1State(char msg, int i_message) {
 }
 
 void handleDataState(char msg){
+    //printf("ELE CHEGA AQUI SEQUER?\n");
     switch (msg){
         case FLAG:
             update_state(FLAG_RCV);
             break;
         case '\0':
+            //printf("ACABOU A DATA POR CAUSA DO barra0\n");
             update_state(DATA_FINISHED);
             counter = 0;
             break;
         default:
-            if (counter == DATA_BLOCK_SIZE){
+            //POR CAUSA DO STUFF DATA ELE SE CALHAR NAO TEM O TAMANHO DO BLOCKSIZE
+            /*if (counter == DATA_BLOCK_SIZE){
+                printf("ELE CHEGOU AQUI POR CAUSA DO DATABLOCKSIZE\n");
                 update_state(DATA_FINISHED);
                 counter = 0;
-            } 
+            } */ 
             bcc2 = msg ^ bcc2;
             counter++;
             break;

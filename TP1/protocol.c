@@ -2,6 +2,7 @@
 #include "connection.h"
 #include "message.h"
 #include "state_machine.h"
+#include "data_stuffing.h"
 
 conn_type connection;
 
@@ -47,7 +48,11 @@ int llclose(int fd) {
 }
 
 int llwrite(int fd, char* buffer, int length) {
-	return write_inform_message_retry(fd, 1, length, buffer);
+	data_stuff stuffedData = stuffData(buffer,length); 
+
+	return write_inform_message_retry(fd, 1, stuffedData.data_size, stuffedData.data);
+	
+	//return write_inform_message_retry(fd, 1 ,length, buffer);
 }
 
 int llread(int fd, char* buffer) {
@@ -73,11 +78,16 @@ int llread(int fd, char* buffer) {
 			printf("LLREAD: error writing message back\n");
 			return -1;
 		}
+		data_stuff unstuffedData = unstuffData(buffer,buffer_size);
+
+		printInformMessage(unstuffedData.data, unstuffedData.data_size, 1);
+		//printInformMessage(buffer,buffer_size,1);
 	}
 
 	buffer = readMessage(fd, &buffer_size, 1);
 	if (buffer == NULL || buffer_size == 0){
 		printf("LLREAD: error reading UA message after sending DISC\n");
+		return -1;
 	}
 	if (buffer[CTRL_POS] == UA) {
 		return 0;
@@ -90,3 +100,4 @@ int llread(int fd, char* buffer) {
 	free(buffer);
 	return 0;
 }
+

@@ -1,6 +1,7 @@
 #include "message.h"
 #include "protocol.h"
 #include "state_machine.h"
+#include "data_stuffing.h"
 
 int flag=1, conta=1;
 
@@ -86,8 +87,10 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 			/* read message back */
 			buffer = readMessage(fd, &rd, 1);
 
-			if (rd != SUPERVISION_TRAMA_SIZE || buffer == NULL) 
+			if (rd != SUPERVISION_TRAMA_SIZE || buffer == NULL) {
 				success = FALSE;
+				printf("%d POR ALGUMA RAZAO ELE LE ESTA MENSAGEM GIGANTE? ou 0 \n",rd);
+			}
 			else{
 				success = TRUE;
 				reset_alarm();
@@ -131,19 +134,20 @@ void printSupervisionMessage(char * trama, int onlyC){
 }
 
 void printInformMessage(char * trama, int dataSize, int data){
-	printf("Inform message recieved correctly\n");
 	if(!data){
+		printf("Inform message recieved correctly\n");
 		printf("FLAG: %04x\nA: %04x\n", trama[0], trama[1]);
 		printf("C: %04x\n", trama[2]);
 		printf("BCC: %04x\n\n", trama[3]);
 		printf("Data: ");
 	}
-	for (size_t i = 4; i < dataSize+4; i++)
+	for (size_t i = 4; i < dataSize-3; i++)
 		printf("%c", trama[i]);
+	printf("\n\n");
 	if(!data){
 		printf("\n");
-		printf("BCC2: %04x\n", trama[dataSize+5]);
-		printf("FLAG: %04x\n", trama[dataSize+6]);
+		printf("BCC2: %04x\n", trama[dataSize-2]);
+		printf("FLAG: %04x\n", trama[dataSize-1]);
 	}
 }
 
@@ -193,6 +197,12 @@ char* readMessage(int fd, int* size, int i_message){
 	}
 	*size = pos;
 
+	//data_stuff unstuffedDataStruct = unstuffData(buffer,pos);
+
+	//printInformMessage(unstuffedDataStruct.data,unstuffedDataStruct.data_size,1);
+	
+
+	
 	return buffer;
 }
 
@@ -222,15 +232,5 @@ char** divideBuffer(char* buffer, int* size) {
 	return divided_data;
 }
 
-/*void stuffData(char* buffer,int length){
-	data_stuffing_t stuffData;
-	char stuffed_data_buffer[2*length];
-	for (int i = DATA_INF_BYTE; i < length-2; i++)
-	{
-		if(buffer[i] == FLAG){
-			
-		}
-	}
-	
-}
-*/
+
+
