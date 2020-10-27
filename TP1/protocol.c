@@ -55,7 +55,6 @@ int llread(int fd, char* buffer) {
 
 	while (TRUE) {
 		buffer = readMessage(fd, &buffer_size, 1);
-		
 
 		if (buffer == NULL || buffer_size == 0){
 			printf("LLREAD: error reading message\n");

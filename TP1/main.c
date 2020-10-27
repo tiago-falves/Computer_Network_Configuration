@@ -11,7 +11,6 @@ int main(int argc, char** argv)
         
     }else if(args.role == RECEPTOR){
         retrieveFile(args.port_num);
-        
     }
 	
 	return 0;

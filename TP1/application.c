@@ -19,22 +19,22 @@ int sendFile(char * port_num,char * filename){
 
     free(buffer);
 
-    /*int fileSize = findSize(filename);
+    int fileSize = findSize(filename);
 
     if(sendControlPacket(fd,filename,fileSize,PACKET_CTRL_START) != 0){
         printf("Error sendng controll packet\n");
         return 0;
-    }*/
+    }
 
     printf("Writing data\n");
 
     for (int i = 0; i < iterations; i++) {
-        /*if(sendDataPacket(fd,divided_buffer[i],strlen(divided_buffer[i]),i) != 0){
+        if(sendDataPacket(fd,divided_buffer[i],strlen(divided_buffer[i]),i) != 0){
             printf("Error sending data packet\n");
-        }*/
-        if (llwrite(fd, divided_buffer[i], strlen(divided_buffer[i])) == -1) {
-            printf("LLWRITE: error\n");
         }
+        /*if (llwrite(fd, divided_buffer[i], strlen(divided_buffer[i])) == -1) {
+            printf("LLWRITE: error\n");
+        }*/
     }
     llclose(fd);
 
@@ -46,8 +46,8 @@ int retrieveFile(char * port_num){
     char buffer[] = "";
     int fd = llopen(port_num,RECEPTOR);
 
-    //Como esta a funcionar o llread?
-    //Poe a data no buffer? senap devia right?
+    printf("Retreiving file...\n");
+
     if (llread(fd, buffer) == 0){
         printf("File received successfully!\n");
     }else {

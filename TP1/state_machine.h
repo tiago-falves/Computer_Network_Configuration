@@ -6,8 +6,7 @@ typedef enum {
   BCC1_OK = 4,
   DATA_INF = 5,
   DATA_FINISHED = 6,
-  BCC2_OK = 7,
-  STOP = 8
+  STOP = 7
 } state_machine;
 
 

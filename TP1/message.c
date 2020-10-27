@@ -86,7 +86,7 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 			/* read message back */
 			buffer = readMessage(fd, &rd, 1);
 
-			if (rd != SUPERVISION_TRAMA_SIZE || buffer == NULL) 
+			if (buffer == NULL) 
 				success = FALSE;
 			else{
 				success = TRUE;
@@ -148,7 +148,7 @@ void printInformMessage(char * trama, int dataSize, int data){
 }
 
 void printDataInfoMsg(char * trama,int trama_size){
-	for (int i = DATA_INF_BYTE; i < trama_size-2; i++)
+	for (int i = 6; i < trama_size-5; i++)
 		printf("%c", trama[i]);	
 }
 
@@ -182,7 +182,6 @@ char* readMessage(int fd, int* size, int i_message){
 	char* buffer = malloc(1);
 
 	while (!finished){
-		//printf("State machine: %d \n", getStateMachine());
 		rd = read(fd, &r, 1);
 
 		if (rd <= 0){

@@ -9,11 +9,11 @@ state_machine getStateMachine(){
 }
 
 char addr, ctrl;
-char bcc2 = 0x0;
-int counter = 0;
 
 void handleState(char msg, int i_message){
     state_machine state_machine = getStateMachine();
+
+    //printf("State machine: %d and received %04x = %c\n", getStateMachine(), msg, msg);
 
     switch (state_machine){
         case START:
@@ -38,9 +38,6 @@ void handleState(char msg, int i_message){
             break;
         case DATA_FINISHED:
             handleDataFinishedState(msg);
-            break;
-        case BCC2_OK:
-            handleBcc2State(msg);
             break;
         case STOP:
             handleStopState(msg);
@@ -114,11 +111,8 @@ void handleBcc1State(char msg, int i_message) {
             update_state(STOP);
             break;
         default:
-            if (i_message){
+            if (i_message)
                 update_state(DATA_INF);
-                bcc2 = msg ^ bcc2;
-                counter++;
-            }
             else
                 update_state(START);
             break;
@@ -128,19 +122,9 @@ void handleBcc1State(char msg, int i_message) {
 void handleDataState(char msg){
     switch (msg){
         case FLAG:
-            update_state(FLAG_RCV);
-            break;
-        case '\0':
             update_state(DATA_FINISHED);
-            counter = 0;
             break;
         default:
-            if (counter == DATA_BLOCK_SIZE){
-                update_state(DATA_FINISHED);
-                counter = 0;
-            } 
-            bcc2 = msg ^ bcc2;
-            counter++;
             break;
     }
 }
@@ -148,25 +132,10 @@ void handleDataState(char msg){
 void handleDataFinishedState(char msg){
     switch (msg){
         case FLAG:
-            update_state(FLAG_RCV);
-            break;
-        default:
-            if(msg == bcc2)
-                update_state(BCC2_OK);
-            else
-                update_state(START);
-            bcc2 = 0x0;
-            break;
-    }
-}
-
-void handleBcc2State(char msg) {
-    switch (msg) {
-        case FLAG:
-            update_state(STOP);
-            break;
-        default:
             update_state(START);
+            break;
+        default:
+            update_state(STOP);
             break;
     }
 }
