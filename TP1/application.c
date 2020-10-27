@@ -165,13 +165,12 @@ int sendDataPacket(int fd,char * data,short dataSize,int nseq){
     return ret;
 }
 int parseDataPacket(char * buffer, int nseq){
-    int dataSize = 256 * buffer[DATA_L1_IDX] + buffer[DATA_L2_IDX];
-    //printf("DATA SIZE: %d\n", dataSize);
+    int dataSize = (u_int8_t) buffer[DATA_L1_IDX] + (u_int8_t) buffer[DATA_L2_IDX] * 256;
     for (int i = 0; i < dataSize; i++){
         //Para ja printf mas depois vai escrever para um file né;
         printf("%c",buffer[i]);
     }
-    printf("\n");
+    printf("\nPacket end\n");
     return 1;
     
 }
