@@ -45,6 +45,20 @@ int llclose(int fd) {
 	else if (connection == RECEPTOR) {
 		int buffer_size = 0;
 		char* temp = readMessage(fd, &buffer_size, 1);
+
+		if (temp[CTRL_POS] == DISC) {
+			if (write_supervision_message(fd, DISC) == -1){
+				printf("LLREAD: error writing DISC message back\n");
+				return -2;
+			}
+		}
+		else{
+			printf("Error receiving DISC message\n");
+		}
+
+		free(temp);
+		temp = readMessage(fd, &buffer_size, 1);
+
 		if (temp == NULL || buffer_size == 0){
 			printf("LLREAD: error reading UA message after sending DISC\n");
 			return -1;
@@ -77,13 +91,6 @@ int llread(int fd, char* buffer) {
 	if (temp == NULL || buffer_size == 0){
 		printf("LLREAD: error reading message\n");
 		return -1;
-	}
-
-	if (temp[CTRL_POS] == DISC) {
-		if (write_supervision_message(fd, DISC) == -1){
-			printf("LLREAD: error writing DISC message back\n");
-			return -2;
-		}
 	}
 
 	if (write_supervision_message(fd, RR(1)) == -1){

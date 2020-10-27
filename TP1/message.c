@@ -193,7 +193,6 @@ char* readMessage(int fd, int* size, int i_message){
 
 		buffer = realloc(buffer, pos + 2);
 		handleState(r, i_message);
-		//printf("%04x = %c\n", r, r);
 		buffer[pos++] = r;
 	}
 	*size = pos;
