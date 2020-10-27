@@ -13,8 +13,6 @@ char addr, ctrl;
 void handleState(char msg, int i_message){
     state_machine state_machine = getStateMachine();
 
-    //printf("State machine: %d and received %04x = %c\n", getStateMachine(), msg, msg);
-
     switch (state_machine){
         case START:
             handleStartState(msg);
@@ -35,9 +33,6 @@ void handleState(char msg, int i_message){
             break;
         case DATA_INF:
             handleDataState(msg);
-            break;
-        case DATA_FINISHED:
-            handleDataFinishedState(msg);
             break;
         case STOP:
             handleStopState(msg);
@@ -122,20 +117,9 @@ void handleBcc1State(char msg, int i_message) {
 void handleDataState(char msg){
     switch (msg){
         case FLAG:
-            update_state(DATA_FINISHED);
-            break;
-        default:
-            break;
-    }
-}
-
-void handleDataFinishedState(char msg){
-    switch (msg){
-        case FLAG:
-            update_state(START);
-            break;
-        default:
             update_state(STOP);
+            break;
+        default:
             break;
     }
 }

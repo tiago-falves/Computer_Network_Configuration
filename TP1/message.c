@@ -148,7 +148,7 @@ void printInformMessage(char * trama, int dataSize, int data){
 }
 
 void printDataInfoMsg(char * trama,int trama_size){
-	for (int i = 6; i < trama_size-5; i++)
+	for (int i = 7; i < trama_size-4; i++)
 		printf("%c", trama[i]);	
 }
 
@@ -193,6 +193,7 @@ char* readMessage(int fd, int* size, int i_message){
 
 		buffer = realloc(buffer, pos + 2);
 		handleState(r, i_message);
+		//printf("%04x = %c\n", r, r);
 		buffer[pos++] = r;
 	}
 	*size = pos;

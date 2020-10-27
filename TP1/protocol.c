@@ -51,50 +51,44 @@ int llwrite(int fd, char* data, int data_size) {
 }
 
 int llread(int fd, char* buffer) {
-	int buffer_size = 0;
+	int buffer_size = 0, current_size = 0;
 
-	while (TRUE) {
-		buffer = readMessage(fd, &buffer_size, 1);
+	char* temp = readMessage(fd, &buffer_size, 1);
 
-		if (buffer == NULL || buffer_size == 0){
-			printf("LLREAD: error reading message\n");
-			break;
-		}
+	//printDataInfoMsg(buffer,buffer_size);
 
-
-		if (buffer[CTRL_POS] == DISC) {
-			if (write_supervision_message(fd, DISC) == -1){
-				printf("LLREAD: error writing DISC message back\n");
-				return -1;
-			}
-			break;
-		}
-
-		if (write_supervision_message(fd, RR(1)) == -1){
-			printf("LLREAD: error writing message back\n");
-			return -1;
-		}
-
-		printDataInfoMsg(buffer,buffer_size);
-	
-
-		
+	if (temp == NULL || buffer_size == 0){
+		printf("LLREAD: error reading message\n");
+		return -1;
 	}
 
-	buffer = readMessage(fd, &buffer_size, 1);
-	if (buffer == NULL || buffer_size == 0){
+	if (temp[CTRL_POS] == DISC) {
+		if (write_supervision_message(fd, DISC) == -1){
+			printf("LLREAD: error writing DISC message back\n");
+			return -2;
+		}
+	}
+
+	if (write_supervision_message(fd, RR(1)) == -1){
+		printf("LLREAD: error writing message back\n");
+		return -1;
+	}
+
+	/*
+
+	char* temp = readMessage(fd, &buffer_size, 1);
+	if (temp == NULL || buffer_size == 0){
 		printf("LLREAD: error reading UA message after sending DISC\n");
 		return -1;
 	}
 
-	if (buffer[CTRL_POS] == UA) {
-		return 0;
+	if (temp[CTRL_POS] == UA) {
+		return current_size;
 	}
 	else {
 		printf("LLREAD: wrong message after sending DISC\n");
 		return -1;
 	}
 
-	free(buffer);
-	return 0;
+	*/
 }

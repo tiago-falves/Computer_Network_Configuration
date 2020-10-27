@@ -43,16 +43,23 @@ int sendFile(char * port_num,char * filename){
 int retrieveFile(char * port_num){
     //TODO Adicionar verificaçoes de erros
 
-    char buffer[] = "";
+    char* buffer;
     int fd = llopen(port_num,RECEPTOR);
 
     printf("Retreiving file...\n");
 
-    if (llread(fd, buffer) == 0){
+    int read_size = llread(fd, &buffer);
+    if (read_size >= 0){
         printf("File received successfully!\n");
     }else {
         printf("LLREAD failure\n");
     }
+
+    printf("App\n");
+	for (int i = 0; i < read_size; i++){
+		printf("%c", buffer[i]);
+	}
+	printf("\nApp end\n");
 
     llclose(fd);
 
