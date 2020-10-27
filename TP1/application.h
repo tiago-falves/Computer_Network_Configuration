@@ -41,8 +41,8 @@ int retrieveFile(char * port_num);
 int sendFile(char * port_num,char * filename);
 
 int sendControlPacket(int fd,char * filename,int fileSize,int ctrl);
-int parseCtrlPacket(char * buffer,int * position);
+int parseCtrlPacket(char * buffer);
 
 int sendDataPacket(int fd,char * data,short dataSize,int nseq);
-int parseDataPacket(char * buffer, int nseq,int  * position);
-int parseDataPackets(char * buffer,int position);
+int parseDataPacket(char * buffer, int nseq);
+int parsePackets(char * buffer, int buffer_size);

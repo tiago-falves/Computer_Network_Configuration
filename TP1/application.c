@@ -9,6 +9,7 @@ int sendFile(char * port_num,char * filename){
     //TODO Adicionar verificaçoes de erros
     install_alarm();
     int fd = llopen(port_num,EMISSOR);
+
     char* buffer = read_file(filename);
     int iterations = 0;
     char** divided_buffer = divideBuffer(buffer, &iterations);
@@ -43,41 +44,29 @@ int sendFile(char * port_num,char * filename){
 int retrieveFile(char * port_num){
     //TODO Adicionar verificaçoes de erros
 
-    char* buffer;
+    char* buffer = malloc(DATA_BLOCK_SIZE + 1);
     int fd = llopen(port_num,RECEPTOR);
 
     printf("Retreiving file...\n");
 
-    int read_size = llread(fd, &buffer);
-    if (read_size >= 0){
-        printf("File received successfully!\n");
-    }else {
-        printf("LLREAD failure\n");
-        return 0;
+    while(TRUE){
+        int buffer_size = llread(fd, buffer);
+        //change this (DISC messages are received in llclose) 
+        if (buffer_size == -2){
+            break;
+        }
+        else if (buffer_size == -1){
+            printf("LLREAD failure\n");
+            return 0;
+        }
+        if(parsePackets(buffer, buffer_size) < 0){
+            printf("Error parsing packets\n");
+            return 0;
+        }
+
+        memset(buffer, 0, DATA_BLOCK_SIZE + 1);
     }
-
-    int position = 0;
-
-    if(!parseCtrlPacket(buffer,&position)){
-        printf("Error parsing Initial control packet\n");
-        return 0;
-    }
-    if(!parseDataPackets(buffer,position)){
-        printf("Error parsing Data Packets\n");
-        return 0;
-    }
-    if(!parseCtrlPacket(buffer,&position)){
-        printf("Error parsing end control packet\n");
-        return 0;
-    }
-
-
-    printf("App\n");
-	for (int i = 0; i < read_size; i++){
-		printf("%c", buffer[i]);
-	}
-	printf("\nApp end\n");
-
+    
     llclose(fd);
 
     return 1;
@@ -86,7 +75,7 @@ int retrieveFile(char * port_num){
 int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
     u_int file_name_size = strlen(filename) + 1;  
     u_int file_size_size = sizeof(u_int);
-    if(file_name_size > 255) {
+    if(file_name_size > DATA_BLOCK_SIZE) {
         printf("Error, filename cannot be greater that 255 characters\n");
     }  
 
@@ -98,7 +87,7 @@ int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
     controlPacket[CTRL_SIZE_T_IDX] = CTRL_SIZE_OCTET;
     controlPacket[CTRL_SIZE_L_IDX] = file_size_size;
     for (int i = 0; i < file_size_size; i++){
-        controlPacket[CTRL_SIZE_V_IDX+i] = (u_int8_t) (fileSize >> 8 * (file_size_size-i-1));
+        controlPacket[CTRL_SIZE_V_IDX+i] = (u_int8_t) (fileSize >> (8 * i));
     }
 
     //FILENAME
@@ -112,30 +101,30 @@ int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
 
     return ret;
 }
-int parseCtrlPacket(char * buffer,int * position){
+int parseCtrlPacket(char * buffer){
 
-    if ((buffer[PACKET_CTRL_IDX] != PACKET_CTRL_START && *position == 0) || (buffer[PACKET_CTRL_IDX+*position] != PACKET_CTRL_END && *position!=0) ){
+    if ((buffer[PACKET_CTRL_IDX] != PACKET_CTRL_START) && (buffer[PACKET_CTRL_IDX] != PACKET_CTRL_END ) ){
         printf("Error recieving control packet\n");
         return 0;
     }
-    if (buffer[CTRL_SIZE_T_IDX + *position] != CTRL_SIZE_OCTET){
+    if (buffer[CTRL_SIZE_T_IDX] != CTRL_SIZE_OCTET){
         printf("Error recieving size of file\n");
         return 0;
     }
 
-    uint fileSize = 0;
-    memcpy(&fileSize, buffer + CTRL_SIZE_V_IDX + *position, buffer[CTRL_SIZE_L_IDX+*position]);
+    u_int fileSize = 0;
+    memcpy(&fileSize, buffer + CTRL_SIZE_V_IDX, buffer[CTRL_SIZE_L_IDX]);
     
     printf("File Size: %u\n",fileSize);
 
-    if (buffer[CTRL_NAME_T_IDX + *position] != CTRL_NAME_OCTET){
+    if (buffer[CTRL_NAME_T_IDX] != CTRL_NAME_OCTET){
         printf("Error recieving name of file\n");
         return 0;
     }
-    char filename[buffer[CTRL_NAME_L_IDX + *position]];
-    memcpy(filename, buffer + CTRL_NAME_V_IDX + *position, buffer[CTRL_NAME_L_IDX + *position]);
+    char filename[buffer[CTRL_NAME_L_IDX]];
+    memcpy(filename, buffer + CTRL_NAME_V_IDX, buffer[CTRL_NAME_L_IDX]);
 
-    for (int i = 0; i < buffer[CTRL_NAME_L_IDX + *position]; i++) 
+    for (int i = 0; i < buffer[CTRL_NAME_L_IDX]; i++) 
         printf("%c",filename[i]);
 
     
@@ -159,42 +148,46 @@ int sendDataPacket(int fd,char * data,short dataSize,int nseq){
     int ret = llwrite(fd,dataPacket,dataPacketSize);
     free(dataPacket);
     return ret;
-
 }
-int parseDataPacket(char * buffer, int nseq,int  * position){
-    int dataSize = 256 * buffer[*position+DATA_L1_IDX] + buffer[*position+DATA_L2_IDX];
+int parseDataPacket(char * buffer, int nseq){
+    int dataSize = 256 * buffer[DATA_L1_IDX] + buffer[DATA_L2_IDX];
     for (int i = 0; i < dataSize; i++){
         //Para ja printf mas depois vai escrever para um file né;
-        printf("%c",buffer[*position + i]);
+        printf("%c",buffer[i]);
     }
-    *position += DATA_PACKET_SIZE(dataSize);
-
     return 1;
     
 }
 
-int parseDataPackets(char * buffer,int position){
+int parsePackets(char * buffer, int buffer_size){
 
     char cc;
     int nseq = 0;
  
     while (1){
-        cc = buffer[position];
+        cc = buffer[0];
+
         if(cc == PACKET_CTRL_END){
-            printf("Reached end control packet\n");
-            return position;
-        }else if(cc != PACKET_CTRL_DATA){
-            printf("Error parsing data packets\n");
+            printf("Parsing end control Packet\n");
+            parseCtrlPacket(buffer);
             return 0;
+        }else if (cc == PACKET_CTRL_START){
+            printf("Parsing Initial control Packet\n");
+            parseCtrlPacket(buffer);
+            return 0;
+
+        } else if(cc != PACKET_CTRL_DATA){
+            printf("Error parsing packets cc: %d\n",cc);
+            return -1;
         } else{
             nseq = nseq % 255;
-            if(nseq != buffer[position+DATA_N_SEQ_IDX]){
+            if(nseq != buffer[DATA_N_SEQ_IDX]){
                 printf("Error nseq\n");
-                return 0;
+                return -1;
             }
-            if(!parseDataPacket(buffer,nseq,&position)){
+            if(!parseDataPacket(buffer,nseq)){
                 printf("Error parsing data packet: %d",nseq);
-                return 0;
+                return -1;
             }
         }        
     }

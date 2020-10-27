@@ -42,6 +42,22 @@ int llclose(int fd) {
 			printf("Error writing UA\n");
 		}
 	}
+	else if (connection == RECEPTOR) {
+		int buffer_size = 0;
+		char* temp = readMessage(fd, &buffer_size, 1);
+		if (temp == NULL || buffer_size == 0){
+			printf("LLREAD: error reading UA message after sending DISC\n");
+			return -1;
+		}
+
+		if (temp[CTRL_POS] == UA) {
+			return 0;
+		}
+		else {
+			printf("LLREAD: wrong message after sending DISC\n");
+			return -1;
+		}
+	}
 
     return close_connection(fd);
 }
@@ -51,9 +67,10 @@ int llwrite(int fd, char* data, int data_size) {
 }
 
 int llread(int fd, char* buffer) {
-	int buffer_size = 0, current_size = 0;
+	int buffer_size = 0;
 
 	char* temp = readMessage(fd, &buffer_size, 1);
+	memcpy(buffer, temp + DATA_INF_BYTE, buffer_size - 6);
 
 	//printDataInfoMsg(buffer,buffer_size);
 
@@ -74,21 +91,5 @@ int llread(int fd, char* buffer) {
 		return -1;
 	}
 
-	/*
-
-	char* temp = readMessage(fd, &buffer_size, 1);
-	if (temp == NULL || buffer_size == 0){
-		printf("LLREAD: error reading UA message after sending DISC\n");
-		return -1;
-	}
-
-	if (temp[CTRL_POS] == UA) {
-		return current_size;
-	}
-	else {
-		printf("LLREAD: wrong message after sending DISC\n");
-		return -1;
-	}
-
-	*/
+	return buffer_size - 6;
 }
