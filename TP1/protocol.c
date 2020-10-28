@@ -84,7 +84,21 @@ int llread(int fd, char* buffer) {
 	int buffer_size = 0;
 
 	char* temp = readMessage(fd, &buffer_size, 1);
-	memcpy(buffer, temp + DATA_INF_BYTE, buffer_size - 6);
+	memcpy(buffer, temp + DATA_INF_BYTE, buffer_size - 7);
+
+	/*printf("temp\n");
+	for(int i = 0; i < buffer_size; i++) {
+		printf("%c", temp[i]);
+	}
+
+	printf("\n\n");
+
+	printf("buffer\n");
+	for(int i = 0; i < buffer_size - 6; i++) {
+		printf("%c", buffer[i]);
+	}
+
+	printf("\n\n");*/
 
 	//printDataInfoMsg(buffer,buffer_size);
 
@@ -98,5 +112,5 @@ int llread(int fd, char* buffer) {
 		return -1;
 	}
 
-	return buffer_size - 6;
+	return buffer_size - 7;
 }
