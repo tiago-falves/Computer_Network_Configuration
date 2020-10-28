@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 Zas
 oi
+=======
+zas
+ols
+>>>>>>> f02b9f1a32fbfcd1f1f8e300d4c2ebea294205b8

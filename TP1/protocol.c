@@ -2,6 +2,7 @@
 #include "connection.h"
 #include "message.h"
 #include "state_machine.h"
+#include "data_stuffing.h"
 
 conn_type connection;
 
@@ -76,15 +77,20 @@ int llclose(int fd) {
     return close_connection(fd);
 }
 
-int llwrite(int fd, char* data, int data_size) {
-	return write_inform_message_retry(fd, 1, data_size, data);
+int llwrite(int fd, char* buffer, int length) {
+	data_stuff stuffedData = stuffData(buffer,length); 
+
+	return write_inform_message_retry(fd, 1, stuffedData.data_size, stuffedData.data);
+	
+	//return write_inform_message_retry(fd, 1 ,length, buffer);
 }
 
 int llread(int fd, char* buffer) {
 	int buffer_size = 0;
 
 	char* temp = readMessage(fd, &buffer_size, 1);
-	memcpy(buffer, temp + DATA_INF_BYTE, buffer_size - 7);
+	data_stuff unstuffedData = unstuffData(temp,buffer_size);
+	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, unstuffedData.data_size - 7);
 
 	/*printf("temp\n");
 	for(int i = 0; i < buffer_size; i++) {

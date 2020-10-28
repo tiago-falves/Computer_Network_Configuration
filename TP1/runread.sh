@@ -1,0 +1,1 @@
+./main.out 1 receptor

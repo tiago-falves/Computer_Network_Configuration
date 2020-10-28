@@ -115,6 +115,7 @@ void handleBcc1State(char msg, int i_message) {
 }
 
 void handleDataState(char msg){
+    //printf("ELE CHEGA AQUI SEQUER?\n");
     switch (msg){
         case FLAG:
             update_state(STOP);
