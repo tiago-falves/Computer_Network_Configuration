@@ -31,14 +31,6 @@ data_stuff stuffData(char* buffer,int length){
 data_stuff unstuffData(char * buffer,int length){
     data_stuff data_stuff;
 
-    /*
-    printf("Before unstuffing\n");
-    for(int i = 0; i < length; i++) {
-        printf("%02x ", (unsigned char) buffer[i]);
-    }
-    printf("\n");
-    */
-
     int i = DATA_INF_BYTE;
     int unstuffed_data_index = 0;
     char* unstuffed_data = calloc(length, sizeof(char));
@@ -63,14 +55,6 @@ data_stuff unstuffData(char * buffer,int length){
 
     data_stuff.data = unstuffed_data;
     data_stuff.data_size = unstuffed_data_index;
-
-    /*
-    printf("After unstuffing\n");
-    for(int i = 0; i < data_stuff.data_size; i++) {
-        printf("%02x ", (unsigned char) data_stuff.data[i]);
-    }
-    printf("\n");
-    */
 
     return  data_stuff;
 }

@@ -22,6 +22,9 @@
 /* Escape byte*/
 #define ESC 0x7d
 
+/* Stuffing byte */
+#define STUFF 0x20
+
 //Size of the information message
 #define INFO_SIZE_MSG(data_size)    ((data_size) + 6)   
 

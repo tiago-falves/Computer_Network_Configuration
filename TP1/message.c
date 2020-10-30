@@ -19,24 +19,28 @@ int write_supervision_message(int fd, char cc_value){
 int write_info_message(int fd, char* data, int data_size, char cc_value){
 	if(data_size==0) return -1;
 
-	int trama_size = INFO_SIZE_MSG(data_size);
+	int trama_size = INFO_SIZE_MSG(data_size); //space in case bcc2 needs stuffing
 
-	char* trama = malloc(trama_size);
+	char* trama = malloc(INFO_SIZE_MSG(data_size) + 1);
 
     trama[FLAGI_POSTION] = FLAG;
 	trama[ADRESS_POSITION] = AREC;
 	trama[CC_POSITION] = CC_INFO_MSG(cc_value); //0S00 0000
 	trama[PC_POSITION] = (AREC) ^ CC_INFO_MSG(cc_value);
-	trama[trama_size - 2] = buildBCC2(data, data_size);
-	trama[trama_size - 1] = FLAG;
+	
+	char bcc2 = buildBCC2(data, data_size);
+	if (bcc2 == FLAG || bcc2 == ESC) {
+		trama_size++;
+		trama[trama_size - 3] = ESC;
+		trama[trama_size - 2] = bcc2 ^ STUFF;
+		trama[trama_size - 1] = FLAG;
+	}
+	else {
+		trama[trama_size - 2] = bcc2;
+		trama[trama_size - 1] = FLAG;
+	}
 
 	memcpy(trama + DATA_INF_BYTE, data, data_size);
-
-	printf("trama\n");
-	for (int i = 0; i < trama_size; i++){
-		printf("%02x ", (unsigned char) trama[i]);
-	}
-	printf("\n\n");
 
 	return write(fd,trama,trama_size);
 }
@@ -129,12 +133,8 @@ char* readMessage(int fd, int* size, int i_message){
 	int rd, pos = 0;
 	char* buffer = malloc(1);
 
-	printf("read message\n");
 	while (getStateMachine() != STOP){
 		rd = read(fd, &r, 1);
-		if (rd == 1)
-			printf("%02x ", (unsigned char) r);
-
 		if (rd <= 0){
 			printf("Read null value\n");
 			return NULL;
@@ -145,7 +145,6 @@ char* readMessage(int fd, int* size, int i_message){
 		buffer[pos++] = r;
 	}
 
-	printf("\n");
 	update_state(START);
 	*size = pos;
 	

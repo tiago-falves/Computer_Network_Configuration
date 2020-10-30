@@ -92,13 +92,6 @@ int llread(int fd, char* buffer) {
 
 	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);
 
-	printf("trama\n");
-	for(int i = 0; i < temp_size; i++) {
-		printf("%02x ", (unsigned char) temp[i]);
-	}
-	printf("\n\n");
-	
-
 	if (temp == NULL || temp_size == 0){
 		printf("LLREAD: error reading message\n");
 		return -1;

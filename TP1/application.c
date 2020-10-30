@@ -10,16 +10,6 @@ int sendFile(char * port_num,char * filename){
     install_alarm();
     int fd = llopen(port_num,EMISSOR);
 
-    /*
-    char* buffer = read_file(filename, DATA_BLOCK_SIZE - 4);
-    int iterations = 0;
-    char** divided_buffer = divideBuffer(buffer, &iterations);
-    if (iterations == 0 || buffer == NULL){
-        printf("Error dividing buffer");
-        return 0;
-    }
-    */
-
     int fileSize = findSize(filename);
 
     if(sendControlPacket(fd,filename,fileSize,PACKET_CTRL_START) != 0){
@@ -28,14 +18,6 @@ int sendFile(char * port_num,char * filename){
     }
 
     printf("Writing data\n");
-
-    /*
-    for (int i = 0; i < iterations; i++) {
-        if(sendDataPacket(fd,divided_buffer[i],strlen(divided_buffer[i]),i) != 0){
-            printf("Error sending data packet\n");
-        }
-    }
-    */
     FILE* file = fopen(filename, "rb");
     if (file == NULL){
         perror("Error reading file");
@@ -51,12 +33,6 @@ int sendFile(char * port_num,char * filename){
         if (ret <= 0){
             break;
         }
-
-        printf("data\n");
-        for (int i = 0; i < ret; i++){
-            printf("%02x ", (unsigned char) buffer[i]);
-        }
-        printf("\n\n");
 
         if(sendDataPacket(fd, buffer, ret, i) != 0){
             printf("Error sending data packet\n");
@@ -75,8 +51,8 @@ int sendFile(char * port_num,char * filename){
 
     return 1;
 }
+
 int retrieveFile(char * port_num){
-    //TODO Adicionar verificaçoes de erros
 
     char* buffer = malloc(DATA_BLOCK_SIZE);
     int fd = llopen(port_num, RECEPTOR);
@@ -102,8 +78,6 @@ int retrieveFile(char * port_num){
 
         memset(buffer, 0, DATA_BLOCK_SIZE);
     }
-
-    printf("BEFORE CLOSE\n");
     
     llclose(fd);
 
@@ -195,7 +169,7 @@ int parseDataPacket(char * buffer, int nseq){
     memcpy(file_send, buffer + DATA_INF_BYTE, dataSize);
 
     //Write to file
-    write_file("files/test_rec.txt", file_send);
+    write_file("files/test_rec.jpg", file_send);
 
     return 1;
     
