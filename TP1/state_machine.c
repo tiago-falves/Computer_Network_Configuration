@@ -13,6 +13,8 @@ char addr, ctrl;
 void handleState(char msg, int i_message){
     state_machine state_machine = getStateMachine();
 
+    printf("State machine: %d and received %02x\n", state_machine, (unsigned char) msg);
+
     switch (state_machine){
         case START:
             handleStartState(msg);
@@ -115,7 +117,6 @@ void handleBcc1State(char msg, int i_message) {
 }
 
 void handleDataState(char msg){
-    //printf("ELE CHEGA AQUI SEQUER?\n");
     switch (msg){
         case FLAG:
             update_state(STOP);

@@ -45,7 +45,7 @@ int llclose(int fd) {
 	}
 	else if (connection == RECEPTOR) {
 		int buffer_size = 0;
-		char* temp = readMessage(fd, &buffer_size, 1);
+		char* temp = readMessage(fd, &buffer_size, 0);
 
 		if (temp[CTRL_POS] == DISC) {
 			if (write_supervision_message(fd, DISC) == -1){
@@ -58,7 +58,7 @@ int llclose(int fd) {
 		}
 
 		free(temp);
-		temp = readMessage(fd, &buffer_size, 1);
+		temp = readMessage(fd, &buffer_size, 0);
 
 		if (temp == NULL || buffer_size == 0){
 			printf("LLREAD: error reading UA message after sending DISC\n");
@@ -78,37 +78,28 @@ int llclose(int fd) {
 }
 
 int llwrite(int fd, char* buffer, int length) {
-	data_stuff stuffedData = stuffData(buffer,length); 
+	data_stuff stuffedData = stuffData(buffer,length);
 
 	return write_inform_message_retry(fd, 1, stuffedData.data_size, stuffedData.data);
-	
-	//return write_inform_message_retry(fd, 1 ,length, buffer);
 }
 
 int llread(int fd, char* buffer) {
-	int buffer_size = 0;
+	int temp_size = 0;
 
-	char* temp = readMessage(fd, &buffer_size, 1);
-	data_stuff unstuffedData = unstuffData(temp,buffer_size);
-	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, unstuffedData.data_size - 7);
+	char* temp = readMessage(fd, &temp_size, 1);
+	data_stuff unstuffedData = unstuffData(temp, temp_size);
+	int buffer_size = unstuffedData.data_size - 6;
 
-	/*printf("temp\n");
-	for(int i = 0; i < buffer_size; i++) {
-		printf("%c", temp[i]);
+	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);
+
+	printf("trama\n");
+	for(int i = 0; i < temp_size; i++) {
+		printf("%02x ", (unsigned char) temp[i]);
 	}
-
 	printf("\n\n");
+	
 
-	printf("buffer\n");
-	for(int i = 0; i < buffer_size - 6; i++) {
-		printf("%c", buffer[i]);
-	}
-
-	printf("\n\n");*/
-
-	//printDataInfoMsg(buffer,buffer_size);
-
-	if (temp == NULL || buffer_size == 0){
+	if (temp == NULL || temp_size == 0){
 		printf("LLREAD: error reading message\n");
 		return -1;
 	}
@@ -118,5 +109,5 @@ int llread(int fd, char* buffer) {
 		return -1;
 	}
 
-	return buffer_size - 7;
+	return buffer_size;
 }

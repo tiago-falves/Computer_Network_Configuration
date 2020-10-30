@@ -23,13 +23,13 @@
 #define ESC 0x7d
 
 //Size of the information message
-#define INFO_SIZE_MSG(data_size)    ((data_size) + 8)   
+#define INFO_SIZE_MSG(data_size)    ((data_size) + 6)   
 
 //Initial position of data blocks in information frame
 #define DATA_INF_BYTE 4
 
 //Supervision frame size
-#define SUPERVISION_TRAMA_SIZE 6
+#define SUPERVISION_TRAMA_SIZE 5
 
 //Info Message
 #define CC_INFO_MSG(s)           (((s) % 2) << 6) 
@@ -65,5 +65,3 @@ int write_inform_message_retry(int fd,char cc_value,int dataSize,char * buffer);
 int write_info_message(int fd,char * data,int data_size, char cc_value);
 
 char buildBCC2(char * data, int data_size);
-
-char** divideBuffer(char* buffer, int* size);

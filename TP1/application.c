@@ -10,15 +10,15 @@ int sendFile(char * port_num,char * filename){
     install_alarm();
     int fd = llopen(port_num,EMISSOR);
 
-    char* buffer = read_file(filename);
+    /*
+    char* buffer = read_file(filename, DATA_BLOCK_SIZE - 4);
     int iterations = 0;
     char** divided_buffer = divideBuffer(buffer, &iterations);
     if (iterations == 0 || buffer == NULL){
         printf("Error dividing buffer");
         return 0;
     }
-
-    free(buffer);
+    */
 
     int fileSize = findSize(filename);
 
@@ -29,14 +29,42 @@ int sendFile(char * port_num,char * filename){
 
     printf("Writing data\n");
 
+    /*
     for (int i = 0; i < iterations; i++) {
         if(sendDataPacket(fd,divided_buffer[i],strlen(divided_buffer[i]),i) != 0){
             printf("Error sending data packet\n");
         }
-        /*if (llwrite(fd, divided_buffer[i], strlen(divided_buffer[i])) == -1) {
-            printf("LLWRITE: error\n");
-        }*/
     }
+    */
+    FILE* file = fopen(filename, "rb");
+    if (file == NULL){
+        perror("Error reading file");
+    }
+
+    int ret = 0;
+    char* buffer = calloc(DATA_BLOCK_SIZE - 4, sizeof(char));
+
+    while (TRUE){
+        int i = 0;
+        ret = fread(buffer , sizeof(char), DATA_BLOCK_SIZE - 4, file);
+
+        if (ret <= 0){
+            break;
+        }
+
+        printf("data\n");
+        for (int i = 0; i < ret; i++){
+            printf("%02x ", (unsigned char) buffer[i]);
+        }
+        printf("\n\n");
+
+        if(sendDataPacket(fd, buffer, ret, i) != 0){
+            printf("Error sending data packet\n");
+        }
+        i++;
+    }
+
+    fclose(file);
 
     if(sendControlPacket(fd,filename,fileSize,PACKET_CTRL_END) != 0){
         printf("Error sendng controll packet\n");
@@ -50,24 +78,20 @@ int sendFile(char * port_num,char * filename){
 int retrieveFile(char * port_num){
     //TODO Adicionar verificaçoes de erros
 
-    char* buffer = malloc(DATA_BLOCK_SIZE + 1);
-    int fd = llopen(port_num,RECEPTOR);
+    char* buffer = malloc(DATA_BLOCK_SIZE);
+    int fd = llopen(port_num, RECEPTOR);
 
     printf("Retreiving file...\n");
 
     while(TRUE){
         int buffer_size = llread(fd, buffer);
-        //change this (DISC messages are received in llclose) 
-        if (buffer_size == -2){
-            break;
-        }
-        else if (buffer_size == -1){
+        if (buffer_size == -1){
             printf("LLREAD failure\n");
             return 0;
         }
 
         int r = parsePackets(buffer, buffer_size);
-        if(r == -1){
+        if (r == -1){
             printf("Error parsing packets\n");
             return 0;
         }
@@ -76,8 +100,10 @@ int retrieveFile(char * port_num){
             break;
         }
 
-        memset(buffer, 0, DATA_BLOCK_SIZE + 1);
+        memset(buffer, 0, DATA_BLOCK_SIZE);
     }
+
+    printf("BEFORE CLOSE\n");
     
     llclose(fd);
 
@@ -126,7 +152,6 @@ int parseCtrlPacket(char * buffer){
 
     u_int fileSize = 0;
     memcpy(&fileSize, buffer + CTRL_SIZE_V_IDX, buffer[CTRL_SIZE_L_IDX]);
-    
     printf("File Size: %u\n",fileSize);
 
     if (buffer[CTRL_NAME_T_IDX] != CTRL_NAME_OCTET){
@@ -136,9 +161,7 @@ int parseCtrlPacket(char * buffer){
 
     char filename[buffer[CTRL_NAME_L_IDX]];
     memcpy(filename, buffer + CTRL_NAME_V_IDX, buffer[CTRL_NAME_L_IDX]);
-
     printf("Filename printing: ");
-
     for (int i = 0; i < buffer[CTRL_NAME_L_IDX]; i++) 
         printf("%c",filename[i]);
 
@@ -164,13 +187,16 @@ int sendDataPacket(int fd,char * data,short dataSize,int nseq){
     free(dataPacket);
     return ret;
 }
+
 int parseDataPacket(char * buffer, int nseq){
     int dataSize = (u_int8_t) buffer[DATA_L1_IDX] + (u_int8_t) buffer[DATA_L2_IDX] * 256;
-    for (int i = 4; i < dataSize + 4; i++){
-        //Para ja printf mas depois vai escrever para um file né;
-        printf("%c",buffer[i]);
-    }
-    printf("\n");
+
+    char * file_send = calloc(dataSize, sizeof(char));
+    memcpy(file_send, buffer + DATA_INF_BYTE, dataSize);
+
+    //Write to file
+    write_file("files/test_rec.txt", file_send);
+
     return 1;
     
 }
@@ -191,7 +217,12 @@ int parsePackets(char * buffer, int buffer_size){
         return 0;
     }
     else if(cc != PACKET_CTRL_DATA){
-        printf("Error parsing packets cc: %d\n",cc);
+        printf("error packet\n");
+        for (int i = 0; i < buffer_size; i++){
+            printf("%02x ", (unsigned char) buffer[i]);
+        }
+        printf("\n\n");
+        printf("Error parsing packets cc: %02x\n",cc);
         return -1;
     }
     else{

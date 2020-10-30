@@ -12,7 +12,6 @@ int write_supervision_message(int fd, char cc_value){
 	trama[CC_POSITION] = cc_value;
 	trama[PC_POSITION] = (AREC) ^ (cc_value);
 	trama[FLAGF_POSTION] = FLAG;
-	trama[SUPERVISION_TRAMA_SIZE - 1] = '\0';
 
     return write(fd,trama,SUPERVISION_TRAMA_SIZE);
 }
@@ -28,13 +27,18 @@ int write_info_message(int fd, char* data, int data_size, char cc_value){
 	trama[ADRESS_POSITION] = AREC;
 	trama[CC_POSITION] = CC_INFO_MSG(cc_value); //0S00 0000
 	trama[PC_POSITION] = (AREC) ^ CC_INFO_MSG(cc_value);
-	trama[trama_size - 3] = buildBCC2(data, data_size);
-	trama[trama_size - 2] = FLAG;
-	trama[trama_size - 1] = '\0';
+	trama[trama_size - 2] = buildBCC2(data, data_size);
+	trama[trama_size - 1] = FLAG;
 
-	memcpy(trama + DATA_INF_BYTE, data, data_size + 1);
+	memcpy(trama + DATA_INF_BYTE, data, data_size);
 
-	return write(fd,trama,INFO_SIZE_MSG(data_size));
+	printf("trama\n");
+	for (int i = 0; i < trama_size; i++){
+		printf("%02x ", (unsigned char) trama[i]);
+	}
+	printf("\n\n");
+
+	return write(fd,trama,trama_size);
 }
 
 int write_supervision_message_retry(int fd, char cc_value){
@@ -85,7 +89,7 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 			}
 
 			/* read message back */
-			buffer = readMessage(fd, &rd, 1);
+			buffer = readMessage(fd, &rd, 0);
 
 			if (buffer == NULL){
 				success = FALSE;
@@ -98,7 +102,6 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 	}
 
 	if (success == TRUE){
-		//printSupervisionMessage(buffer, 1);
 		return 0;
 	}
 	return -1;
@@ -114,10 +117,39 @@ int readSupervisionMessage(int fd){
 		return -1;
 	} 
 	if(trama_size != SUPERVISION_TRAMA_SIZE){
+		printf("TRAMA SIZE: %d\n", trama_size);
 		return -1;
 	}
 	printSupervisionMessage(trama, 1);	
 	return 0;
+}
+
+char* readMessage(int fd, int* size, int i_message){  
+	char r;
+	int rd, pos = 0;
+	char* buffer = malloc(1);
+
+	printf("read message\n");
+	while (getStateMachine() != STOP){
+		rd = read(fd, &r, 1);
+		if (rd == 1)
+			printf("%02x ", (unsigned char) r);
+
+		if (rd <= 0){
+			printf("Read null value\n");
+			return NULL;
+		}
+
+		buffer = realloc(buffer, pos + 2);
+		handleState(r, i_message);
+		buffer[pos++] = r;
+	}
+
+	printf("\n");
+	update_state(START);
+	*size = pos;
+	
+	return buffer;
 }
 
 void printSupervisionMessage(char * trama, int onlyC){
@@ -179,58 +211,12 @@ void reset_alarm(){
 	alarm(0);
 }
 
-char* readMessage(int fd, int* size, int i_message){  
-	char r;
-	int finished = FALSE, rd, pos = 0;
-	char* buffer = malloc(1);
-
-	while (!finished){
-		rd = read(fd, &r, 1);
-
-		if (rd <= 0){
-			return 0;
-		}
-		else if (getStateMachine() == STOP){
-			finished = TRUE;
-		}
-
-		buffer = realloc(buffer, pos + 2);
-		handleState(r, i_message);
-		buffer[pos++] = r;
-	}
-	*size = pos;
-
-	//data_stuff unstuffedDataStruct = unstuffData(buffer,pos);
-
-	//printInformMessage(unstuffedDataStruct.data,unstuffedDataStruct.data_size,1);
-	
-	return buffer;
-}
-
 char buildBCC2(char * data, int data_size) {
 	char xor = data[0] ^ data[1];
 	for (int i = 2; i < data_size; i++) {
 		xor = xor ^ data[i];
 	}
 	return xor;
-}
-
-char** divideBuffer(char* buffer, int* size) {
-	int position = -1, pos = 0;
-
-    char** divided_data;
-
-	for (int i = 0; i < strlen(buffer); i++){
-		pos = i % 255;
-		if (pos == 0){
-			position++;
-			divided_data = realloc(divided_data, (position + 1) * sizeof(char*));
-			divided_data[position] = (char*)calloc(255, sizeof(char));
-		}
-		divided_data[position][pos] = buffer[i];
-	}
-    *size = position + 1;
-	return divided_data;
 }
 
 
