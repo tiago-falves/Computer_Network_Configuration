@@ -92,9 +92,16 @@ int llread(int fd, char* buffer) {
 
 	data_stuff unstuffedData = unstuffData(temp, temp_size);
 
+	
+
 	int buffer_size = unstuffedData.data_size - 6;
 
 	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);
+
+	if(verifyBCC(unstuffedData.data,unstuffedData.data_size,buffer,buffer_size) < 0){
+		printf("Error verifying BCC\n");
+		return -1;
+	}
 
 	if (temp == NULL || temp_size == 0){
 		printf("LLREAD: error reading message\n");

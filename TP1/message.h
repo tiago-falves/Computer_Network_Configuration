@@ -68,3 +68,4 @@ int write_inform_message_retry(int fd,char cc_value,int dataSize,char * buffer);
 int write_info_message(int fd,char * data,int data_size, char cc_value);
 
 char buildBCC2(char * data, int data_size);
+int verifyBCC(char * inform,int infMsgSize,char * data,int dataSize);
