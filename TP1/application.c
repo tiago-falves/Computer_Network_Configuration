@@ -31,7 +31,6 @@ int sendFile(char * port_num,char * filename){
     int i = 0;
 
     while (TRUE){
-        //int i = 0; //TODO este i devia mesmo estar aqui?
         ret = fread(buffer , sizeof(char), DATA_BLOCK_SIZE - 4, file);
 
         if (ret <= 0){
@@ -189,7 +188,7 @@ int parseDataPacket(char * buffer, int nseq,char * filename){
     int dataSize = (u_int8_t) buffer[DATA_L1_IDX] + (u_int8_t) buffer[DATA_L2_IDX] * 256;
     char * file_send = calloc(dataSize, sizeof(char));
     memcpy(file_send, buffer + DATA_INF_BYTE, dataSize); 
-    write_file(filename, file_send);
+    write_file(filename, file_send, dataSize);
     return 1;
     
 }
