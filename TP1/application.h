@@ -41,10 +41,10 @@ int retrieveFile(char * port_num);
 int sendFile(char * port_num,char * filename);
 
 int sendControlPacket(int fd,char * filename,int fileSize,int ctrl);
-int parseCtrlPacket(char * buffer);
+int parseCtrlPacket(char * buffer,char * filename);
 
 int sendDataPacket(int fd,char * data,short dataSize,int nseq);
-int parseDataPacket(char * buffer, int nseq);
-int parsePackets(char * buffer, int buffer_size);
+int parseDataPacket(char * buffer, int nseq,char * filename);
+int parsePackets(char * buffer, int buffer_size,char * filename);
 
 void progressBar(conn_type type, int progress);
