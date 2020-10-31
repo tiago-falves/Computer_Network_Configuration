@@ -67,8 +67,9 @@ int write_supervision_message(int fd, char cc_value);
 int write_supervision_message_retry(int fd, char cc_value);
 
 int write_info_message(int fd, char * data, int data_size, int cc_value);
-int write_inform_message_retry(int fd, int dataSize, char * buffer);
+int write_inform_message_retry(int fd, char * buffer, int dataSize);
 
 char buildBCC2(char * data, int data_size);
+int verifyBCC(char * inform,int infMsgSize,char * data,int dataSize);
 int parseARQ(char* buffer);
 int getSequenceNumber(char* buffer);

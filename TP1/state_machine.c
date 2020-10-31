@@ -124,6 +124,7 @@ void handleDataState(char msg){
     }
 }
 
+
 void handleStopState(char msg) {
     switch (msg) {
         case FLAG:

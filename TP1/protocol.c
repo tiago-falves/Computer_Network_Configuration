@@ -33,7 +33,7 @@ int llopen(char* port, conn_type connection_type) {
 
 int llclose(int fd) {
 	if(connection == EMISSOR){
-		printf("Writing DISC message\n");
+		//printf("Writing DISC message\n");
 
 		if(write_supervision_message_retry(fd,DISC) == -1){
 			printf("Error establishing connection\n");
@@ -77,9 +77,7 @@ int llclose(int fd) {
 }
 
 int llwrite(int fd, char* buffer, int length) {
-	data_stuff stuffedData = stuffData(buffer,length);
-
-	return write_inform_message_retry(fd, stuffedData.data_size, stuffedData.data);
+	return write_inform_message_retry(fd, buffer, length);
 }
 
 int llread(int fd, char* buffer) {
@@ -103,9 +101,12 @@ int llread(int fd, char* buffer) {
 	data_stuff unstuffedData = unstuffData(temp, temp_size);
 
 	int buffer_size = unstuffedData.data_size - 6;
-
 	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);
-
+  
+	if(verifyBCC(unstuffedData.data,unstuffedData.data_size,buffer,buffer_size) < 0){
+		printf("Error verifying BCC\n");
+		return -1;
+	}
 	if (write_supervision_message(fd, RR(seq_number)) == -1){
 		printf("LLREAD: error writing RR message back\n");
 		return -1;
