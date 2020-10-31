@@ -1,1 +1,1 @@
-./main.out 0 emissor test.txt
+./main.out 0 emissor files/test.txt

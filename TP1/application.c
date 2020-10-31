@@ -17,6 +17,8 @@ int sendFile(char * port_num,char * filename){
         return 0;
     }
 
+    printf("\nFILESIZE %d\n",fileSize);
+
     printf("Writing data\n");
     FILE* file = fopen(filename, "rb");
     if (file == NULL){
@@ -25,9 +27,10 @@ int sendFile(char * port_num,char * filename){
 
     int ret = 0;
     char* buffer = calloc(DATA_BLOCK_SIZE - 4, sizeof(char));
+    int i = 0;
 
     while (TRUE){
-        int i = 0;
+        //int i = 0; //TODO este i devia mesmo estar aqui?
         ret = fread(buffer , sizeof(char), DATA_BLOCK_SIZE - 4, file);
 
         if (ret <= 0){
@@ -37,8 +40,12 @@ int sendFile(char * port_num,char * filename){
         if(sendDataPacket(fd, buffer, ret, i) != 0){
             printf("Error sending data packet\n");
         }
+
         i++;
+        progressBar(EMISSOR,(1.0*i*(DATA_BLOCK_SIZE-4)/fileSize) *100);
     }
+
+    //printf("FINAL %f\n",(1.0*(i)*(DATA_BLOCK_SIZE-4)) /fileSize *100 );
 
     fclose(file);
 
@@ -208,5 +215,29 @@ int parsePackets(char * buffer, int buffer_size){
     }
     return 0;
 
+}
+
+void progressBar(conn_type type, int progress) {
+
+    char * msg;
+    switch (type) {
+        case RECEPTOR:
+            msg = "Receiving file: ";
+            break;
+        case EMISSOR:
+            msg = "Sending file: ";
+            break;
+        default:
+            msg = "";
+    }
+    if (progress < 100)
+    {
+        printf("\r%s%d%%", msg, progress);
+        fflush(stdout);
+    }
+    
+    
+
+    if (progress >= 100) printf("\r%s%d%%\n", msg, 100);
 }
 

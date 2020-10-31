@@ -46,3 +46,5 @@ int parseCtrlPacket(char * buffer);
 int sendDataPacket(int fd,char * data,short dataSize,int nseq);
 int parseDataPacket(char * buffer, int nseq);
 int parsePackets(char * buffer, int buffer_size);
+
+void progressBar(conn_type type, int progress);
