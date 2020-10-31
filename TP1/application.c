@@ -72,6 +72,10 @@ int retrieveFile(char * port_num){
             printf("LLREAD failure\n");
             return 0;
         }
+        if (buffer_size == -2){
+            printf("Repeated trama received!\n");
+            continue;
+        }
 
         int r = parsePackets(buffer, buffer_size);
         if (r == -1){

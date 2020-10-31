@@ -2,8 +2,8 @@
 #define SET 0x03
 #define DISC 0x0b 
 #define UA 0x07
-#define RR(s) (((s) << 7) | 0x03)
-#define REJ(s) (((s) << 7) | 0x01) 
+#define RR(s) ((((s + 1) % 2) << 7) | 0x03)
+#define REJ(s) ((((s + 1) % 2) << 7) | 0x01) 
 
 // Trama array positions
 #define FLAGI_POSTION 0
@@ -22,8 +22,10 @@
 /* Escape byte*/
 #define ESC 0x7d
 
-/* Stuffing byte */
+/* Stuffing */
 #define STUFF 0x20
+
+#define TEST 0xc0
 
 //Size of the information message
 #define INFO_SIZE_MSG(data_size)    ((data_size) + 6)   
@@ -64,7 +66,9 @@ void printDataInfoMsg(char * trama,int trama_size);
 int write_supervision_message(int fd, char cc_value);
 int write_supervision_message_retry(int fd, char cc_value);
 
-int write_inform_message_retry(int fd,char cc_value,int dataSize,char * buffer);
-int write_info_message(int fd,char * data,int data_size, char cc_value);
+int write_info_message(int fd, char * data, int data_size, int cc_value);
+int write_inform_message_retry(int fd, int dataSize, char * buffer);
 
 char buildBCC2(char * data, int data_size);
+int parseARQ(char* buffer);
+int getSequenceNumber(char* buffer);

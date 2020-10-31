@@ -4,6 +4,7 @@
 #include "data_stuffing.h"
 
 int flag=1, conta=1;
+static int ns = 0;
 
 int write_supervision_message(int fd, char cc_value){
     char trama[SUPERVISION_TRAMA_SIZE];
@@ -16,16 +17,16 @@ int write_supervision_message(int fd, char cc_value){
     return write(fd,trama,SUPERVISION_TRAMA_SIZE);
 }
 
-int write_info_message(int fd, char* data, int data_size, char cc_value){
+int write_info_message(int fd, char* data, int data_size, int cc_value){
 	if(data_size==0) return -1;
 
-	int trama_size = INFO_SIZE_MSG(data_size); //space in case bcc2 needs stuffing
+	int trama_size = INFO_SIZE_MSG(data_size);
 
-	char* trama = malloc(INFO_SIZE_MSG(data_size) + 1);
+	char* trama = malloc(INFO_SIZE_MSG(data_size) + 1); //space in case bcc2 needs stuffing
 
     trama[FLAGI_POSTION] = FLAG;
 	trama[ADRESS_POSITION] = AREC;
-	trama[CC_POSITION] = CC_INFO_MSG(cc_value); //0S00 0000
+	trama[CC_POSITION] = CC_INFO_MSG(cc_value);
 	trama[PC_POSITION] = (AREC) ^ CC_INFO_MSG(cc_value);
 	
 	char bcc2 = buildBCC2(data, data_size);
@@ -71,13 +72,12 @@ int write_supervision_message_retry(int fd, char cc_value){
 		}
 	}
 	if (success == TRUE){
-		//printSupervisionMessage(buffer, 1);
 		return 0;
 	}
 	return -1;
 }
 
-int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data){
+int write_inform_message_retry(int fd, int dataSize, char * data){
 	int success = FALSE, rd;
 	char* buffer;
 
@@ -87,7 +87,7 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 			flag=0;
 
 			/* writing */
-			int n_bytes = write_info_message(fd, data, dataSize, cc_value); 
+			int n_bytes = write_info_message(fd, data, dataSize, ns); 
 			if(n_bytes == -1){
 				printf("Error writing Inform message\n");
 			}
@@ -95,10 +95,11 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 			/* read message back */
 			buffer = readMessage(fd, &rd, 0);
 
-			if (buffer == NULL){
+			if (buffer == NULL || parseARQ(buffer)){
 				success = FALSE;
 			}
 			else{
+				ns++;
 				success = TRUE;
 				reset_alarm();
 			}
@@ -218,5 +219,13 @@ char buildBCC2(char * data, int data_size) {
 	return xor;
 }
 
+int parseARQ(char* buffer) {
+	unsigned char arq = (unsigned char) buffer[CTRL_POS];
+	if (arq == REJ(0) || arq == REJ(1))
+		return 1;
+	return 0;
+}
 
-
+int getSequenceNumber(char* buffer) {
+	return (int) (buffer[CTRL_POS] >> 6);
+}

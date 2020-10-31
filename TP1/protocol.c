@@ -5,6 +5,7 @@
 #include "data_stuffing.h"
 
 conn_type connection;
+static int nr = 1;
 
 int llopen(char* port, conn_type connection_type) {
 	link_layer layer;
@@ -78,17 +79,26 @@ int llclose(int fd) {
 int llwrite(int fd, char* buffer, int length) {
 	data_stuff stuffedData = stuffData(buffer,length);
 
-	return write_inform_message_retry(fd, 1, stuffedData.data_size, stuffedData.data);
+	return write_inform_message_retry(fd, stuffedData.data_size, stuffedData.data);
 }
 
 int llread(int fd, char* buffer) {
 	int temp_size = 0;
 
 	char* temp = readMessage(fd, &temp_size, 1);
-	if(temp == NULL){
-		printf("Error recieving message\n");
-		return -1;
-	} 
+	int seq_number = getSequenceNumber(temp);
+
+	if(temp == NULL || temp_size == 0){
+		if (write_supervision_message(fd, REJ(seq_number)) == -1){
+			printf("LLREAD: error writing RR message back\n");
+			return -1;
+		}
+	}
+
+	if (getSequenceNumber(temp) == nr % 2) {
+		printf("Received repeated trama");
+		return -2;
+	}
 
 	data_stuff unstuffedData = unstuffData(temp, temp_size);
 
@@ -96,15 +106,11 @@ int llread(int fd, char* buffer) {
 
 	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);
 
-	if (temp == NULL || temp_size == 0){
-		printf("LLREAD: error reading message\n");
+	if (write_supervision_message(fd, RR(seq_number)) == -1){
+		printf("LLREAD: error writing RR message back\n");
 		return -1;
 	}
 
-	if (write_supervision_message(fd, RR(1)) == -1){
-		printf("LLREAD: error writing message back\n");
-		return -1;
-	}
-
+	nr++;
 	return buffer_size;
 }
