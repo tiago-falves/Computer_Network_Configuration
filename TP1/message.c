@@ -17,11 +17,15 @@ int write_supervision_message(int fd, char cc_value){
 }
 
 int write_info_message(int fd, char* data, int data_size, char cc_value){
-	if(data_size==0) return -1;
+	if(data_size==0) {
+		printf("Recceived empty data buffer\n");
+		return -1;
+	} 
 
-	int trama_size = INFO_SIZE_MSG(data_size); //space in case bcc2 needs stuffing
+	data_stuff stuffedData = stuffData(data,data_size);
 
-	char* trama = malloc(INFO_SIZE_MSG(data_size) + 1);
+	int trama_size = INFO_SIZE_MSG(stuffedData.data_size); //space in case bcc2 needs stuffing
+	char* trama = malloc(trama_size + 1);
 
     trama[FLAGI_POSTION] = FLAG;
 	trama[ADRESS_POSITION] = AREC;
@@ -40,7 +44,7 @@ int write_info_message(int fd, char* data, int data_size, char cc_value){
 		trama[trama_size - 1] = FLAG;
 	}
 
-	memcpy(trama + DATA_INF_BYTE, data, data_size);
+	memcpy(trama + DATA_INF_BYTE, stuffedData.data, stuffedData.data_size);
 
 	return write(fd,trama,trama_size);
 }
@@ -77,7 +81,7 @@ int write_supervision_message_retry(int fd, char cc_value){
 	return -1;
 }
 
-int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data){
+int write_inform_message_retry(int fd, char * data, int dataSize, char cc_value){
 	int success = FALSE, rd;
 	char* buffer;
 
@@ -220,9 +224,8 @@ char buildBCC2(char * data, int data_size) {
 	}
 	return xor;
 }
-int verifyBCC(char * inform,int infMsgSize,char * data,int dataSize){
+int verifyBCC(char * inform, int infMsgSize, char * data, int dataSize){
 	char bcc = buildBCC2(data,dataSize);
-	printf("BCC %hhx      infBCC %hhx \n",bcc,inform[infMsgSize-2]);
 
 	if(inform[infMsgSize-2] == bcc) return 0;
 	else return -1; 

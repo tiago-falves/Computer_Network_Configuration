@@ -76,9 +76,7 @@ int llclose(int fd) {
 }
 
 int llwrite(int fd, char* buffer, int length) {
-	data_stuff stuffedData = stuffData(buffer,length);
-
-	return write_inform_message_retry(fd, 1, stuffedData.data_size, stuffedData.data);
+	return write_inform_message_retry(fd, buffer, length, 1);
 }
 
 int llread(int fd, char* buffer) {
@@ -92,10 +90,7 @@ int llread(int fd, char* buffer) {
 
 	data_stuff unstuffedData = unstuffData(temp, temp_size);
 
-	
-
 	int buffer_size = unstuffedData.data_size - 6;
-
 	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);
 
 	if(verifyBCC(unstuffedData.data,unstuffedData.data_size,buffer,buffer_size) < 0){
