@@ -16,8 +16,6 @@ int llopen(char* port, conn_type connection_type) {
 	  
 	int fd = open_connection(layer);
 	if(connection_type == EMISSOR){
-		printf("Writing SET message\n");
-
 		if(write_supervision_message_retry(fd,SET) == -1){
 			printf("Error establishing connection\n");
 		}
@@ -87,7 +85,13 @@ int llread(int fd, char* buffer) {
 	int temp_size = 0;
 
 	char* temp = readMessage(fd, &temp_size, 1);
+	if(temp == NULL){
+		printf("Error recieving message\n");
+		return -1;
+	} 
+
 	data_stuff unstuffedData = unstuffData(temp, temp_size);
+
 	int buffer_size = unstuffedData.data_size - 6;
 
 	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);

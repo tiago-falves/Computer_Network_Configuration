@@ -10,19 +10,19 @@ int sendFile(char * port_num,char * filename){
     install_alarm();
     int fd = llopen(port_num,EMISSOR);
 
+    FILE* file = fopen(filename, "rb");
+    if (file == NULL){
+        perror("Error reading file");
+        return -1;
+    }
+
     int fileSize = findSize(filename);
+
+    printf("Writing data\n");
 
     if(sendControlPacket(fd,filename,fileSize,PACKET_CTRL_START) != 0){
         printf("Error sendng controll packet\n");
         return 0;
-    }
-
-    printf("\nFILESIZE %d\n",fileSize);
-
-    printf("Writing data\n");
-    FILE* file = fopen(filename, "rb");
-    if (file == NULL){
-        perror("Error reading file");
     }
 
     int ret = 0;

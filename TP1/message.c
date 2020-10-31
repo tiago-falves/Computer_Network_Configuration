@@ -136,7 +136,7 @@ char* readMessage(int fd, int* size, int i_message){
 	while (getStateMachine() != STOP){
 		rd = read(fd, &r, 1);
 		if (rd <= 0){
-			printf("Read null value\n");
+			//Read null value
 			return NULL;
 		}
 

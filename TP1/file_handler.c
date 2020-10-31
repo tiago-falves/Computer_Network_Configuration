@@ -12,6 +12,7 @@ int read_file(char* file_path, int data_block_size, char* buffer) {
     FILE* file = fopen(file_path, "rb");
     if (file == NULL){
         perror("Error reading file");
+        return 0;
     }
 
     int ret = fread(buffer , sizeof(char), data_block_size, file);
