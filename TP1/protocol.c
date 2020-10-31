@@ -94,7 +94,11 @@ int llread(int fd, char* buffer) {
 	}
 
 	if (getSequenceNumber(temp) == nr % 2) {
-		printf("Received repeated trama");
+		printf("Received repeated trama\n");
+		if (write_supervision_message(fd, RR(seq_number)) == -1){
+			printf("LLREAD: error writing RR message back\n");
+			return -1;
+		}
 		return -2;
 	}
 
@@ -105,7 +109,12 @@ int llread(int fd, char* buffer) {
   
 	if(verifyBCC(unstuffedData.data,unstuffedData.data_size,buffer,buffer_size) < 0){
 		printf("Error verifying BCC\n");
-		return -1;
+		if (write_supervision_message(fd, REJ(seq_number)) == -1){
+			printf("LLREAD: error writing REJ message back\n");
+			return -1;
+		}
+		nr++;
+		return -3;
 	}
 	if (write_supervision_message(fd, RR(seq_number)) == -1){
 		printf("LLREAD: error writing RR message back\n");

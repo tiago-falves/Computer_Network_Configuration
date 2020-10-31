@@ -80,8 +80,7 @@ int retrieveFile(char * port_num){
             printf("LLREAD failure\n");
             return 0;
         }
-        if (buffer_size == -2){
-            printf("Repeated trama received!\n");
+        else if (buffer_size == -2 || buffer_size == -3){
             continue;
         }
 
@@ -101,8 +100,6 @@ int retrieveFile(char * port_num){
     if(llclose(fd)<0){
         printf("Error closing connection\n");
     } else printf("Connection closed successfully\n");
-
-
 
     return 1;
 }
