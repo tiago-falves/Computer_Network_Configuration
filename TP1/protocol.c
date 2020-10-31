@@ -32,7 +32,7 @@ int llopen(char* port, conn_type connection_type) {
 
 int llclose(int fd) {
 	if(connection == EMISSOR){
-		printf("Writing DISC message\n");
+		//printf("Writing DISC message\n");
 
 		if(write_supervision_message_retry(fd,DISC) == -1){
 			printf("Error establishing connection\n");
