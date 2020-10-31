@@ -18,7 +18,7 @@ int write_supervision_message(int fd, char cc_value){
 }
 
 
-int write_info_message(int fd, char* data, int data_size, char cc_value){
+int write_info_message(int fd, char* data, int data_size, int cc_value){
 	if(data_size==0) {
 		printf("Recceived empty data buffer\n");
 		return -1;
