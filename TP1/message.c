@@ -114,7 +114,10 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 
 int readSupervisionMessage(int fd){
 	int trama_size;
-	char* trama = readMessage(fd, &trama_size, 0);
+	//char* trama = readMessage(fd, &trama_size, 0);
+	if(readMessage(fd, &trama_size, 0)==NULL){
+		printf("Error recieving supervision message\n");
+	}
 
 	if(trama_size == 0){
 		printf("Error reading message\n");
@@ -124,7 +127,7 @@ int readSupervisionMessage(int fd){
 		printf("TRAMA SIZE: %d\n", trama_size);
 		return -1;
 	}
-	printSupervisionMessage(trama, 1);	
+	//printSupervisionMessage(trama, 1);	
 	return 0;
 }
 

@@ -4,6 +4,7 @@
 #include "application.h"
 
 
+
 int sendFile(char * port_num,char * filename){
 
     //TODO Adicionar verificaçoes de erros
@@ -18,7 +19,7 @@ int sendFile(char * port_num,char * filename){
 
     int fileSize = findSize(filename);
 
-    printf("Writing data\n");
+    //printf("Writing data\n");
 
     if(sendControlPacket(fd,filename,fileSize,PACKET_CTRL_START) != 0){
         printf("Error sendng controll packet\n");
@@ -45,7 +46,7 @@ int sendFile(char * port_num,char * filename){
         progressBar(EMISSOR,(1.0*i*(DATA_BLOCK_SIZE-4)/fileSize) *100);
     }
 
-    //printf("FINAL %f\n",(1.0*(i)*(DATA_BLOCK_SIZE-4)) /fileSize *100 );
+
 
     fclose(file);
 
@@ -54,7 +55,9 @@ int sendFile(char * port_num,char * filename){
         return 0;
     }
 
-    llclose(fd);
+    if(llclose(fd)<0){
+        printf("Error closing connection\n");
+    } else printf("Connection closed successfully\n");
 
     return 1;
 }
@@ -63,6 +66,8 @@ int retrieveFile(char * port_num){
 
     char* buffer = malloc(DATA_BLOCK_SIZE);
     int fd = llopen(port_num, RECEPTOR);
+    char filename[FILENAME_MAX];
+    memset(filename,0,FILENAME_MAX);
 
     printf("Retreiving file...\n");
 
@@ -73,20 +78,24 @@ int retrieveFile(char * port_num){
             return 0;
         }
 
-        int r = parsePackets(buffer, buffer_size);
+        int r = parsePackets(buffer, buffer_size,filename);
         if (r == -1){
             printf("Error parsing packets\n");
             return 0;
         }
         else if (r == -2){
-            printf("Received control end packet\n");
+            printf("File retrieved successfully\n");
             break;
         }
 
         memset(buffer, 0, DATA_BLOCK_SIZE);
     }
     
-    llclose(fd);
+    if(llclose(fd)<0){
+        printf("Error closing connection\n");
+    } else printf("Connection closed successfully\n");
+
+
 
     return 1;
 }
@@ -120,7 +129,9 @@ int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
 
     return ret;
 }
-int parseCtrlPacket(char * buffer){
+int parseCtrlPacket(char * buffer,char *  filename){
+
+    //TODO VERIFY CONTROL PACKET
 
     if ((buffer[PACKET_CTRL_IDX] != PACKET_CTRL_START) && (buffer[PACKET_CTRL_IDX] != PACKET_CTRL_END ) ){
         printf("Error recieving control packet\n");
@@ -133,21 +144,21 @@ int parseCtrlPacket(char * buffer){
 
     u_int fileSize = 0;
     memcpy(&fileSize, buffer + CTRL_SIZE_V_IDX, buffer[CTRL_SIZE_L_IDX]);
-    printf("File Size: %u\n",fileSize);
+    //printf("File Size: %u\n",fileSize);
 
     if (buffer[CTRL_NAME_T_IDX] != CTRL_NAME_OCTET){
         printf("Error recieving name of file\n");
         return -1;
     }
-
-    char filename[buffer[CTRL_NAME_L_IDX]];
+    //char filename[buffer[CTRL_NAME_L_IDX]];
     memcpy(filename, buffer + CTRL_NAME_V_IDX, buffer[CTRL_NAME_L_IDX]);
-    printf("Filename printing: ");
-    for (int i = 0; i < buffer[CTRL_NAME_L_IDX]; i++) 
-        printf("%c",filename[i]);
 
-    printf("\n");
+    //APAGAR TODO
 
+    char *tmp = strdup(filename);
+
+    strcpy(filename, "Images/"); //Put str2 or anyother string that you want at the begining
+    strcat(filename, tmp);  //concatenate previous str1
     return 0;
 }
 
@@ -169,36 +180,39 @@ int sendDataPacket(int fd,char * data,short dataSize,int nseq){
     return ret;
 }
 
-int parseDataPacket(char * buffer, int nseq){
+int parseDataPacket(char * buffer, int nseq,char * filename){
+ 
     int dataSize = (u_int8_t) buffer[DATA_L1_IDX] + (u_int8_t) buffer[DATA_L2_IDX] * 256;
 
     char * file_send = calloc(dataSize, sizeof(char));
-    memcpy(file_send, buffer + DATA_INF_BYTE, dataSize);
+
+    memcpy(file_send, buffer + DATA_INF_BYTE, dataSize); 
 
     //Write to file
-    write_file("files/test_rec.jpg", file_send);
+    //write_file("files/test_rec.gif", file_send);
+    write_file(filename, file_send);
+
 
     return 1;
     
 }
 
-int parsePackets(char * buffer, int buffer_size){
+int parsePackets(char * buffer, int buffer_size,char * filename){
 
     char cc = buffer[0];
     int nseq = 0;
 
     if(cc == PACKET_CTRL_END){
-        printf("Parsing end control Packet\n");
-        parseCtrlPacket(buffer);
+        //printf("Parsing end control Packet\n");
+        parseCtrlPacket(buffer,filename);
         return -2;
     }
     else if (cc == PACKET_CTRL_START){
-        printf("Parsing Initial control Packet\n");
-        parseCtrlPacket(buffer);
+        parseCtrlPacket(buffer,filename);
         return 0;
     }
     else if(cc != PACKET_CTRL_DATA){
-        printf("error packet\n");
+        printf("Error recieving packet\n");
         for (int i = 0; i < buffer_size; i++){
             printf("%02x ", (unsigned char) buffer[i]);
         }
@@ -207,8 +221,9 @@ int parsePackets(char * buffer, int buffer_size){
         return -1;
     }
     else{
+
         nseq = (int)buffer[DATA_N_SEQ_IDX];
-        if(!parseDataPacket(buffer,nseq)){
+        if(!parseDataPacket(buffer,nseq,filename)){
             printf("Error parsing data packet: %d",nseq);
             return -1;
         }
@@ -238,6 +253,10 @@ void progressBar(conn_type type, int progress) {
     
     
 
-    if (progress >= 100) printf("\r%s%d%%\n", msg, 100);
+    if (progress >= 100){
+        printf("\r%s%d%%\n", msg, 100);
+        fflush(stdout);
+        
+    } 
 }
 
