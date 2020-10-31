@@ -5,9 +5,7 @@ typedef enum {
   C_RCV = 3,
   BCC1_OK = 4,
   DATA_INF = 5,
-  DATA_FINISHED = 6,
-  BCC2_OK = 7,
-  STOP = 8
+  STOP = 6
 } state_machine;
 
 
@@ -17,9 +15,7 @@ void handleFlagReceived(char msg);
 void handleAddrReceived(unsigned char msg);
 void handleCtrlState(char msg,char addr,char ctrl);
 void handleBcc1State(char msg, int i_message);
-void handleBcc2State(char msg);
 void handleDataState(char msg);
-void handleDataFinishedState(char msg);
 void handleStopState(char msg);
 
 void update_state(state_machine state);

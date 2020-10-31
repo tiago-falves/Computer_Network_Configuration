@@ -12,7 +12,6 @@ int write_supervision_message(int fd, char cc_value){
 	trama[CC_POSITION] = cc_value;
 	trama[PC_POSITION] = (AREC) ^ (cc_value);
 	trama[FLAGF_POSTION] = FLAG;
-	trama[SUPERVISION_TRAMA_SIZE - 1] = '\0';
 
     return write(fd,trama,SUPERVISION_TRAMA_SIZE);
 }
@@ -20,21 +19,30 @@ int write_supervision_message(int fd, char cc_value){
 int write_info_message(int fd, char* data, int data_size, char cc_value){
 	if(data_size==0) return -1;
 
-	int trama_size = INFO_SIZE_MSG(data_size);
+	int trama_size = INFO_SIZE_MSG(data_size); //space in case bcc2 needs stuffing
 
-	char* trama = malloc(trama_size);
+	char* trama = malloc(INFO_SIZE_MSG(data_size) + 1);
 
     trama[FLAGI_POSTION] = FLAG;
 	trama[ADRESS_POSITION] = AREC;
 	trama[CC_POSITION] = CC_INFO_MSG(cc_value); //0S00 0000
 	trama[PC_POSITION] = (AREC) ^ CC_INFO_MSG(cc_value);
-	trama[trama_size - 3] = buildBCC2(data, data_size);
-	trama[trama_size - 2] = FLAG;
-	trama[trama_size - 1] = '\0';
+	
+	char bcc2 = buildBCC2(data, data_size);
+	if (bcc2 == FLAG || bcc2 == ESC) {
+		trama_size++;
+		trama[trama_size - 3] = ESC;
+		trama[trama_size - 2] = bcc2 ^ STUFF;
+		trama[trama_size - 1] = FLAG;
+	}
+	else {
+		trama[trama_size - 2] = bcc2;
+		trama[trama_size - 1] = FLAG;
+	}
 
-	memcpy(trama + DATA_INF_BYTE, data, data_size + 1);
+	memcpy(trama + DATA_INF_BYTE, data, data_size);
 
-	return write(fd,trama,INFO_SIZE_MSG(data_size));
+	return write(fd,trama,trama_size);
 }
 
 int write_supervision_message_retry(int fd, char cc_value){
@@ -63,7 +71,7 @@ int write_supervision_message_retry(int fd, char cc_value){
 		}
 	}
 	if (success == TRUE){
-		printSupervisionMessage(buffer, 1);
+		//printSupervisionMessage(buffer, 1);
 		return 0;
 	}
 	return -1;
@@ -85,11 +93,10 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 			}
 
 			/* read message back */
-			buffer = readMessage(fd, &rd, 1);
+			buffer = readMessage(fd, &rd, 0);
 
-			if (rd != SUPERVISION_TRAMA_SIZE || buffer == NULL) {
+			if (buffer == NULL){
 				success = FALSE;
-				printf("%d POR ALGUMA RAZAO ELE LE ESTA MENSAGEM GIGANTE? ou 0 \n",rd);
 			}
 			else{
 				success = TRUE;
@@ -99,7 +106,6 @@ int write_inform_message_retry(int fd, char cc_value, int dataSize, char * data)
 	}
 
 	if (success == TRUE){
-		printSupervisionMessage(buffer, 1);
 		return 0;
 	}
 	return -1;
@@ -115,10 +121,34 @@ int readSupervisionMessage(int fd){
 		return -1;
 	} 
 	if(trama_size != SUPERVISION_TRAMA_SIZE){
+		printf("TRAMA SIZE: %d\n", trama_size);
 		return -1;
 	}
 	printSupervisionMessage(trama, 1);	
 	return 0;
+}
+
+char* readMessage(int fd, int* size, int i_message){  
+	char r;
+	int rd, pos = 0;
+	char* buffer = malloc(1);
+
+	while (getStateMachine() != STOP){
+		rd = read(fd, &r, 1);
+		if (rd <= 0){
+			//Read null value
+			return NULL;
+		}
+
+		buffer = realloc(buffer, pos + 2);
+		handleState(r, i_message);
+		buffer[pos++] = r;
+	}
+
+	update_state(START);
+	*size = pos;
+	
+	return buffer;
 }
 
 void printSupervisionMessage(char * trama, int onlyC){
@@ -141,14 +171,19 @@ void printInformMessage(char * trama, int dataSize, int data){
 		printf("BCC: %04x\n\n", trama[3]);
 		printf("Data: ");
 	}
-	for (size_t i = 4; i < dataSize-3; i++)
+	for (size_t i = DATA_INF_BYTE; i < dataSize+DATA_INF_BYTE; i++)
 		printf("%c", trama[i]);
 	printf("\n\n");
 	if(!data){
 		printf("\n");
-		printf("BCC2: %04x\n", trama[dataSize-2]);
-		printf("FLAG: %04x\n", trama[dataSize-1]);
+		printf("BCC2: %04x\n", trama[dataSize+DATA_INF_BYTE+1]);
+		printf("FLAG: %04x\n", trama[dataSize+DATA_INF_BYTE+2]);
 	}
+}
+
+void printDataInfoMsg(char * trama,int trama_size){
+	for (int i = 7; i < trama_size-4; i++)
+		printf("%c", trama[i]);	
 }
 
 void atende(int signo){
@@ -175,61 +210,12 @@ void reset_alarm(){
 	alarm(0);
 }
 
-char* readMessage(int fd, int* size, int i_message){  
-	char r;
-	int finished = FALSE, rd, pos = 0;
-	char* buffer = malloc(1);
-
-	while (!finished){
-		//printf("State machine: %d \n", getStateMachine());
-		rd = read(fd, &r, 1);
-
-		if (rd <= 0){
-			return 0;
-		}
-		else if (getStateMachine() == STOP){
-			finished = TRUE;
-		}
-
-		buffer = realloc(buffer, pos + 2);
-		handleState(r, i_message);
-		buffer[pos++] = r;
-	}
-	*size = pos;
-
-	//data_stuff unstuffedDataStruct = unstuffData(buffer,pos);
-
-	//printInformMessage(unstuffedDataStruct.data,unstuffedDataStruct.data_size,1);
-	
-
-	
-	return buffer;
-}
-
 char buildBCC2(char * data, int data_size) {
 	char xor = data[0] ^ data[1];
 	for (int i = 2; i < data_size; i++) {
 		xor = xor ^ data[i];
 	}
 	return xor;
-}
-
-char** divideBuffer(char* buffer, int* size) {
-	int position = -1, pos = 0;
-
-    char** divided_data;
-
-	for (int i = 0; i < strlen(buffer); i++){
-		pos = i % 255;
-		if (pos == 0){
-			position++;
-			divided_data = realloc(divided_data, (position + 1) * sizeof(char*));
-			divided_data[position] = (char*)calloc(255, sizeof(char));
-		}
-		divided_data[position][pos] = buffer[i];
-	}
-    *size = position + 1;
-	return divided_data;
 }
 
 

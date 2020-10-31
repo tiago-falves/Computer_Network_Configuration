@@ -16,8 +16,6 @@ int llopen(char* port, conn_type connection_type) {
 	  
 	int fd = open_connection(layer);
 	if(connection_type == EMISSOR){
-		printf("Writing SET message\n");
-
 		if(write_supervision_message_retry(fd,SET) == -1){
 			printf("Error establishing connection\n");
 		}
@@ -43,61 +41,70 @@ int llclose(int fd) {
 			printf("Error writing UA\n");
 		}
 	}
+	else if (connection == RECEPTOR) {
+		int buffer_size = 0;
+		char* temp = readMessage(fd, &buffer_size, 0);
+
+		if (temp[CTRL_POS] == DISC) {
+			if (write_supervision_message(fd, DISC) == -1){
+				printf("LLREAD: error writing DISC message back\n");
+				return -2;
+			}
+		}
+		else{
+			printf("Error receiving DISC message\n");
+		}
+
+		free(temp);
+		temp = readMessage(fd, &buffer_size, 0);
+
+		if (temp == NULL || buffer_size == 0){
+			printf("LLREAD: error reading UA message after sending DISC\n");
+			return -1;
+		}
+
+		if (temp[CTRL_POS] == UA) {
+			return 0;
+		}
+		else {
+			printf("LLREAD: wrong message after sending DISC\n");
+			return -1;
+		}
+	}
 
     return close_connection(fd);
 }
 
 int llwrite(int fd, char* buffer, int length) {
-	data_stuff stuffedData = stuffData(buffer,length); 
+	data_stuff stuffedData = stuffData(buffer,length);
 
 	return write_inform_message_retry(fd, 1, stuffedData.data_size, stuffedData.data);
-	
-	//return write_inform_message_retry(fd, 1 ,length, buffer);
 }
 
 int llread(int fd, char* buffer) {
-	int buffer_size = 0;
+	int temp_size = 0;
 
-	while (TRUE) {
-		buffer = readMessage(fd, &buffer_size, 1);
-
-		if (buffer == NULL || buffer_size == 0){
-			printf("LLREAD: error reading message\n");
-			break;
-		}
-
-		if (buffer[CTRL_POS] == DISC) {
-			if (write_supervision_message(fd, DISC) == -1){
-				printf("LLREAD: error writing DISC message back\n");
-				return -1;
-			}
-			break;
-		}
-
-		if (write_supervision_message(fd, RR(1)) == -1){
-			printf("LLREAD: error writing message back\n");
-			return -1;
-		}
-		data_stuff unstuffedData = unstuffData(buffer,buffer_size);
-
-		printInformMessage(unstuffedData.data, unstuffedData.data_size, 1);
-		//printInformMessage(buffer,buffer_size,1);
-	}
-
-	buffer = readMessage(fd, &buffer_size, 1);
-	if (buffer == NULL || buffer_size == 0){
-		printf("LLREAD: error reading UA message after sending DISC\n");
+	char* temp = readMessage(fd, &temp_size, 1);
+	if(temp == NULL){
+		printf("Error recieving message\n");
 		return -1;
-	}
-	if (buffer[CTRL_POS] == UA) {
-		return 0;
-	}
-	else {
-		printf("LLREAD: wrong message after sending DISC\n");
+	} 
+
+	data_stuff unstuffedData = unstuffData(temp, temp_size);
+
+	int buffer_size = unstuffedData.data_size - 6;
+
+	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);
+
+	if (temp == NULL || temp_size == 0){
+		printf("LLREAD: error reading message\n");
 		return -1;
 	}
 
-	free(buffer);
-	return 0;
+	if (write_supervision_message(fd, RR(1)) == -1){
+		printf("LLREAD: error writing message back\n");
+		return -1;
+	}
+
+	return buffer_size;
 }
-
