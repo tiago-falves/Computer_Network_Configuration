@@ -69,6 +69,9 @@ int retrieveFile(char * port_num){
     char filename[FILENAME_MAX];
     memset(filename,0,FILENAME_MAX);
 
+    char ctrl_packet[DATA_BLOCK_SIZE];
+    memset(ctrl_packet,0,DATA_BLOCK_SIZE);
+
     printf("Retreiving file...\n");
 
     while(TRUE){
@@ -78,7 +81,7 @@ int retrieveFile(char * port_num){
             return 0;
         }
 
-        int r = parsePackets(buffer, buffer_size,filename);
+        int r = parsePackets(buffer, buffer_size,filename,ctrl_packet);
         if (r == -1){
             printf("Error parsing packets\n");
             return 0;
@@ -183,31 +186,30 @@ int sendDataPacket(int fd,char * data,short dataSize,int nseq){
 int parseDataPacket(char * buffer, int nseq,char * filename){
  
     int dataSize = (u_int8_t) buffer[DATA_L1_IDX] + (u_int8_t) buffer[DATA_L2_IDX] * 256;
-
     char * file_send = calloc(dataSize, sizeof(char));
-
     memcpy(file_send, buffer + DATA_INF_BYTE, dataSize); 
-
-    //Write to file
-    //write_file("files/test_rec.gif", file_send);
     write_file(filename, file_send);
-
-
     return 1;
     
 }
 
-int parsePackets(char * buffer, int buffer_size,char * filename){
+int parsePackets(char * buffer, int buffer_size,char * filename,char * ctrl_packet){
 
     char cc = buffer[0];
     int nseq = 0;
 
+
     if(cc == PACKET_CTRL_END){
-        //printf("Parsing end control Packet\n");
         parseCtrlPacket(buffer,filename);
+        
+        if(compareCtrlPackets(buffer,ctrl_packet) < 0){
+            printf("Error: Control packets are not compatible!\n");
+            return -1;
+        }
         return -2;
     }
     else if (cc == PACKET_CTRL_START){
+        memcpy(ctrl_packet,buffer,buffer_size);
         parseCtrlPacket(buffer,filename);
         return 0;
     }
@@ -260,3 +262,32 @@ void progressBar(conn_type type, int progress) {
     } 
 }
 
+int compareCtrlPackets(char * ctrl1,char * ctrl2){
+   
+    u_int fileSize = 0;
+    memcpy(&fileSize, ctrl1 + CTRL_SIZE_V_IDX, ctrl1[CTRL_SIZE_L_IDX]);
+    //printf("File Size: %u\n",fileSize);
+
+    u_int fileSize2 = 0;
+    memcpy(&fileSize2, ctrl2 + CTRL_SIZE_V_IDX, ctrl2[CTRL_SIZE_L_IDX]);
+    if(fileSize != fileSize2){
+        return -1;
+    }
+
+    char filename[FILENAME_MAX];
+    memset(filename,0,FILENAME_MAX);
+
+    //char filename[buffer[CTRL_NAME_L_IDX]];
+    memcpy(filename, ctrl1 + CTRL_NAME_V_IDX, ctrl1[CTRL_NAME_L_IDX]);
+
+    char filename2[FILENAME_MAX];
+    memset(filename2,0,FILENAME_MAX);
+
+    //char filename[buffer[CTRL_NAME_L_IDX]];
+    memcpy(filename2, ctrl2 + CTRL_NAME_V_IDX, ctrl2[CTRL_NAME_L_IDX]);
+
+    if(strcmp(filename,filename2) != 0){
+        return -1;
+    }
+    return 0;
+}
