@@ -222,7 +222,7 @@ char buildBCC2(char * data, int data_size) {
 }
 int verifyBCC(char * inform,int infMsgSize,char * data,int dataSize){
 	char bcc = buildBCC2(data,dataSize);
-	printf("BCC %02x      infBCC %02x \n",bcc,inform[infMsgSize-2]);
+	printf("BCC %hhx      infBCC %hhx \n",bcc,inform[infMsgSize-2]);
 
 	if(inform[infMsgSize-2] == bcc) return 0;
 	else return -1; 
