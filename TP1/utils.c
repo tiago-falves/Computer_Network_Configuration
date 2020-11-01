@@ -14,7 +14,7 @@ char* concat(const char *s1, const char *s2){
 
 bool check_arg(int argc, char* argv[]){
   return (argc >= 3) &&(
-         ((argc == 4) &&
+         ((argc == 5) &&
           ((strcmp("0", argv[1])!=0)||
           (strcmp("1", argv[1])!=0)) &&
           (strcmp("emissor", argv[2]) == 0)) ||
@@ -26,7 +26,7 @@ bool check_arg(int argc, char* argv[]){
 
 arguments parse_arguments(int argc, char *argv[]) {
     if (!check_arg(argc, argv)){
-        printf("Usage: main <serial port number> emitter/receptor (filename)\n");
+        printf("Usage: main <serial port number> emitter/receptor (filename) (data_block_size)\n");
         exit(1);
     }
 
@@ -36,6 +36,7 @@ arguments parse_arguments(int argc, char *argv[]) {
     else{
         args.role = EMISSOR;
         args.filename = argv[3];
+        args.data_block_size = atoi(argv[4]);
     }
     args.port_num = port;
 
