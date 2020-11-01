@@ -70,7 +70,11 @@ int write_supervision_message_retry(int fd, char cc_value){
 			buffer = readMessage(fd, &rd, 0);
 			if (rd != n_bytes || buffer == NULL) 
 				success = FALSE;
-			else{
+			else if (cc_value == SET && buffer[CTRL_POS] == UA){
+				success = TRUE;
+				reset_alarm();
+			}
+			else if (cc_value == DISC && buffer[CTRL_POS] == DISC){
 				success = TRUE;
 				reset_alarm();
 			} 
@@ -115,26 +119,6 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 		return 0;
 	}
 	return -1;
-}
-
-
-int readSupervisionMessage(int fd){
-	int trama_size;
-	//char* trama = readMessage(fd, &trama_size, 0);
-	if(readMessage(fd, &trama_size, 0)==NULL){
-		printf("Error recieving supervision message\n");
-	}
-
-	if(trama_size == 0){
-		printf("Error reading message\n");
-		return -1;
-	} 
-	if(trama_size != SUPERVISION_TRAMA_SIZE){
-		printf("TRAMA SIZE: %d\n", trama_size);
-		return -1;
-	}
-	//printSupervisionMessage(trama, 1);	
-	return 0;
 }
 
 char* readMessage(int fd, int* size, int i_message){  

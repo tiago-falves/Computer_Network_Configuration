@@ -42,5 +42,3 @@ arguments parse_arguments(int argc, char *argv[]) {
 
     return args;
 }
-
-  

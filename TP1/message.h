@@ -52,8 +52,6 @@ void atende(int signo);
 void install_alarm();
 void reset_alarm();
 
-int readSupervisionMessage(int fd);
-
 char* readMessage(int fd, int* size, int i_message);
 
 void printSupervisionMessage(char * trama, int onlyC);

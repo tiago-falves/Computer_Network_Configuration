@@ -19,13 +19,25 @@ int llopen(char* port, conn_type connection_type) {
 	if(connection_type == EMISSOR){
 		if(write_supervision_message_retry(fd,SET) == -1){
 			printf("Error establishing connection\n");
+			return -1;
 		}
 	}else if (connection_type == RECEPTOR){
-		if(readSupervisionMessage(fd) == -1){
-			printf("Error reading SET message\n");
+		int trama_size = 0;
+		char* trama = readMessage(fd, &trama_size, 0);
+
+		if (trama == NULL || trama == 0){
+			printf("LLOPEN: error reading SET message\n");
+			return -1;
 		}
+
+		if (trama[CTRL_POS] != SET) {
+			printf("LLOPEN: expected SET message\n");
+			return -1;
+		}
+
 		if(write_supervision_message(fd,UA) == -1){
 			printf("Error writing UA\n");
+			return -1;
 		}
 	}
 	return fd;
@@ -33,8 +45,6 @@ int llopen(char* port, conn_type connection_type) {
 
 int llclose(int fd) {
 	if(connection == EMISSOR){
-		//printf("Writing DISC message\n");
-
 		if(write_supervision_message_retry(fd,DISC) == -1){
 			printf("Error establishing connection\n");
 		}
@@ -48,11 +58,10 @@ int llclose(int fd) {
 
 		if (temp[CTRL_POS] == DISC) {
 			if (write_supervision_message(fd, DISC) == -1){
-				printf("LLREAD: error writing DISC message back\n");
+				printf("LLCLOSE: error writing DISC message back\n");
 				return -2;
 			}
-		}
-		else{
+		}else{
 			printf("Error receiving DISC message\n");
 		}
 
@@ -60,15 +69,12 @@ int llclose(int fd) {
 		temp = readMessage(fd, &buffer_size, 0);
 
 		if (temp == NULL || buffer_size == 0){
-			printf("LLREAD: error reading UA message after sending DISC\n");
+			printf("LLCLOSE: error reading UA message after sending DISC\n");
 			return -1;
 		}
 
-		if (temp[CTRL_POS] == UA) {
-			return 0;
-		}
-		else {
-			printf("LLREAD: wrong message after sending DISC\n");
+		if (temp[CTRL_POS] != UA) {
+			printf("LLCLOSE: wrong message after sending DISC\n");
 			return -1;
 		}
 	}
