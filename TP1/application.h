@@ -37,8 +37,8 @@ typedef struct{
 } ctrl_packet;
 
 
-int retrieveFile(char * port_num);
-int sendFile(char * port_num,char * filename);
+int retrieveFile(char * port_num,int data_size);
+int sendFile(char * port_num,char * filename,int data_size);
 
 int sendControlPacket(int fd,char * filename,int fileSize,int ctrl);
 int parseCtrlPacket(char * buffer,char * filename);

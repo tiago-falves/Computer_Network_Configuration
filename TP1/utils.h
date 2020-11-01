@@ -9,6 +9,7 @@ typedef struct {
   conn_type role;
   char *filename;
   char * port_num;
+  int data_block_size;
 } arguments;
 
 #define PORT_ARG "/dev/ttyS"

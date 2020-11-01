@@ -39,9 +39,6 @@
 //Info Message
 #define CC_INFO_MSG(s)           (((s) % 2) << 6) 
 
-//Information frame data block size
-#define DATA_BLOCK_SIZE 255
-
 //Control fiel frame position
 #define CTRL_POS 2
 
