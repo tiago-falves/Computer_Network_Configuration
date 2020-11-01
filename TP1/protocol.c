@@ -5,6 +5,7 @@
 #include "data_stuffing.h"
 
 conn_type connection;
+static int nr = 1;
 
 int llopen(char* port, conn_type connection_type) {
 	link_layer layer;
@@ -76,37 +77,50 @@ int llclose(int fd) {
 }
 
 int llwrite(int fd, char* buffer, int length) {
-	return write_inform_message_retry(fd, buffer, length, 1);
+	return write_inform_message_retry(fd, buffer, length);
 }
 
 int llread(int fd, char* buffer) {
 	int temp_size = 0;
 
 	char* temp = readMessage(fd, &temp_size, 1);
-	if(temp == NULL){
-		printf("Error recieving message\n");
-		return -1;
-	} 
+	int seq_number = getSequenceNumber(temp);
+
+	if(temp == NULL || temp_size == 0){
+		if (write_supervision_message(fd, REJ(seq_number)) == -1){
+			printf("LLREAD: error writing RR message back\n");
+			return -1;
+		}
+	}
+
+	if (getSequenceNumber(temp) == nr % 2) {
+		printf("Received repeated trama\n");
+		if (write_supervision_message(fd, RR(seq_number)) == -1){
+			printf("LLREAD: error writing RR message back\n");
+			return -1;
+		}
+		return -2;
+	}
 
 	data_stuff unstuffedData = unstuffData(temp, temp_size);
 
 	int buffer_size = unstuffedData.data_size - 6;
 	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);
-
+  
 	if(verifyBCC(unstuffedData.data,unstuffedData.data_size,buffer,buffer_size) < 0){
 		printf("Error verifying BCC\n");
+		if (write_supervision_message(fd, REJ(seq_number)) == -1){
+			printf("LLREAD: error writing REJ message back\n");
+			return -1;
+		}
+		nr++;
+		return -3;
+	}
+	if (write_supervision_message(fd, RR(seq_number)) == -1){
+		printf("LLREAD: error writing RR message back\n");
 		return -1;
 	}
 
-	if (temp == NULL || temp_size == 0){
-		printf("LLREAD: error reading message\n");
-		return -1;
-	}
-
-	if (write_supervision_message(fd, RR(1)) == -1){
-		printf("LLREAD: error writing message back\n");
-		return -1;
-	}
-
+	nr++;
 	return buffer_size;
 }

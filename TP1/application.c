@@ -31,7 +31,6 @@ int sendFile(char * port_num,char * filename){
     int i = 0;
 
     while (TRUE){
-        //int i = 0; //TODO este i devia mesmo estar aqui?
         ret = fread(buffer , sizeof(char), DATA_BLOCK_SIZE - 4, file);
 
         if (ret <= 0){
@@ -80,6 +79,9 @@ int retrieveFile(char * port_num){
             printf("LLREAD failure\n");
             return 0;
         }
+        else if (buffer_size == -2 || buffer_size == -3){
+            continue;
+        }
 
         int r = parsePackets(buffer, buffer_size,filename,ctrl_packet);
         if (r == -1){
@@ -97,8 +99,6 @@ int retrieveFile(char * port_num){
     if(llclose(fd)<0){
         printf("Error closing connection\n");
     } else printf("Connection closed successfully\n");
-
-
 
     return 1;
 }
@@ -188,7 +188,7 @@ int parseDataPacket(char * buffer, int nseq,char * filename){
     int dataSize = (u_int8_t) buffer[DATA_L1_IDX] + (u_int8_t) buffer[DATA_L2_IDX] * 256;
     char * file_send = calloc(dataSize, sizeof(char));
     memcpy(file_send, buffer + DATA_INF_BYTE, dataSize); 
-    write_file(filename, file_send);
+    write_file(filename, file_send, dataSize);
     return 1;
     
 }
@@ -239,26 +239,32 @@ void progressBar(conn_type type, int progress) {
     char * msg;
     switch (type) {
         case RECEPTOR:
-            msg = "Receiving file: ";
+            msg = "Receiving file |";
             break;
         case EMISSOR:
-            msg = "Sending file: ";
+            msg = "Sending file |";
             break;
         default:
             msg = "";
     }
-    if (progress < 100)
-    {
-        printf("\r%s%d%%", msg, progress);
+    if (progress < 100){
+        printf("\r%s", msg);
+        for (int i = 0; i < PROGRESS_BAR_SIZE; i++){
+            if ((int)(progress*0.01*PROGRESS_BAR_SIZE) < i)
+                printf(" ");
+            else
+                printf("=");
+        }
+        printf("| %d%%", progress);
         fflush(stdout);
     }
-    
-    
 
     if (progress >= 100){
-        printf("\r%s%d%%\n", msg, 100);
+        printf("\r%s", msg);
+        for (int i = 0; i < PROGRESS_BAR_SIZE; i++) 
+            printf("=");
+        printf("| %d%%\n", 100);
         fflush(stdout);
-        
     } 
 }
 

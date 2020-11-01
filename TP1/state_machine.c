@@ -76,7 +76,7 @@ void handleAddrReceived(unsigned char msg) {
         case CC_INFO_MSG(0): case CC_INFO_MSG(1):
             update_state(C_RCV);
             break;
-        case RR(1):
+        case RR(0):
             update_state(C_RCV);
             break;
         default:

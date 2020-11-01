@@ -27,7 +27,7 @@
 
 #define DATA_CTRL_VALUE 1
 
-
+#define PROGRESS_BAR_SIZE 50
 
 
 
