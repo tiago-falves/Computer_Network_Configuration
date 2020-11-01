@@ -3,9 +3,10 @@
 #include "file_handler.h"
 #include "application.h"
 
+int data_block_size;
 
-
-int sendFile(char * port_num,char * filename){
+int sendFile(char * port_num,char * filename,int data_size){
+    data_block_size = data_size;
 
     //TODO Adicionar verificaçoes de erros
     install_alarm();
@@ -27,11 +28,11 @@ int sendFile(char * port_num,char * filename){
     }
 
     int ret = 0;
-    char* buffer = calloc(DATA_BLOCK_SIZE - 4, sizeof(char));
+    char* buffer = calloc(data_block_size - 4, sizeof(char));
     int i = 0;
 
     while (TRUE){
-        ret = fread(buffer , sizeof(char), DATA_BLOCK_SIZE - 4, file);
+        ret = fread(buffer , sizeof(char), data_block_size - 4, file);
 
         if (ret <= 0){
             break;
@@ -42,7 +43,7 @@ int sendFile(char * port_num,char * filename){
         }
 
         i++;
-        progressBar(EMISSOR,(1.0*i*(DATA_BLOCK_SIZE-4)/fileSize) *100);
+        progressBar(EMISSOR,(1.0*i*(data_block_size-4)/fileSize) *100);
     }
 
 
@@ -61,15 +62,16 @@ int sendFile(char * port_num,char * filename){
     return 1;
 }
 
-int retrieveFile(char * port_num){
+int retrieveFile(char * port_num,int data_size){
 
-    char* buffer = malloc(DATA_BLOCK_SIZE);
+    data_block_size = data_size;
+    char* buffer = malloc(data_block_size);
     int fd = llopen(port_num, RECEPTOR);
     char filename[FILENAME_MAX];
     memset(filename,0,FILENAME_MAX);
 
-    char ctrl_packet[DATA_BLOCK_SIZE];
-    memset(ctrl_packet,0,DATA_BLOCK_SIZE);
+    char ctrl_packet[data_block_size];
+    memset(ctrl_packet,0,data_block_size);
 
     printf("Retreiving file...\n");
 
@@ -93,7 +95,7 @@ int retrieveFile(char * port_num){
             break;
         }
 
-        memset(buffer, 0, DATA_BLOCK_SIZE);
+        memset(buffer, 0, data_block_size);
     }
     
     if(llclose(fd)<0){
@@ -106,7 +108,7 @@ int retrieveFile(char * port_num){
 int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
     u_int file_name_size = strlen(filename);  
     u_int file_size_size = sizeof(u_int);
-    if(file_name_size > DATA_BLOCK_SIZE) {
+    if(file_name_size > 255) {
         printf("Error, filename cannot be greater that 255 characters\n");
     }  
 
@@ -134,7 +136,6 @@ int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
 }
 int parseCtrlPacket(char * buffer,char *  filename){
 
-    //TODO VERIFY CONTROL PACKET
 
     if ((buffer[PACKET_CTRL_IDX] != PACKET_CTRL_START) && (buffer[PACKET_CTRL_IDX] != PACKET_CTRL_END ) ){
         printf("Error recieving control packet\n");
@@ -291,9 +292,10 @@ int compareCtrlPackets(char * ctrl1,char * ctrl2){
 
     //char filename[buffer[CTRL_NAME_L_IDX]];
     memcpy(filename2, ctrl2 + CTRL_NAME_V_IDX, ctrl2[CTRL_NAME_L_IDX]);
-
+    //printf("%s   %s",filename,filename2);
     if(strcmp(filename,filename2) != 0){
         return -1;
     }
+
     return 0;
 }
