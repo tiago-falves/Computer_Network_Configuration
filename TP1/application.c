@@ -62,18 +62,19 @@ int sendFile(char * port_num,char * filename,int data_size){
     return 1;
 }
 
-int retrieveFile(char * port_num,int data_size){
+int retrieveFile(char * port_num){
 
-    data_block_size = data_size;
-    char* buffer = malloc(data_block_size);
+    char* buffer = malloc(CTRL_PACKET_SIZE(FILENAME_MAX));
     int fd = llopen(port_num, RECEPTOR);
+
     char filename[FILENAME_MAX];
     memset(filename,0,FILENAME_MAX);
 
-    char ctrl_packet[data_block_size];
+    char ctrl_packet[CTRL_PACKET_SIZE(FILENAME_MAX)];
     memset(ctrl_packet,0,data_block_size);
 
     printf("Retreiving file...\n");
+    int first_loop = TRUE;
 
     while(TRUE){
         int buffer_size = llread(fd, buffer);
@@ -95,6 +96,11 @@ int retrieveFile(char * port_num,int data_size){
             break;
         }
 
+        if (first_loop){
+            buffer = realloc(buffer, data_block_size);
+            first_loop = FALSE;
+        }
+
         memset(buffer, 0, data_block_size);
     }
     
@@ -108,6 +114,7 @@ int retrieveFile(char * port_num,int data_size){
 int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
     u_int file_name_size = strlen(filename);  
     u_int file_size_size = sizeof(u_int);
+    u_int block_size = sizeof(u_int);
     if(file_name_size > 255) {
         printf("Error, filename cannot be greater that 255 characters\n");
     }  
@@ -115,19 +122,25 @@ int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
     int controlPacketSize = CTRL_PACKET_SIZE(file_name_size);
     char * controlPacket = malloc(controlPacketSize);
 
-    //FILESIZE
     controlPacket[PACKET_CTRL_IDX] = ctrl;
+
+    //FILESIZE
     controlPacket[CTRL_SIZE_T_IDX] = CTRL_SIZE_OCTET;
     controlPacket[CTRL_SIZE_L_IDX] = file_size_size;
-    for (int i = 0; i < file_size_size; i++){
+    for (int i = 0; i < file_size_size; i++)
         controlPacket[CTRL_SIZE_V_IDX+i] = (u_int8_t) (fileSize >> (8 * i));
-    }
 
     //FILENAME
     controlPacket[CTRL_NAME_T_IDX] = CTRL_NAME_OCTET;
     controlPacket[CTRL_NAME_L_IDX] = file_name_size;
     for (int i = 0; i < file_name_size; i++)
         controlPacket[CTRL_NAME_V_IDX+i] = filename[i];
+
+    //DATABLOCKSIZE
+    controlPacket[CTRL_NAME_V_IDX + file_name_size] = 2;
+    controlPacket[CTRL_NAME_V_IDX + file_name_size + 1] = block_size;
+    for (int i = 0; i < block_size; i++)
+        controlPacket[CTRL_NAME_V_IDX + file_name_size + 2 + i] = (u_int8_t) (data_block_size >> (8 * i));
     
     int ret = llwrite(fd, controlPacket, controlPacketSize);
     free(controlPacket);
@@ -154,15 +167,19 @@ int parseCtrlPacket(char * buffer,char *  filename){
         printf("Error recieving name of file\n");
         return -1;
     }
-    //char filename[buffer[CTRL_NAME_L_IDX]];
+
+    memset(filename + buffer[CTRL_NAME_L_IDX], 0, 1);
     memcpy(filename, buffer + CTRL_NAME_V_IDX, buffer[CTRL_NAME_L_IDX]);
+    printf("filename: %s\n", filename);
+
+    int file_name_size = strlen(filename);
+    memcpy(&data_block_size, buffer + CTRL_NAME_V_IDX + file_name_size + 2, buffer[CTRL_NAME_V_IDX + file_name_size + 1]);
 
     //APAGAR TODO
-
     char *tmp = strdup(filename);
-
-    strcpy(filename, "Images/"); //Put str2 or anyother string that you want at the begining
+    strcpy(filename, "Images/"); //Put str2 or annother string that you want at the begining
     strcat(filename, tmp);  //concatenate previous str1
+
     return 0;
 }
 
@@ -199,7 +216,6 @@ int parsePackets(char * buffer, int buffer_size,char * filename,char * ctrl_pack
     char cc = buffer[0];
     int nseq = 0;
 
-
     if(cc == PACKET_CTRL_END){
         parseCtrlPacket(buffer,filename);
         
@@ -224,7 +240,6 @@ int parsePackets(char * buffer, int buffer_size,char * filename,char * ctrl_pack
         return -1;
     }
     else{
-
         nseq = (int)buffer[DATA_N_SEQ_IDX];
         if(!parseDataPacket(buffer,nseq,filename)){
             printf("Error parsing data packet: %d",nseq);

@@ -7,7 +7,7 @@
 #define CTRL_NAME_T_IDX             7
 #define CTRL_NAME_L_IDX             8
 #define CTRL_NAME_V_IDX             9
-#define CTRL_PACKET_SIZE(fname_len) sizeof(u_int) + fname_len + 5
+#define CTRL_PACKET_SIZE(fname_len) 2*sizeof(u_int) + fname_len + 7
 #define DATA_PACKET_MAX_SIZE        4096
 
 // control 
@@ -37,7 +37,7 @@ typedef struct{
 } ctrl_packet;
 
 
-int retrieveFile(char * port_num,int data_size);
+int retrieveFile(char * port_num);
 int sendFile(char * port_num,char * filename,int data_size);
 
 int sendControlPacket(int fd,char * filename,int fileSize,int ctrl);
