@@ -292,9 +292,7 @@ int compareCtrlPackets(char * ctrl1,char * ctrl2){
 
     //char filename[buffer[CTRL_NAME_L_IDX]];
     memcpy(filename2, ctrl2 + CTRL_NAME_V_IDX, ctrl2[CTRL_NAME_L_IDX]);
-    printf("%s   %s",filename,filename2);
-
-
+    //printf("%s   %s",filename,filename2);
     if(strcmp(filename,filename2) != 0){
         return -1;
     }
