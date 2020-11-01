@@ -239,26 +239,32 @@ void progressBar(conn_type type, int progress) {
     char * msg;
     switch (type) {
         case RECEPTOR:
-            msg = "Receiving file: ";
+            msg = "Receiving file |";
             break;
         case EMISSOR:
-            msg = "Sending file: ";
+            msg = "Sending file |";
             break;
         default:
             msg = "";
     }
-    if (progress < 100)
-    {
-        printf("\r%s%d%%", msg, progress);
+    if (progress < 100){
+        printf("\r%s", msg);
+        for (int i = 0; i < PROGRESS_BAR_SIZE; i++){
+            if ((int)(progress*0.01*PROGRESS_BAR_SIZE) < i)
+                printf(" ");
+            else
+                printf("=");
+        }
+        printf("| %d%%", progress);
         fflush(stdout);
     }
-    
-    
 
     if (progress >= 100){
-        printf("\r%s%d%%\n", msg, 100);
+        printf("\r%s", msg);
+        for (int i = 0; i < PROGRESS_BAR_SIZE; i++) 
+            printf("=");
+        printf("| %d%%\n", 100);
         fflush(stdout);
-        
     } 
 }
 
