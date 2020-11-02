@@ -26,7 +26,8 @@ bool check_arg(int argc, char* argv[]){
 
 arguments parse_arguments(int argc, char *argv[]) {
     if (!check_arg(argc, argv)){
-        printf("Usage: main <serial port number> emitter/receptor (filename) (data_block_size)\n");
+        printf("Usage Receptor: main <serial port number> receptor\n");
+        printf("Usage Emissor: main <serial port number> emitter (filename) (data_block_size)\n");
         exit(1);
     }
 

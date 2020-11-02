@@ -1,1 +1,1 @@
-./main.out 0 emissor files/Manuel.jpg
+./main.out 0 emissor files/Manuel.jpg 255
