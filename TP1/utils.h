@@ -17,4 +17,4 @@ typedef struct {
 arguments parse_arguments(int argc, char *argv[]);
 bool check_arg(int argc, char* argv[]);
 char* concat(const char *s1, const char *s2);
-
+void log_message(char* msg, int sent);

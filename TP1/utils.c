@@ -14,14 +14,8 @@ char* concat(const char *s1, const char *s2){
 
 bool check_arg(int argc, char* argv[]){
   return (argc >= 3) &&(
-         ((argc == 5) &&
-          ((strcmp("0", argv[1])!=0)||
-          (strcmp("1", argv[1])!=0)) &&
-          (strcmp("emissor", argv[2]) == 0)) ||
-         ((argc == 3) &&
-          ((strcmp("0", argv[1]) == 0) ||
-          (strcmp("1", argv[1]) == 0)) &&
-          (strcmp("receptor", argv[2]) == 0)));
+         ((argc == 5) && (strcmp("emissor", argv[2]) == 0)) ||
+         ((argc == 3) && (strcmp("receptor", argv[2]) == 0)));
 }
 
 arguments parse_arguments(int argc, char *argv[]) {
@@ -43,5 +37,3 @@ arguments parse_arguments(int argc, char *argv[]) {
 
     return args;
 }
-
-  

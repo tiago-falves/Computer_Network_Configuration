@@ -11,6 +11,7 @@ int sendFile(char * port_num,char * filename,int data_size){
     //TODO Adicionar verificaçoes de erros
     install_alarm();
     int fd = llopen(port_num,EMISSOR);
+    if (fd == -1) return -1;
 
     FILE* file = fopen(filename, "rb");
     if (file == NULL){
@@ -20,11 +21,9 @@ int sendFile(char * port_num,char * filename,int data_size){
 
     int fileSize = findSize(filename);
 
-    //printf("Writing data\n");
-
     if(sendControlPacket(fd,filename,fileSize,PACKET_CTRL_START) != 0){
-        printf("Error sendng controll packet\n");
-        return 0;
+        printf("Error sending controll packet\n");
+        return -1;
     }
 
     int ret = 0;
@@ -33,39 +32,35 @@ int sendFile(char * port_num,char * filename,int data_size){
 
     while (TRUE){
         ret = fread(buffer , sizeof(char), data_block_size - 4, file);
+        if (ret <= 0) break;
 
-        if (ret <= 0){
-            break;
-        }
-
-        if(sendDataPacket(fd, buffer, ret, i) != 0){
-            printf("Error sending data packet\n");
+        if(sendDataPacket(fd, buffer, ret, i) < 0){
+            printf("\nError sending data packet\n");
+            return -1;
         }
 
         i++;
         progressBar(EMISSOR,(1.0*i*(data_block_size-4)/fileSize) *100);
     }
-
-
-
     fclose(file);
 
     if(sendControlPacket(fd,filename,fileSize,PACKET_CTRL_END) != 0){
-        printf("Error sendng controll packet\n");
-        return 0;
+        printf("Error sending controll packet\n");
+        return -1;
     }
 
     if(llclose(fd)<0){
         printf("Error closing connection\n");
     } else printf("Connection closed successfully\n");
 
-    return 1;
+    return 0;
 }
 
 int retrieveFile(char * port_num){
 
     char* buffer = malloc(CTRL_PACKET_SIZE(FILENAME_MAX));
     int fd = llopen(port_num, RECEPTOR);
+    if (fd == -1) return -1;
 
     char filename[FILENAME_MAX];
     memset(filename,0,FILENAME_MAX);
@@ -73,14 +68,14 @@ int retrieveFile(char * port_num){
     char ctrl_packet[CTRL_PACKET_SIZE(FILENAME_MAX)];
     memset(ctrl_packet,0,data_block_size);
 
-    printf("Retreiving file...\n");
+    printf("Receiving file...\n");
     int first_loop = TRUE;
 
     while(TRUE){
         int buffer_size = llread(fd, buffer);
         if (buffer_size == -1){
             printf("LLREAD failure\n");
-            return 0;
+            return -1;
         }
         else if (buffer_size == -2 || buffer_size == -3){
             continue;
@@ -89,10 +84,10 @@ int retrieveFile(char * port_num){
         int r = parsePackets(buffer, buffer_size,filename,ctrl_packet);
         if (r == -1){
             printf("Error parsing packets\n");
-            return 0;
+            return -1;
         }
         else if (r == -2){
-            printf("File retrieved successfully\n");
+            printf("File received successfully\n");
             break;
         }
 
@@ -108,7 +103,7 @@ int retrieveFile(char * port_num){
         printf("Error closing connection\n");
     } else printf("Connection closed successfully\n");
 
-    return 1;
+    return 0;
 }
 
 int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
@@ -161,7 +156,6 @@ int parseCtrlPacket(char * buffer,char *  filename){
 
     u_int fileSize = 0;
     memcpy(&fileSize, buffer + CTRL_SIZE_V_IDX, buffer[CTRL_SIZE_L_IDX]);
-    //printf("File Size: %u\n",fileSize);
 
     if (buffer[CTRL_NAME_T_IDX] != CTRL_NAME_OCTET){
         printf("Error recieving name of file\n");
@@ -170,7 +164,9 @@ int parseCtrlPacket(char * buffer,char *  filename){
 
     memset(filename + buffer[CTRL_NAME_L_IDX], 0, 1);
     memcpy(filename, buffer + CTRL_NAME_V_IDX, buffer[CTRL_NAME_L_IDX]);
-    printf("filename: %s\n", filename);
+
+    if ((buffer[PACKET_CTRL_IDX] != PACKET_CTRL_START))
+        printf("filename: %s\n", filename);
 
     int file_name_size = strlen(filename);
     memcpy(&data_block_size, buffer + CTRL_NAME_V_IDX + file_name_size + 2, buffer[CTRL_NAME_V_IDX + file_name_size + 1]);
