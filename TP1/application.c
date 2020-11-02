@@ -23,7 +23,7 @@ int sendFile(char * port_num,char * filename,int data_size){
 
     if(sendControlPacket(fd,filename,fileSize,PACKET_CTRL_START) != 0){
         printf("Error sending controll packet\n");
-        return 0;
+        return -1;
     }
 
     int ret = 0;
@@ -34,8 +34,8 @@ int sendFile(char * port_num,char * filename,int data_size){
         ret = fread(buffer , sizeof(char), data_block_size - 4, file);
         if (ret <= 0) break;
 
-        if(sendDataPacket(fd, buffer, ret, i) != 0){
-            printf("Error sending data packet\n");
+        if(sendDataPacket(fd, buffer, ret, i) < 0){
+            printf("\nError sending data packet\n");
             return -1;
         }
 

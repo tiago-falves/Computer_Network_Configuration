@@ -1,5 +1,0 @@
-Para ligar a SSH computador rcom da direita
-SSH NETEDU@192.168.109.2
-
-Username netedu
-Passord: torvalds

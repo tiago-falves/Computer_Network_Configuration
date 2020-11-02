@@ -106,8 +106,12 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 			/* read message back */
 			buffer = readMessage(fd, &rd, 0, 1);
 
-			if (buffer == NULL || parseARQ(buffer)){
+			if (buffer == NULL){
 				success = FALSE;
+			}
+			else if (parseARQ(buffer)){
+				success = FALSE;
+				reset_alarm();
 			}
 			else{
 				ns++;

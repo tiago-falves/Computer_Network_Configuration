@@ -116,7 +116,6 @@ int llread(int fd, char* buffer) {
 			printf("LLREAD: error writing REJ message back\n");
 			return -1;
 		}
-		nr++;
 		return -3;
 	}
 	if (write_supervision_message(fd, RR(seq_number)) == -1){
