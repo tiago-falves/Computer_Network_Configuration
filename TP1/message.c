@@ -62,12 +62,13 @@ int write_supervision_message_retry(int fd, char cc_value){
 
 			/* writing */ 
 			int n_bytes = write_supervision_message(fd,cc_value);
-			if(n_bytes == -1){
+			if(n_bytes <= 0){
 				printf("Error writing supervision message\n");
 			}
 
 			/* read message back */
-			buffer = readMessage(fd, &rd, 0);
+			buffer = readMessage(fd, &rd, 0, 1);
+
 			if (rd != n_bytes || buffer == NULL) 
 				success = FALSE;
 			else if (cc_value == SET && buffer[CTRL_POS] == UA){
@@ -83,6 +84,7 @@ int write_supervision_message_retry(int fd, char cc_value){
 	if (success == TRUE){
 		return 0;
 	}
+	printf("Finishing attempt after %d tries have received time out of %d seconds.\n", WRITE_NUM_TRIES, RESEND_DELAY);
 	return -1;
 }
 
@@ -97,12 +99,12 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 
 			/* writing */
 			int n_bytes = write_info_message(fd, data, dataSize, ns); 
-			if(n_bytes == -1){
+			if(n_bytes <= 0){
 				printf("Error writing Inform message\n");
 			}
 
 			/* read message back */
-			buffer = readMessage(fd, &rd, 0);
+			buffer = readMessage(fd, &rd, 0, 1);
 
 			if (buffer == NULL || parseARQ(buffer)){
 				success = FALSE;
@@ -121,16 +123,19 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 	return -1;
 }
 
-char* readMessage(int fd, int* size, int i_message){  
+char* readMessage(int fd, int* size, int i_message, int emissor){  
 	char r;
-	int rd, pos = 0;
+	int rd, pos = 0, nulls_count = 0;
 	char* buffer = malloc(1);
 
 	while (getStateMachine() != STOP){
 		rd = read(fd, &r, 1);
 		if (rd <= 0){
-			//Read null value
-			return NULL;
+			nulls_count++;
+			if (nulls_count == ERR_LIMIT || emissor)
+				return NULL;
+			else
+				continue;
 		}
 
 		buffer = realloc(buffer, pos + 2);
@@ -180,7 +185,7 @@ void printDataInfoMsg(char * trama,int trama_size){
 }
 
 void atende(int signo){
-	printf("alarme # %d\n", conta);
+	//printf("alarme # %d\n", conta);
 	flag=1;
 	conta++;
 }

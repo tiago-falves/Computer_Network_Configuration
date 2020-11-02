@@ -36,6 +36,7 @@ int sendFile(char * port_num,char * filename,int data_size){
 
         if(sendDataPacket(fd, buffer, ret, i) != 0){
             printf("Error sending data packet\n");
+            return -1;
         }
 
         i++;
