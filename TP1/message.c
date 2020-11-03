@@ -145,6 +145,11 @@ char* readMessage(int fd, int* size, int i_message, int emissor){
 		buffer = realloc(buffer, pos + 2);
 		handleState(r, i_message);
 		buffer[pos++] = r;
+		
+		if (getStateMachine() == START){
+			free(buffer);
+			buffer = malloc(1);
+		}
 	}
 
 	update_state(START);
