@@ -7,6 +7,7 @@ int data_block_size;
 
 int sendFile(char * port_num,char * filename,int data_size){
     data_block_size = data_size;
+    setBlockSize(data_block_size);
 
     //TODO Adicionar verificaçoes de erros
     install_alarm();
@@ -93,6 +94,7 @@ int retrieveFile(char * port_num){
 
         if (first_loop){
             buffer = realloc(buffer, data_block_size);
+            setBlockSize(data_block_size);
             first_loop = FALSE;
         }
 

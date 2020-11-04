@@ -5,6 +5,11 @@
 
 int flag=1, conta=1;
 static int ns = 0;
+static int block_size = 0;
+
+void setBlockSize(int value) {
+	block_size = value;
+}
 
 int write_supervision_message(int fd, char cc_value){
     char trama[SUPERVISION_TRAMA_SIZE];
@@ -132,7 +137,7 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 
 char* readMessage(int fd, int* size, int i_message, int emissor){  
 	char r;
-	int rd = 0, pos = 0, nulls_count = 0;
+	int rd = 0, pos = 0, nulls_count = 0, error = 0;
 	char* buffer = malloc(1);
 
 	while (getStateMachine() != STOP){
@@ -146,12 +151,14 @@ char* readMessage(int fd, int* size, int i_message, int emissor){
 		}
 
 		buffer = realloc(buffer, pos + 2);
-		handleState(r, i_message);
+		handleState(r, i_message, &error);
 		buffer[pos++] = r;
 		
 		if (getStateMachine() == START){
 			free(buffer);
 			buffer = malloc(1);
+			pos = 0;
+			if (r != FLAG) error = 1;
 		}
 	}
 

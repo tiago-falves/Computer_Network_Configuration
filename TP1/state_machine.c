@@ -11,14 +11,12 @@ state_machine getStateMachine(){
 char addr, ctrl;
 int inf_bytes = 0;
 
-void handleState(char msg, int i_message){
+void handleState(char msg, int i_message, int* error){
     state_machine state_machine = getStateMachine();
-
-    printf("\nState: %d, received %02x\n", state_machine, (unsigned char)msg);
 
     switch (state_machine){
         case START:
-            handleStartState(msg);
+            handleStartState(msg, error);
             break;
         case FLAG_RCV:
             handleFlagReceived(msg);
@@ -46,13 +44,19 @@ void handleState(char msg, int i_message){
     }
 }
 
-void handleStartState(char msg){
-    switch (msg) {
+void handleStartState(char msg, int* error){
+    /*switch (msg) {
         case FLAG:
             update_state(FLAG_RCV);
             break;
         default:
             break;
+    }*/
+    if (msg == FLAG && *error){
+        printf("Got end flag after error!\n");
+        *error = 0;
+    }else if (msg == FLAG){
+        update_state(FLAG_RCV);
     }
 }
 void handleFlagReceived(char msg) {

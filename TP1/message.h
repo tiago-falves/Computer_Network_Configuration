@@ -71,3 +71,5 @@ char buildBCC2(char * data, int data_size);
 int verifyBCC(char * inform,int infMsgSize,char * data,int dataSize);
 int parseARQ(char* buffer);
 int getSequenceNumber(char* buffer);
+
+void setBlockSize(int value);
