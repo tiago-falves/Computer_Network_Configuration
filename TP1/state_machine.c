@@ -9,9 +9,12 @@ state_machine getStateMachine(){
 }
 
 char addr, ctrl;
+int inf_bytes = 0;
 
 void handleState(char msg, int i_message){
     state_machine state_machine = getStateMachine();
+
+    printf("\nState: %d, received %02x\n", state_machine, (unsigned char)msg);
 
     switch (state_machine){
         case START:
@@ -77,6 +80,9 @@ void handleAddrReceived(unsigned char msg) {
             update_state(C_RCV);
             break;
         case RR(0):
+            update_state(C_RCV);
+            break;
+        case REJ(0): case REJ(1):
             update_state(C_RCV);
             break;
         default:

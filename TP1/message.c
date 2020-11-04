@@ -89,7 +89,7 @@ int write_supervision_message_retry(int fd, char cc_value){
 }
 
 int write_inform_message_retry(int fd, char * data, int dataSize){
-	int success = FALSE, rd;
+	int success = FALSE, rd = 0;
 	char* buffer;
 
 	while(conta <= WRITE_NUM_TRIES && !success){
@@ -107,9 +107,11 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 			buffer = readMessage(fd, &rd, 0, 1);
 
 			if (buffer == NULL){
+				printf("READ: %d\n", rd);
 				success = FALSE;
 			}
 			else if (parseARQ(buffer)){
+				printf("REJ received\n");
 				success = FALSE;
 				reset_alarm();
 			}
@@ -124,12 +126,13 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 	if (success == TRUE){
 		return 0;
 	}
+	printf("Finishing attempt after %d tries have received time out of %d seconds.\n", WRITE_NUM_TRIES, RESEND_DELAY);
 	return -1;
 }
 
 char* readMessage(int fd, int* size, int i_message, int emissor){  
 	char r;
-	int rd, pos = 0, nulls_count = 0;
+	int rd = 0, pos = 0, nulls_count = 0;
 	char* buffer = malloc(1);
 
 	while (getStateMachine() != STOP){
