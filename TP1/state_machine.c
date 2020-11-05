@@ -45,15 +45,8 @@ void handleState(char msg, int i_message, int* error){
 }
 
 void handleStartState(char msg, int* error){
-    /*switch (msg) {
-        case FLAG:
-            update_state(FLAG_RCV);
-            break;
-        default:
-            break;
-    }*/
     if (msg == FLAG && *error){
-        printf("Got end flag after error!\n");
+        //printf("Got end flag after error!\n");
         *error = 0;
     }else if (msg == FLAG){
         update_state(FLAG_RCV);

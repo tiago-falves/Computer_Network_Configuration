@@ -69,7 +69,8 @@ int write_inform_message_retry(int fd, char * buffer, int dataSize);
 
 char buildBCC2(char * data, int data_size);
 int verifyBCC(char * inform,int infMsgSize,char * data,int dataSize);
-int parseARQ(char* buffer);
+int parseREJ(char* buffer);
+int parseRR(char* buffer);
 int getSequenceNumber(char* buffer);
 
 void setBlockSize(int value);

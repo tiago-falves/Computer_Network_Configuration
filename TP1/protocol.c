@@ -3,6 +3,7 @@
 #include "message.h"
 #include "state_machine.h"
 #include "data_stuffing.h"
+#include <time.h>
 
 conn_type connection;
 static int nr = 1;
@@ -95,6 +96,18 @@ int llread(int fd, char* buffer) {
 		return -1;
 	}
 
+	//GENERATE NOISE
+	/*int r = rand() % 15;
+	printf("RANDOM: %d\n", r);
+
+	if (r == 0)
+		temp[10] = 0x01;
+	if (r == 14) 
+		temp[10] = 0x0F;
+	if (r == 2)
+		temp[10] = 0x08;*/
+	//---------------
+
 	int seq_number = getSequenceNumber(temp);
 	if (getSequenceNumber(temp) == nr % 2) {
 		printf("Received repeated trama\n");
@@ -112,7 +125,7 @@ int llread(int fd, char* buffer) {
 	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);
   
 	if(verifyBCC(unstuffedData.data,unstuffedData.data_size,buffer,buffer_size) < 0){
-		printf("Error verifying BCC\n\n");
+		printf("Error verifying BCC\n");
 		int rd = write_supervision_message(fd, REJ(seq_number));
 		if (rd == -1){
 			printf("LLREAD: error writing REJ message back\n");

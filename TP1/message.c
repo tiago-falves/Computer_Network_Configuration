@@ -83,7 +83,10 @@ int write_supervision_message_retry(int fd, char cc_value){
 			else if (cc_value == DISC && buffer[CTRL_POS] == DISC){
 				success = TRUE;
 				reset_alarm();
-			} 
+			}
+			else{
+				success = FALSE;
+			}
 		}
 	}
 	if (success == TRUE){
@@ -112,18 +115,20 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 			buffer = readMessage(fd, &rd, 0, 1);
 
 			if (buffer == NULL){
-				printf("READ: %d\n", rd);
 				success = FALSE;
 			}
-			else if (parseARQ(buffer)){
-				printf("REJ received\n");
+			else if (parseREJ(buffer)){
+				//printf("REJ received\n");
 				success = FALSE;
 				reset_alarm();
 			}
-			else{
+			else if (parseRR(buffer)){
 				ns++;
 				success = TRUE;
 				reset_alarm();
+			}
+			else{
+				success = FALSE;
 			}
 		}
 	}
@@ -153,6 +158,8 @@ char* readMessage(int fd, int* size, int i_message, int emissor){
 		buffer = realloc(buffer, pos + 2);
 		handleState(r, i_message, &error);
 		buffer[pos++] = r;
+
+		//printf("Read char = %02x and advanced to state = %d\n", r, getStateMachine());
 		
 		if (getStateMachine() == START){
 			free(buffer);
@@ -241,9 +248,16 @@ int verifyBCC(char * inform, int infMsgSize, char * data, int dataSize){
 	else return -1; 
 }
 
-int parseARQ(char* buffer) {
+int parseREJ(char* buffer) {
 	unsigned char arq = (unsigned char) buffer[CTRL_POS];
 	if (arq == REJ(0) || arq == REJ(1))
+		return 1;
+	return 0;
+}
+
+int parseRR(char* buffer) {
+	unsigned char arq = (unsigned char) buffer[CTRL_POS];
+	if (arq == RR(0) || arq == RR(1))
 		return 1;
 	return 0;
 }
