@@ -108,6 +108,13 @@ int llread(int fd, char* buffer) {
 		temp[10] = 0x08;*/
 	//---------------
 
+	/*
+	printf("trama...\n");
+	for (int i = 0; i < temp_size; i++){
+		printf("%02x ", (unsigned char) temp[i]);
+	}printf("\n\n");
+	*/
+
 	int seq_number = getSequenceNumber(temp);
 	if (getSequenceNumber(temp) == nr % 2) {
 		printf("Received repeated trama\n");
@@ -115,7 +122,6 @@ int llread(int fd, char* buffer) {
 			printf("LLREAD: error writing RR message back\n");
 			return -1;
 		}
-		nr++;
 		return -2;
 	}
 
@@ -125,7 +131,7 @@ int llread(int fd, char* buffer) {
 	memcpy(buffer, unstuffedData.data + DATA_INF_BYTE, buffer_size);
   
 	if(verifyBCC(unstuffedData.data,unstuffedData.data_size,buffer,buffer_size) < 0){
-		printf("Error verifying BCC\n");
+		printf("Error verifying BCC2\n");
 		int rd = write_supervision_message(fd, REJ(seq_number));
 		if (rd == -1){
 			printf("LLREAD: error writing REJ message back\n");

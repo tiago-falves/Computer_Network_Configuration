@@ -11,8 +11,10 @@ state_machine getStateMachine(){
 char addr, ctrl;
 int inf_bytes = 0;
 
-void handleState(char msg, int i_message, int* error){
+void handleState(char msg, int i_message, int* error/*, int emissor*/){
     state_machine state_machine = getStateMachine();
+
+    //printf("State: %d, received char = %02x\n", state_machine,(unsigned char) msg);
 
     switch (state_machine){
         case START:
@@ -27,7 +29,7 @@ void handleState(char msg, int i_message, int* error){
             ctrl = msg;
             break;
         case C_RCV:
-            handleCtrlState(msg,addr,ctrl);
+            handleCtrlState(msg,addr,ctrl/*,emissor*/);
             break;
         case BCC1_OK:
             handleBcc1State(msg, i_message);
@@ -88,7 +90,11 @@ void handleAddrReceived(unsigned char msg) {
     }
 }
 
-void handleCtrlState(char msg, char addr, char ctrl){
+void handleCtrlState(char msg, char addr, char ctrl/*, int emissor*/){
+    //SIMULATE BCC ERROR
+    /*int r = rand() % 30;
+    if (r < 5 && emissor)
+        msg = 0x14;*/
     switch (msg){
 		case FLAG:
             update_state(FLAG_RCV);
@@ -96,8 +102,10 @@ void handleCtrlState(char msg, char addr, char ctrl){
         default:
             if(msg == (addr ^ ctrl))
                 update_state(BCC1_OK);
-            else 
+            else{
                 update_state(START);
+                //printf("BCC1 error\n");
+            }
             break;
     }
 

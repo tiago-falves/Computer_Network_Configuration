@@ -9,11 +9,11 @@ typedef enum {
 } state_machine;
 
 
-void handleState(char msg, int i_message, int* error);
+void handleState(char msg, int i_message, int* error/*, int emissor*/);
 void handleStartState(char msg, int* error);
 void handleFlagReceived(char msg);
 void handleAddrReceived(unsigned char msg);
-void handleCtrlState(char msg,char addr,char ctrl);
+void handleCtrlState(char msg,char addr,char ctrl/*, int emissor*/);
 void handleBcc1State(char msg, int i_message);
 void handleDataState(char msg);
 void handleStopState(char msg);
