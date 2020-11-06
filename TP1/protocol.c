@@ -96,6 +96,12 @@ int llread(int fd, char* buffer) {
 		return -1;
 	}
 
+	if (temp_size <= 5){
+		printf("Connection changed ways\n");
+		return -2;
+	}
+
+
 	//GENERATE NOISE
 	/*int r = rand() % 15;
 	printf("RANDOM: %d\n", r);
