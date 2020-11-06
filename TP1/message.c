@@ -5,8 +5,26 @@
 
 int flag=1, conta=1;
 static int ns = 0;
+static int block_size = 0;
+
+void setBlockSize(int value) {
+	block_size = value;
+}
 
 int write_supervision_message(int fd, char cc_value){
+	//CUT CABLE ON RECEPTOR ANSWER SIMULATION
+	/*if (cc_value == RR(0) || cc_value == RR(1) || cc_value == REJ(0) || cc_value == REJ(1)){
+		int r = rand() % 100;
+		if (r < 5){
+			char trama[SUPERVISION_TRAMA_SIZE-2];
+			trama[FLAGI_POSTION] = FLAG;
+			trama[ADRESS_POSITION] = AREC;
+			trama[CC_POSITION] = cc_value;
+
+			return write(fd,trama,SUPERVISION_TRAMA_SIZE-2);
+		}
+	}*/
+
     char trama[SUPERVISION_TRAMA_SIZE];
     trama[FLAGI_POSTION] = FLAG;
 	trama[ADRESS_POSITION] = AREC;
@@ -39,12 +57,21 @@ int write_info_message(int fd, char* data, int data_size, int cc_value){
 		trama_size++;
 		trama[trama_size - 3] = ESC;
 		trama[trama_size - 2] = bcc2 ^ STUFF;
-		trama[trama_size - 1] = FLAG;
-	}
-	else {
+	}else {
 		trama[trama_size - 2] = bcc2;
-		trama[trama_size - 1] = FLAG;
 	}
+
+	trama[trama_size - 1] = FLAG;
+
+	//FLAG NOISE SIMULATION
+	/*int r = rand() % 100;
+	if (r < 5){
+		//REMOVE FIRST FLAG
+		trama[FLAGI_POSTION] = 0x14;
+		//REMOVE END FLAG
+		//trama[trama_size - 1] = 0x14;
+		printf("Changed 0xfe\n");
+	}*/
 
 	memcpy(trama + DATA_INF_BYTE, stuffedData.data, stuffedData.data_size);
 
@@ -69,8 +96,9 @@ int write_supervision_message_retry(int fd, char cc_value){
 			/* read message back */
 			buffer = readMessage(fd, &rd, 0, 1);
 
-			if (rd != n_bytes || buffer == NULL) 
+			if (rd != n_bytes || buffer == NULL){
 				success = FALSE;
+			}
 			else if (cc_value == SET && buffer[CTRL_POS] == UA){
 				success = TRUE;
 				reset_alarm();
@@ -78,7 +106,10 @@ int write_supervision_message_retry(int fd, char cc_value){
 			else if (cc_value == DISC && buffer[CTRL_POS] == DISC){
 				success = TRUE;
 				reset_alarm();
-			} 
+			}
+			else{
+				success = FALSE;
+			}
 		}
 	}
 	if (success == TRUE){
@@ -89,7 +120,7 @@ int write_supervision_message_retry(int fd, char cc_value){
 }
 
 int write_inform_message_retry(int fd, char * data, int dataSize){
-	int success = FALSE, rd;
+	int success = FALSE, rd = 0;
 	char* buffer;
 
 	while(conta <= WRITE_NUM_TRIES && !success){
@@ -107,16 +138,21 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 			buffer = readMessage(fd, &rd, 0, 1);
 
 			if (buffer == NULL){
+				//printf("Resending...\n");
 				success = FALSE;
 			}
-			else if (parseARQ(buffer)){
+			else if (parseREJ(buffer)){
+				//printf("REJ received\n");
 				success = FALSE;
 				reset_alarm();
 			}
-			else{
+			else if (parseRR(buffer)){
 				ns++;
 				success = TRUE;
 				reset_alarm();
+			}
+			else{
+				success = FALSE;
 			}
 		}
 	}
@@ -124,12 +160,13 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 	if (success == TRUE){
 		return 0;
 	}
+	printf("Finishing attempt after %d tries have received time out of %d seconds.\n", WRITE_NUM_TRIES, RESEND_DELAY);
 	return -1;
 }
 
 char* readMessage(int fd, int* size, int i_message, int emissor){  
 	char r;
-	int rd, pos = 0, nulls_count = 0;
+	int rd = 0, pos = 0, nulls_count = 0, error = 0;
 	char* buffer = malloc(1);
 
 	while (getStateMachine() != STOP){
@@ -140,15 +177,20 @@ char* readMessage(int fd, int* size, int i_message, int emissor){
 				return NULL;
 			else
 				continue;
+			update_state(START);
 		}
 
 		buffer = realloc(buffer, pos + 2);
-		handleState(r, i_message);
+		handleState(r, i_message, &error/*, emissor*/);
 		buffer[pos++] = r;
+
+		//printf("Read char = %02x and advanced to state = %d\n", r, getStateMachine());
 		
 		if (getStateMachine() == START){
 			free(buffer);
 			buffer = malloc(1);
+			pos = 0;
+			if (r != FLAG) error = 1;
 		}
 	}
 
@@ -231,9 +273,16 @@ int verifyBCC(char * inform, int infMsgSize, char * data, int dataSize){
 	else return -1; 
 }
 
-int parseARQ(char* buffer) {
+int parseREJ(char* buffer) {
 	unsigned char arq = (unsigned char) buffer[CTRL_POS];
 	if (arq == REJ(0) || arq == REJ(1))
+		return 1;
+	return 0;
+}
+
+int parseRR(char* buffer) {
+	unsigned char arq = (unsigned char) buffer[CTRL_POS];
+	if (arq == RR(0) || arq == RR(1))
 		return 1;
 	return 0;
 }

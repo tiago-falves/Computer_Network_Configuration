@@ -9,13 +9,16 @@ state_machine getStateMachine(){
 }
 
 char addr, ctrl;
+int inf_bytes = 0;
 
-void handleState(char msg, int i_message){
+void handleState(char msg, int i_message, int* error/*, int emissor*/){
     state_machine state_machine = getStateMachine();
+
+    //printf("State: %d, received char = %02x\n", state_machine,(unsigned char) msg);
 
     switch (state_machine){
         case START:
-            handleStartState(msg);
+            handleStartState(msg, error);
             break;
         case FLAG_RCV:
             handleFlagReceived(msg);
@@ -26,7 +29,7 @@ void handleState(char msg, int i_message){
             ctrl = msg;
             break;
         case C_RCV:
-            handleCtrlState(msg,addr,ctrl);
+            handleCtrlState(msg,addr,ctrl/*,emissor*/);
             break;
         case BCC1_OK:
             handleBcc1State(msg, i_message);
@@ -43,13 +46,12 @@ void handleState(char msg, int i_message){
     }
 }
 
-void handleStartState(char msg){
-    switch (msg) {
-        case FLAG:
-            update_state(FLAG_RCV);
-            break;
-        default:
-            break;
+void handleStartState(char msg, int* error){
+    if (msg == FLAG && *error){
+        //printf("Got end flag after error!\n");
+        *error = 0;
+    }else if (msg == FLAG){
+        update_state(FLAG_RCV);
     }
 }
 void handleFlagReceived(char msg) {
@@ -79,13 +81,20 @@ void handleAddrReceived(unsigned char msg) {
         case RR(0):
             update_state(C_RCV);
             break;
+        case REJ(0): case REJ(1):
+            update_state(C_RCV);
+            break;
         default:
             update_state(START);
             break;    
     }
 }
 
-void handleCtrlState(char msg, char addr, char ctrl){
+void handleCtrlState(char msg, char addr, char ctrl/*, int emissor*/){
+    //SIMULATE BCC ERROR
+    /*int r = rand() % 30;
+    if (r < 5 && emissor)
+        msg = 0x14;*/
     switch (msg){
 		case FLAG:
             update_state(FLAG_RCV);
@@ -93,8 +102,10 @@ void handleCtrlState(char msg, char addr, char ctrl){
         default:
             if(msg == (addr ^ ctrl))
                 update_state(BCC1_OK);
-            else 
+            else{
                 update_state(START);
+                //printf("BCC1 error\n");
+            }
             break;
     }
 

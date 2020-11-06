@@ -8,6 +8,7 @@
 #include <string.h>	
 #include <strings.h>
 #include "connection.h"
+#include "protocol.h"
 
 static struct termios oldtio;
 
@@ -34,7 +35,7 @@ int open_connection(link_layer layer) {
 	/* set input mode (non-canonical, no echo,...) */
 	newtio.c_lflag = 0;
 
-	newtio.c_cc[VTIME]    = 50;   /* inter-character timer unused */
+	newtio.c_cc[VTIME]    = (RESEND_DELAY-1)*10;   /* inter-character timer unused */
 	newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
 
     tcflush(fd, TCIOFLUSH);
