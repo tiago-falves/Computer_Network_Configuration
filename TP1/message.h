@@ -50,27 +50,122 @@ typedef struct {
     int stuffed_data_size;     /** Number of bytes that were occupied in the stuffing buffer */
 } data_stuffing_t;
 
-
+/**
+ * @brief Alarm siganl handler.
+ * 
+ * @param signo 
+ */
 void atende(int signo);
+
+/**
+ * @brief Intalls alarm signal.
+ * 
+ */
 void install_alarm();
+
+/**
+ * @brief Resets alarm signal and associated variables.
+ * 
+ */
 void reset_alarm();
 
+/**
+ * @brief Reads message from serial port, byte per byte, updating associated state machine when a byte is received.
+ * 
+ * @param fd Serial port file decriptor.
+ * @param size Size of the message read.
+ * @param i_message 1 if a information frame is being received, 0 if it is a supervision message.
+ * @param emissor 1 if message is being read by emissor, 0 otherwise.
+ * @return char* Message read.
+ */
 char* readMessage(int fd, int* size, int i_message, int emissor);
 
-void printSupervisionMessage(char * trama, int onlyC);
-void printInformMessage(char * trama,int dataSize,int data);
-void printDataInfoMsg(char * trama,int trama_size);
-
+/**
+ * @brief Builds and writes supervision frame message.
+ * 
+ * @param fd Serial port file descriptor.
+ * @param cc_value Control field of supervision frame.
+ * @return int Number of bytes written (return value of write function).
+ */
 int write_supervision_message(int fd, char cc_value);
+
+/**
+ * @brief Writes supervision frame message and waits for receptor, ending if a valid supervision frame is received or if limit of resending tries is reached.
+ * 
+ * @param fd Serial port file descriptor.
+ * @param cc_value Control field of supervision frame.
+ * @return int 0 in case of success, -1 otherwise.
+ */
 int write_supervision_message_retry(int fd, char cc_value);
 
+/**
+ * @brief Builds and writes information frame message.
+ * 
+ * @param fd Serial port file descriptor.
+ * @param data Data to be inserted into information frame.
+ * @param data_size Size, in bytes, of field data.
+ * @param cc_value Control field of information frame.
+ * @return int 
+ */
 int write_info_message(int fd, char * data, int data_size, int cc_value);
+
+/**
+ * @brief Writes information frame message and waits for receptor, ending if a valid supervision frame is received or if limit of resending tries is reached.
+ * 
+ * @param fd Serial port file descriptor.
+ * @param buffer Data to be inserted into information frame.
+ * @param dataSize Size, in bytes, of field data.
+ * @return int Number of bytes written (return value of write function).
+ */
 int write_inform_message_retry(int fd, char * buffer, int dataSize);
 
+/**
+ * @brief Calculates bcc2 of data.
+ * 
+ * @param data 
+ * @param data_size Size of data, in bytes.
+ * @return char Bcc2 value.
+ */
 char buildBCC2(char * data, int data_size);
-int verifyBCC(char * inform,int infMsgSize,char * data,int dataSize);
+
+/**
+ * @brief Verifies if there are bcc2 errors in the information frame received as parameter.
+ * 
+ * @param inform Information frame received and unstuffed.
+ * @param infMsgSize Information frame size.
+ * @param data Data fields in information frame received to calculate bcc2 from.
+ * @param dataSize Data size.
+ * @return int 0 if bcc2 is successfully verified, -1 otherwise.
+ */
+int verifyBCC(char * inform, int infMsgSize, char * data, int dataSize);
+
+/**
+ * @brief Verifies if supervision frame received as parameter is a REJ message.
+ * 
+ * @param buffer Supervision frame.
+ * @return int 1 if buffer is a REJ message, 0 otherwise.
+ */
 int parseREJ(char* buffer);
+
+/**
+ * @brief Verifies if supervision frame received as parameter is a RR message.
+ * 
+ * @param buffer Supervision frame.
+ * @return int 1 if buffer is a RR message, 0 otherwise.
+ */
 int parseRR(char* buffer);
+
+/**
+ * @brief Get the Sequence Number from information frame received.
+ * 
+ * @param buffer Information received.
+ * @return int Sequence number (0 or 1).
+ */
 int getSequenceNumber(char* buffer);
 
+/**
+ * @brief Set the Block Size value
+ * 
+ * @param value Size of data block.
+ */
 void setBlockSize(int value);
