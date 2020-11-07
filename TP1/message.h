@@ -94,9 +94,10 @@ int write_supervision_message(int fd, char cc_value);
  * 
  * @param fd Serial port file descriptor.
  * @param cc_value Control field of supervision frame.
+ * @param cc_compare Value expected from control field of supervision frame message received from receptor.
  * @return int 0 in case of success, -1 otherwise.
  */
-int write_supervision_message_retry(int fd, char cc_value);
+int write_supervision_message_retry(int fd, char cc_value, char cc_compare);
 
 /**
  * @brief Builds and writes information frame message.

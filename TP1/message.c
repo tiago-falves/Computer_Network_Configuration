@@ -78,7 +78,7 @@ int write_info_message(int fd, char* data, int data_size, int cc_value){
 	return write(fd,trama,trama_size);
 }
 
-int write_supervision_message_retry(int fd, char cc_value){
+int write_supervision_message_retry(int fd, char cc_value, char cc_compare){
 	int success = FALSE, rd;
 	char* buffer;
 
@@ -99,14 +99,14 @@ int write_supervision_message_retry(int fd, char cc_value){
 			if (rd != n_bytes || buffer == NULL){
 				success = FALSE;
 			}
-			else if (cc_value == SET && buffer[CTRL_POS] == UA){
+			else if (buffer[CTRL_POS] == cc_compare){
 				success = TRUE;
 				reset_alarm();
 			}
-			else if (cc_value == DISC && buffer[CTRL_POS] == DISC){
+			/*else if (cc_value == DISC && buffer[CTRL_POS] == DISC){
 				success = TRUE;
 				reset_alarm();
-			}
+			}*/
 			else{
 				success = FALSE;
 			}

@@ -18,7 +18,7 @@ int llopen(char* port, conn_type connection_type) {
 	  
 	int fd = open_connection(layer);
 	if(connection_type == EMISSOR){
-		if(write_supervision_message_retry(fd,SET) == -1){
+		if(write_supervision_message_retry(fd,SET,UA) == -1){
 			printf("Error establishing connection\n");
 			return -1;
 		}
@@ -46,7 +46,7 @@ int llopen(char* port, conn_type connection_type) {
 
 int llclose(int fd) {
 	if(connection == EMISSOR){
-		if(write_supervision_message_retry(fd,DISC) == -1){
+		if(write_supervision_message_retry(fd,DISC,DISC) == -1){
 			printf("Error establishing connection\n");
 		}
 		if(write_supervision_message(fd,UA) == -1){
