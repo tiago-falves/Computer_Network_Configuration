@@ -67,10 +67,10 @@ int retrieveFile(char * port_num){
     if (fd == -1) return -1;
 
     char filename[FILENAME_MAX];
-    memset(filename,0,FILENAME_MAX);
+    memset(filename, 0, FILENAME_MAX);
 
     char ctrl_packet[CTRL_PACKET_SIZE(FILENAME_MAX)];
-    memset(ctrl_packet,0,data_block_size);
+    memset(ctrl_packet, 0, CTRL_PACKET_SIZE(FILENAME_MAX));
 
     printf("Receiving file...\n");
     int first_loop = TRUE;
@@ -147,8 +147,7 @@ int sendControlPacket(int fd,char * filename,int fileSize,int ctrl){
 
     return ret;
 }
-int parseCtrlPacket(char * buffer,char *  filename){
-
+int parseCtrlPacket(char * buffer,char * filename){
 
     if ((buffer[PACKET_CTRL_IDX] != PACKET_CTRL_START) && (buffer[PACKET_CTRL_IDX] != PACKET_CTRL_END ) ){
         printf("Error recieving control packet\n");
@@ -158,21 +157,23 @@ int parseCtrlPacket(char * buffer,char *  filename){
         printf("Error recieving size of file\n");
         return -1;
     }
-
-    u_int fileSize = 0;
-    memcpy(&fileSize, buffer + CTRL_SIZE_V_IDX, buffer[CTRL_SIZE_L_IDX]);
-
     if (buffer[CTRL_NAME_T_IDX] != CTRL_NAME_OCTET){
         printf("Error recieving name of file\n");
         return -1;
     }
 
+    //PARSE FILE SIZE
+    u_int fileSize = 0;
+    memcpy(&fileSize, buffer + CTRL_SIZE_V_IDX, buffer[CTRL_SIZE_L_IDX]);
+
+    //PARSE FILE NAME
     memset(filename + buffer[CTRL_NAME_L_IDX], 0, 1);
     memcpy(filename, buffer + CTRL_NAME_V_IDX, buffer[CTRL_NAME_L_IDX]);
 
     if ((buffer[PACKET_CTRL_IDX] != PACKET_CTRL_START))
         printf("filename: %s\n", filename);
 
+    //PARSE DATA BLOCK SIZE
     int file_name_size = strlen(filename);
     memcpy(&data_block_size, buffer + CTRL_NAME_V_IDX + file_name_size + 2, buffer[CTRL_NAME_V_IDX + file_name_size + 1]);
 
@@ -203,13 +204,11 @@ int sendDataPacket(int fd,char * data,short dataSize,int nseq){
 }
 
 int parseDataPacket(char * buffer, int nseq,char * filename){
- 
     int dataSize = (u_int8_t) buffer[DATA_L1_IDX] + (u_int8_t) buffer[DATA_L2_IDX] * 256;
     char * file_send = calloc(dataSize, sizeof(char));
     memcpy(file_send, buffer + DATA_INF_BYTE, dataSize); 
     write_file(filename, file_send, dataSize);
     return 1;
-    
 }
 
 int parsePackets(char * buffer, int buffer_size,char * filename,char * ctrl_packet){

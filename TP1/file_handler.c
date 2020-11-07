@@ -5,9 +5,6 @@
 
 #include "file_handler.h"
 
-//remove
-#include "data_stuffing.h"
-
 int write_file(char* file_path, char* buffer, int data_size) {
     FILE* file = fopen(file_path, "ab");
     if (file == NULL){

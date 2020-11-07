@@ -200,41 +200,6 @@ char* readMessage(int fd, int* size, int i_message, int emissor){
 	return buffer;
 }
 
-void printSupervisionMessage(char * trama, int onlyC){
-	if (onlyC){
-		printf("Supervision message C: %04x recieved correctly\n", trama[2]);
-	}else {
-		printf("Supervision message recieved correctly\n");
-		printf("FLAG: %04x\nA: %04x\n", trama[0], trama[1]);
-		printf("C: %04x\n", trama[2]);
-		printf("BCC: %04x\n", trama[3]);
-	}
-	
-}
-
-void printInformMessage(char * trama, int dataSize, int data){
-	if(!data){
-		printf("Inform message recieved correctly\n");
-		printf("FLAG: %04x\nA: %04x\n", trama[0], trama[1]);
-		printf("C: %04x\n", trama[2]);
-		printf("BCC: %04x\n\n", trama[3]);
-		printf("Data: ");
-	}
-	for (size_t i = DATA_INF_BYTE; i < dataSize+DATA_INF_BYTE; i++)
-		printf("%c", trama[i]);
-	printf("\n\n");
-	if(!data){
-		printf("\n");
-		printf("BCC2: %04x\n", trama[dataSize+DATA_INF_BYTE+1]);
-		printf("FLAG: %04x\n", trama[dataSize+DATA_INF_BYTE+2]);
-	}
-}
-
-void printDataInfoMsg(char * trama,int trama_size){
-	for (int i = 7; i < trama_size-4; i++)
-		printf("%c", trama[i]);	
-}
-
 void atende(int signo){
 	//printf("alarme # %d\n", conta);
 	flag=1;
