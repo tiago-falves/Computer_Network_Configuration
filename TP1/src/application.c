@@ -3,8 +3,6 @@
 #include "file_handler.h"
 #include "application.h"
 
-#include <time.h>
-
 int data_block_size;
 
 int sendFile(char * port_num,char * filename,int data_size){
@@ -59,7 +57,6 @@ int sendFile(char * port_num,char * filename,int data_size){
 }
 
 int retrieveFile(char * port_num){
-	//srand(time(0));
 
     char* buffer = malloc(CTRL_PACKET_SIZE(FILENAME_MAX));
     int fd = llopen(port_num, RECEPTOR);

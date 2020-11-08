@@ -101,25 +101,7 @@ int llread(int fd, char* buffer) {
 		return -2;
 	}
 
-
-	//GENERATE NOISE
-	/*int r = rand() % 15;
-	printf("RANDOM: %d\n", r);
-
-	if (r == 0)
-		temp[10] = 0x01;
-	if (r == 14) 
-		temp[10] = 0x0F;
-	if (r == 2)
-		temp[10] = 0x08;*/
-	//---------------
-
-	/*
-	printf("trama...\n");
-	for (int i = 0; i < temp_size; i++){
-		printf("%02x ", (unsigned char) temp[i]);
-	}printf("\n\n");
-	*/
+	errorsBCC2(temp, temp_size);
 
 	int seq_number = getSequenceNumber(temp);
 	if (getSequenceNumber(temp) == nr % 2) {

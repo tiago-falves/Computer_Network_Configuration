@@ -1,10 +1,14 @@
 #include "protocol.h"
 #include "application.h"
+
+#include <time.h>
+
 volatile int STOP=FALSE;
 
 int main(int argc, char** argv)
 {	
 	arguments args = parse_arguments(argc,argv);
+	srand(time(0));
 
     if(args.role == EMISSOR){
         sendFile(args.port_num,args.filename,args.data_block_size);

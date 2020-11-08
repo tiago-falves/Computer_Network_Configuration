@@ -12,19 +12,6 @@ void setBlockSize(int value) {
 }
 
 int write_supervision_message(int fd, char cc_value){
-	//CUT CABLE ON RECEPTOR ANSWER SIMULATION
-	/*if (cc_value == RR(0) || cc_value == RR(1) || cc_value == REJ(0) || cc_value == REJ(1)){
-		int r = rand() % 100;
-		if (r < 5){
-			char trama[SUPERVISION_TRAMA_SIZE-2];
-			trama[FLAGI_POSTION] = FLAG;
-			trama[ADRESS_POSITION] = AREC;
-			trama[CC_POSITION] = cc_value;
-
-			return write(fd,trama,SUPERVISION_TRAMA_SIZE-2);
-		}
-	}*/
-
     char trama[SUPERVISION_TRAMA_SIZE];
     trama[FLAGI_POSTION] = FLAG;
 	trama[ADRESS_POSITION] = AREC;
@@ -63,16 +50,6 @@ int write_info_message(int fd, char* data, int data_size, int cc_value){
 
 	trama[trama_size - 1] = FLAG;
 
-	//FLAG NOISE SIMULATION
-	/*int r = rand() % 100;
-	if (r < 5){
-		//REMOVE FIRST FLAG
-		trama[FLAGI_POSTION] = 0x14;
-		//REMOVE END FLAG
-		//trama[trama_size - 1] = 0x14;
-		printf("Changed 0xfe\n");
-	}*/
-
 	memcpy(trama + DATA_INF_BYTE, stuffedData.data, stuffedData.data_size);
 
 	return write(fd,trama,trama_size);
@@ -103,10 +80,6 @@ int write_supervision_message_retry(int fd, char cc_value, char cc_compare){
 				success = TRUE;
 				reset_alarm();
 			}
-			/*else if (cc_value == DISC && buffer[CTRL_POS] == DISC){
-				success = TRUE;
-				reset_alarm();
-			}*/
 			else{
 				success = FALSE;
 			}
@@ -138,11 +111,9 @@ int write_inform_message_retry(int fd, char * data, int dataSize){
 			buffer = readMessage(fd, &rd, 0, 1);
 
 			if (buffer == NULL){
-				//printf("Resending...\n");
 				success = FALSE;
 			}
 			else if (parseREJ(buffer)){
-				//printf("REJ received\n");
 				success = FALSE;
 				reset_alarm();
 			}
@@ -181,10 +152,8 @@ char* readMessage(int fd, int* size, int i_message, int emissor){
 		}
 
 		buffer = realloc(buffer, pos + 2);
-		handleState(r, i_message, &error/*, emissor*/);
+		handleState(r, i_message, &error, emissor);
 		buffer[pos++] = r;
-
-		//printf("Read char = %02x and advanced to state = %d\n", r, getStateMachine());
 		
 		if (getStateMachine() == START){
 			free(buffer);
@@ -231,11 +200,35 @@ char buildBCC2(char * data, int data_size) {
 	}
 	return xor;
 }
+
 int verifyBCC(char * inform, int infMsgSize, char * data, int dataSize){
 	char bcc = buildBCC2(data,dataSize);
 
 	if(inform[infMsgSize-2] == bcc) return 0;
 	else return -1; 
+}
+
+void errorsBCC2(char* buffer, int buffer_size){
+	int prob = rand() % 100;
+
+	if (prob < BCC2_ERR_PROB){
+		int changed_byte_index = rand() % (buffer_size - SUPERVISION_TRAMA_SIZE) + DATA_INF_BYTE;
+		char randomletter = 'A' + (rand() % 26);
+		buffer[changed_byte_index] = randomletter;
+		printf("Generated BCC2 errors!\n");
+	}
+}
+
+void errorsBCC1(char* addr, char* ctrl, int emissor){
+	int prob = rand() % 100;
+
+	if (prob < BCC1_ERR_PROB){
+		int changed_byte = rand() % 2;
+		char randomletter = 'A' + (rand() % 26);
+        if(changed_byte) *ctrl = randomletter;
+        else *addr = randomletter;
+        if (!emissor) printf("Generated BCC1 errors!\n");
+	}
 }
 
 int parseREJ(char* buffer) {
