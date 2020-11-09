@@ -44,8 +44,8 @@
 #define ERR_LIMIT 5
 
 //BCC error generation probability
-#define BCC1_ERR_PROB 2
-#define BCC2_ERR_PROB 2
+#define BCC1_ERR_PROB 0
+#define BCC2_ERR_PROB 0
 typedef struct {
     int stuffed_data;      /** Number of data bytes that were processed and stuffed */
     int stuffed_data_size;     /** Number of bytes that were occupied in the stuffing buffer */
