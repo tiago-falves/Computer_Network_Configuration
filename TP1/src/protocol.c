@@ -4,6 +4,7 @@
 #include "state_machine.h"
 #include "data_stuffing.h"
 #include <time.h>
+#include <unistd.h>
 
 conn_type connection;
 static int nr = 1;
@@ -89,6 +90,9 @@ int llwrite(int fd, char* buffer, int length) {
 
 int llread(int fd, char* buffer) {
 	int temp_size = 0;
+
+	//tprop variation simulation
+	//usleep(10*1000);
 
 	char* temp = readMessage(fd, &temp_size, 1, 0);
 	if(temp == NULL || temp_size == 0){
