@@ -93,7 +93,8 @@ void handleCtrlState(char msg, char addr, char ctrl, int emissor){
             update_state(FLAG_RCV);
             break;
         default:
-            errorsBCC1(&addr, &ctrl, emissor);
+            if (!emissor && (ctrl == CC_INFO_MSG(0) || ctrl == CC_INFO_MSG(1)))
+                errorsBCC1(&addr, &ctrl);
             if(msg == (addr ^ ctrl))
                 update_state(BCC1_OK);
             else{

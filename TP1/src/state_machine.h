@@ -42,7 +42,7 @@ void handleAddrReceived(unsigned char msg);
  * @param msg Byte received.
  * @param addr Address field to calculate BCC1.
  * @param ctrl Control field to calculate BCC1.
- * @param emissor 1 if state machine is reading messages that are being received by the emitter, for log reasons (in order not to mess progress bar display).
+ * @param emissor 1 if state machine is reading messages that are being received by the emitter, for error generation reasons.
  */
 void handleCtrlState(char msg,char addr,char ctrl,int emissor);
 

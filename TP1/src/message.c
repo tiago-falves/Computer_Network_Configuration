@@ -219,7 +219,7 @@ void errorsBCC2(char* buffer, int buffer_size){
 	}
 }
 
-void errorsBCC1(char* addr, char* ctrl, int emissor){
+void errorsBCC1(char* addr, char* ctrl){
 	int prob = rand() % 100;
 
 	if (prob < BCC1_ERR_PROB){
@@ -227,7 +227,7 @@ void errorsBCC1(char* addr, char* ctrl, int emissor){
 		char randomletter = 'A' + (rand() % 26);
         if(changed_byte) *ctrl = randomletter;
         else *addr = randomletter;
-        if (!emissor) printf("Generated BCC1 errors!\n");
+        printf("Generated BCC1 errors!\n");
 	}
 }
 

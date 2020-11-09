@@ -44,8 +44,8 @@
 #define ERR_LIMIT 5
 
 //BCC error generation probability
-#define BCC1_ERR_PROB 3
-#define BCC2_ERR_PROB 3
+#define BCC1_ERR_PROB 2
+#define BCC2_ERR_PROB 2
 typedef struct {
     int stuffed_data;      /** Number of data bytes that were processed and stuffed */
     int stuffed_data_size;     /** Number of bytes that were occupied in the stuffing buffer */
@@ -185,6 +185,5 @@ void errorsBCC2(char* buffer, int buffer_size);
  * 
  * @param addr Frame address field to possibly be changed.
  * @param ctrl Frame control field to possibly be changed.
- * @param emissor 1 if state machine is reading messages that are being received by the emitter, for log reasons (in order not to mess progress bar display).
  */
-void errorsBCC1(char* addr, char* ctrl, int emissor);
+void errorsBCC1(char* addr, char* ctrl);
