@@ -10,7 +10,18 @@ typedef struct{
   unsigned int num_transmissions; /*Número de tentativas em caso defalha*/
 } link_layer;
 
-
-
+/**
+ * @brief Opens serial port connection.
+ * 
+ * @param layer Struct containing necessary information to open connection.
+ * @return int Serial port file descriptor.
+ */
 int open_connection(link_layer layer);
+
+/**
+ * @brief Closes serial port connection.
+ * 
+ * @param fd Serial port file descriptor.
+ * @return int Return value of function close(fd).
+ */
 int close_connection(int fd);

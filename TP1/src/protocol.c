@@ -4,6 +4,7 @@
 #include "state_machine.h"
 #include "data_stuffing.h"
 #include <time.h>
+#include <unistd.h>
 
 conn_type connection;
 static int nr = 1;
@@ -18,7 +19,7 @@ int llopen(char* port, conn_type connection_type) {
 	  
 	int fd = open_connection(layer);
 	if(connection_type == EMISSOR){
-		if(write_supervision_message_retry(fd,SET) == -1){
+		if(write_supervision_message_retry(fd,SET,UA) == -1){
 			printf("Error establishing connection\n");
 			return -1;
 		}
@@ -46,7 +47,7 @@ int llopen(char* port, conn_type connection_type) {
 
 int llclose(int fd) {
 	if(connection == EMISSOR){
-		if(write_supervision_message_retry(fd,DISC) == -1){
+		if(write_supervision_message_retry(fd,DISC,DISC) == -1){
 			printf("Error establishing connection\n");
 		}
 		if(write_supervision_message(fd,UA) == -1){
@@ -90,6 +91,9 @@ int llwrite(int fd, char* buffer, int length) {
 int llread(int fd, char* buffer) {
 	int temp_size = 0;
 
+	//tprop variation simulation
+	//usleep(10*1000);
+
 	char* temp = readMessage(fd, &temp_size, 1, 0);
 	if(temp == NULL || temp_size == 0){
 		printf("LLREAD: exit after %d failed attempts to read message\n", ERR_LIMIT);
@@ -101,25 +105,7 @@ int llread(int fd, char* buffer) {
 		return -2;
 	}
 
-
-	//GENERATE NOISE
-	/*int r = rand() % 15;
-	printf("RANDOM: %d\n", r);
-
-	if (r == 0)
-		temp[10] = 0x01;
-	if (r == 14) 
-		temp[10] = 0x0F;
-	if (r == 2)
-		temp[10] = 0x08;*/
-	//---------------
-
-	/*
-	printf("trama...\n");
-	for (int i = 0; i < temp_size; i++){
-		printf("%02x ", (unsigned char) temp[i]);
-	}printf("\n\n");
-	*/
+	errorsBCC2(temp, temp_size);
 
 	int seq_number = getSequenceNumber(temp);
 	if (getSequenceNumber(temp) == nr % 2) {
