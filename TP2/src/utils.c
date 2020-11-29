@@ -7,6 +7,8 @@
 
 #define ARGUMENT_FTP "ftp://"
 #define ARGUMENT_POSITION 1
+#define ANONYMOUS_USER "anonymous"
+#define ANONYMOUS_PASS " "
 
 void parse_arguments(arguments *args, int argc, char *argv[])
 {
@@ -26,8 +28,8 @@ void parse_arguments(arguments *args, int argc, char *argv[])
         printf("User: %s\n", args->user);
         printf("Password: %s\n", args->password);
     }else{
-        args->user = "anonymous";
-        args->password = " ";
+        args->user = ANONYMOUS_USER;
+        args->password = ANONYMOUS_PASS;
     }
 
     int hostSize = 0;
