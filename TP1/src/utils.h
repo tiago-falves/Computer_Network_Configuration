@@ -41,3 +41,5 @@ bool check_arg(int argc, char* argv[]);
  * @return char* 
  */
 char* concat(const char *s1, const char *s2);
+
+

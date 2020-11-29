@@ -1,1 +1,1 @@
-./main.out 1 receptor 255
+./main.out 1 receptor 
