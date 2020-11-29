@@ -11,11 +11,12 @@ typedef struct {
 /**
  * @brief Parses command line arguments int appropiate structr arguments.
  * 
+ * @param args 
  * @param argc 
  * @param argv 
- * @return arguments 
+ * @return  
  */
-arguments parse_arguments(int argc, char *argv[]);
+void parse_arguments(arguments *args, int argc, char *argv[]);
 
  
 /**
@@ -30,5 +31,5 @@ bool check_arg(int argc, char* argv[]);
 
 int hasUserPassword(char *str);
 
-bool parseUserPassword(char *str,arguments* args,int userPasswordEnd);
+int parseUserPassword(char *str,arguments* args,int userPasswordEnd);
 
