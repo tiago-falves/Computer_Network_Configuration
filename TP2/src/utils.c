@@ -25,6 +25,9 @@ void parse_arguments(arguments *args, int argc, char *argv[])
         hostIndex = parseUserPassword(argv[ARGUMENT_POSITION], args, indexUserPasswordEnd);
         printf("User: %s\n", args->user);
         printf("Password: %s\n", args->password);
+    }else{
+        args->user = "anonymous";
+        args->password = " ";
     }
 
     int hostSize = 0;

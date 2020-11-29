@@ -14,9 +14,6 @@
 int ftpOpenConnection(char *serverAddr, int serverPort)
 {
 
-    //TODO MUDAR
-    serverPort = SERVER_PORT;
-
     int sockfd;
     struct sockaddr_in server_addr;
 
@@ -41,4 +38,15 @@ int ftpOpenConnection(char *serverAddr, int serverPort)
         exit(0);
     }
     return sockfd;
+}
+
+int ftpWrite(int sockFd){
+    char	buf[] = "Mensagem de teste na travessia da pilha TCP/IP\n";  
+	int	bytes;
+    /*send a string to the server*/
+	bytes = write(sockFd, buf, strlen(buf));
+	printf("Bytes escritos %d\n", bytes);
+}
+int ftpCloseConnection(int sockFd){
+	close(sockFd);
 }

@@ -1,6 +1,7 @@
 
 #include "utils.h"
 #include "stdlib.h"
+#include "stdio.h"
 #include "ftp.h"
 #include "getip.h"
 
@@ -21,6 +22,17 @@ int main(int argc, char** argv)
 	ipAddr = getHostIP(args.host);
 
 	printf("IP Address : %s\n",ipAddr);
+
+	int sockFd =ftpOpenConnection(ipAddr,SERVER_PORT); // O que por no sever port?
+
+	// 	unique use case:
+	//  connect
+	//  login host
+	//  passive
+	//  get path
+	//  success (file saved in CWD) or un-success (indicating failing phase)
+	// – challenging programming aspects: gethostbyname, sockets, control connection, passive, data connection
+
 
 	
 	
