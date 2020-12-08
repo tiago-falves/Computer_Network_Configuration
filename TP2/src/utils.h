@@ -33,4 +33,6 @@ int hasUserPassword(char *str);
 
 int parseUserPassword(char *str,arguments* args,int userPasswordEnd);
 
+void printSeparator();
+
 

@@ -37,7 +37,9 @@ int main(int argc, char **argv)
 	//Print Welcome Message
     printf("%s", buff);
 
-	ftpLogin(sockFd,args.user,args.password);
+	if(ftpLogin(sockFd,args.user,args.password)<0){
+		perror("Logging In\n");
+	}
 
 
 	//int x = ftp_recv_respond(resp,strlen(resp),sockFd);
