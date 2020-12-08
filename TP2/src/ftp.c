@@ -80,12 +80,23 @@ int ftpRead(int fd, char *buff)
     return n_bytes_read;
 }
 
+int ftpWrite(int sockFd, char *buf)
+{
+    int n_bytes = write(sockFd, buf, strlen(buf));
+    if (n_bytes < 0)
+    {
+        printf("Error: Error write socket message\n");
+        return -1;
+    }
+    return n_bytes;
+}
+
 int ftpLogin(int sockFd, char *user, char *pass)
 {
     char userMsg[strlen(USER) + strlen(user) + 2];
     char passMsg[strlen(PASS) + strlen(pass) + 2];
     sprintf(userMsg, "%s%s\n", USER, user);
-    sprintf(userMsg, "%s%s\n", USER, user);
+    sprintf(passMsg, "%s%s\n", PASS, pass);
     // sprintf(userMsg, "%s%s\r\n", USER, user);
     // sprintf(passMsg, "%s%s\r\n", PASS, user);
 
@@ -141,16 +152,6 @@ int ftpLogin(int sockFd, char *user, char *pass)
     return 0;
 }
 
-int ftpWrite(int sockFd, char *buf)
-{
-    int n_bytes = write(sockFd, buf, strlen(buf));
-    if (n_bytes < 0)
-    {
-        printf("Error: Error write socket message\n");
-        return -1;
-    }
-    return n_bytes;
-}
 int ftpCloseConnection(int sockFd)
 {
     close(sockFd);
