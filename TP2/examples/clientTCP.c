@@ -29,14 +29,14 @@ int main(int argc, char** argv){
     
 	/*open an TCP socket*/
 	if ((sockfd = socket(AF_INET,SOCK_STREAM,0)) < 0) {
-    		perror("socket()");
+    		printf("Error: socket()");
         	exit(0);
     	}
 	/*connect to the server*/
     	if(connect(sockfd, 
 	           (struct sockaddr *)&server_addr, 
 		   sizeof(server_addr)) < 0){
-        	perror("connect()");
+        	printf("Error: connect()");
 		exit(0);
 	}
     	/*send a string to the server*/

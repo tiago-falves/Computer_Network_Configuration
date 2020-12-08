@@ -30,26 +30,25 @@ int main(int argc, char **argv)
 	char buff[MAX_SIZE];
 
 	// After successful connection, the server sends a line of welcome text, for example, 220 welcome.
-	if(ftpPollRead(sockFd,READY_STATE_WELCOME,buff)<0){
-		printf("Error reading welcome message\n");
+	if (ftpPollRead(sockFd, READY_STATE_WELCOME, buff) < 0)
+	{
+		printf("Error:  reading welcome message\n");
 		return -1;
 	}
 	//Print Welcome Message
-    printf("%s", buff);
+	printf("%s", buff);
 
-	if(ftpLogin(sockFd,args.user,args.password)<0){
-		perror("Logging In\n");
+	if (ftpLogin(sockFd, args.user, args.password) < 0)
+	{
+		printf("Error: Logging In\n");
+		return -1;
 	}
-
 
 	//int x = ftp_recv_respond(resp,strlen(resp),sockFd);
 	//int y =  recvuntil(sockFd, "220") ;
 	//printf("%d\n",y);
 
-
 	//ftpWrite(sockFd,buf);
-
-	
 
 	// 	unique use case:
 	//  connect

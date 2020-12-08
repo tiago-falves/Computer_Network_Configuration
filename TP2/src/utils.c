@@ -22,12 +22,8 @@ void parse_arguments(arguments *args, int argc, char *argv[])
     int indexUserPasswordEnd = hasUserPassword(argv[ARGUMENT_POSITION]);
     int hostIndex = strlen(ARGUMENT_FTP);
     if (indexUserPasswordEnd > 0)
-    {
-        printf("Parsed User:Password correctly\n");
         hostIndex = parseUserPassword(argv[ARGUMENT_POSITION], args, indexUserPasswordEnd);
-        printf("User: %s\n", args->user);
-        printf("Password: %s\n", args->password);
-    }else{
+    else{
         args->user = ANONYMOUS_USER;
         args->password = ANONYMOUS_PASS;
     }
@@ -35,7 +31,6 @@ void parse_arguments(arguments *args, int argc, char *argv[])
     int hostSize = 0;
     for (int i = hostIndex; i < strlen(argv[1]); i++)
     {
-        //printf("%c",argv[1][i]);
         if (argv[ARGUMENT_POSITION][i] == '/')
         {
             strncpy(args->host, argv[ARGUMENT_POSITION]+hostIndex, hostSize);

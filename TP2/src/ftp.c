@@ -28,15 +28,13 @@ int ftpOpenConnection(char *serverAddr, int serverPort)
     /*open an TCP socket*/
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        perror("socket()");
+        printf("Error: socket()");
         return -1;
     }
     /*connect to the server*/
-    if (connect(sockfd,
-                (struct sockaddr *)&server_addr,
-                sizeof(server_addr)) < 0)
+    if (connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
-        perror("connect()");
+        printf("Error: connect()");
         return -1;
     }
     return sockfd;
@@ -54,13 +52,13 @@ int ftpPollRead(int fd, const char *ready_state, char *buff)
 
         if ((read_ret = read(fd, buff, MAX_SIZE)) == -1)
         {
-            perror("Reading from socket\n");
+            printf("Error: Reading from socket\n");
             return -1;
         }
 
         if (read_ret == 0)
         {
-            perror("Could not reach ready state in ftpRead\n");
+            printf("Error: Could not reach ready state in ftpRead\n");
             return -1;
         }
     }
@@ -71,82 +69,74 @@ int ftpPollRead(int fd, const char *ready_state, char *buff)
 int ftpRead(int fd, char *buff)
 {
     memset(buff, 0, MAX_SIZE * sizeof(char));
-    printf("Before read\n");
-    int n_bytes_read = read(fd, buff, 1);
-    printf("After read\n");
-
+    int n_bytes_read = read(fd, buff, MAX_SIZE);
     if (n_bytes_read < 0)
     {
-        perror("Reading from socket\n");
+        printf("Error: Reading from socket\n");
         return -1;
     }
 
-    printf("%s", buff);
-
+    printf("MESSAGE FROM THEM:\n%s\n",buff);
     return n_bytes_read;
 }
 
 int ftpLogin(int sockFd, char *user, char *pass)
 {
-    char userMsg[strlen(USER) + strlen(user)];
-    char passMsg[strlen(PASS) + strlen(pass)];
-    sprintf(userMsg, "%s%s", USER, user);
-    sprintf(passMsg, "%s%s", PASS, user);
+    char userMsg[strlen(USER) + strlen(user) + 2];
+    char passMsg[strlen(PASS) + strlen(pass) + 2];
+    sprintf(userMsg, "%s%s\n", USER, user);
+    sprintf(userMsg, "%s%s\n", USER, user);
+    // sprintf(userMsg, "%s%s\r\n", USER, user);
+    // sprintf(passMsg, "%s%s\r\n", PASS, user);
 
     // SEND USER
     if (ftpWrite(sockFd, userMsg) < 0)
     {
-        perror("Sending user\n");
+        printf("Error: Sending user\n");
         return -1;
     }
-
-    printf("%s\n", userMsg);
 
     // RECEIVE ANSWER
     char buff[MAX_SIZE];
     if (ftpRead(sockFd, buff) < 0)
     {
-        perror("Error receiving answer after sending user message\n");
+        printf("Error: Error receiving answer after sending user message\n");
         return -1;
     }
 
     if (strstr(buff, USER_SUCCESSFUL) == NULL)
     {
-        perror("Received wrong message after user input\n");
+        printf("Error: Received wrong message after user input\n");
         return -1;
     }
-    printf("%s\n", buff);
+
+    printf("Buffer: %s\n", buff);
 
     // SEND PASS
     if (ftpWrite(sockFd, passMsg) < 0)
     {
-        perror("Sending Password\n");
+        printf("Error: Sending Password\n");
         return -1;
     }
 
     // RECEIVE ANSWER
     if (ftpRead(sockFd, buff) < 0)
     {
-        perror("Incorrect passowrd\n");
+        printf("Error: Error receiving answer after sending pass message\n\n");
         return -1;
     }
-    if (strstr(buff, INCORRECT_PASS) != NULL)
+    /*if (strstr(buff, INCORRECT_PASS) != NULL)
     {
-        perror("Incorrect Password\n");
+        printf("Error: Incorrect Password\n");
         return -1;
-    }else if (strstr(buff, LOGIN_SUCCESSFUL) == NULL)
+    }*/
+    if (strstr(buff, LOGIN_SUCCESSFUL) == NULL)
     {
-        perror("Error Logging In\n");
+        printf("Error: Error Logging In\n");
         return -1;
     }else{
         printf("NAO FAÇO IDEIA LOGIN\n");
     }
-
- 
-
-
-    printf("%s\n", passMsg);
-    printf("%s\n", buff);
 
     return 0;
 }
@@ -156,7 +146,7 @@ int ftpWrite(int sockFd, char *buf)
     int n_bytes = write(sockFd, buf, strlen(buf));
     if (n_bytes < 0)
     {
-        perror("Error write socket message\n");
+        printf("Error: Error write socket message\n");
         return -1;
     }
     return n_bytes;
