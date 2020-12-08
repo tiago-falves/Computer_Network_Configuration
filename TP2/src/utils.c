@@ -8,7 +8,7 @@
 #define ARGUMENT_FTP "ftp://"
 #define ARGUMENT_POSITION 1
 #define ANONYMOUS_USER "anonymous"
-#define ANONYMOUS_PASS " "
+#define ANONYMOUS_PASS "something"
 
 void parse_arguments(arguments *args, int argc, char *argv[])
 {
@@ -47,6 +47,8 @@ void parse_arguments(arguments *args, int argc, char *argv[])
     
     printf("Host: %s\n", args->host);
     printf("Url: %s\n", args->url_path);
+    printf("User: %s\n",args->user);
+    printf("Pass: %s\n",args->password);
 }
 
 bool check_arg(int argc, char *argv[])
@@ -81,12 +83,13 @@ int parseUserPassword(char *str, arguments *args, int userPasswordEnd)
     }
 
     passwordBeggining = strlen(ARGUMENT_FTP) + userSize;
+    printf("Passowrd beggin: %d",passwordBeggining);
     for (int i = passwordBeggining; i < userPasswordEnd + passwordBeggining; i++)
     {
 
         if (str[i] == '@')
         {
-            strncpy(args->password, str, passwordSize);
+            strncpy(args->password, str+passwordBeggining, passwordSize);
             break;
         }
         passwordSize++;
