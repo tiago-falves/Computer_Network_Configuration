@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 	//Print Welcome Message
-	printf("%s", buff);
+	printf(">%s", buff);
 
 	if (ftpLogin(sockFd, args.user, args.password) < 0)
 	{
@@ -44,19 +44,11 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	//int x = ftp_recv_respond(resp,strlen(resp),sockFd);
-	//int y =  recvuntil(sockFd, "220") ;
-	//printf("%d\n",y);
+	if(ftpSetPassiveMode(sockFd)<0){
+		printf("Error: Setting passive Mode\n");
+		return -1;
+	}
 
-	//ftpWrite(sockFd,buf);
-
-	// 	unique use case:
-	//  connect
-	//  login host
-	//  passive
-	//  get path
-	//  success (file saved in CWD) or un-success (indicating failing phase)
-	// – challenging programming aspects: gethostbyname, sockets, control connection, passive, data connection
 
 	return 0;
 }
