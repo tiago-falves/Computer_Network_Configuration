@@ -76,7 +76,8 @@ int ftpRead(int fd, char *buff)
         return -1;
     }
 
-    if(strlen(buff)!=0) printf(">%s\n",buff);
+    if (strlen(buff) != 0)
+        printf(">%s\n", buff);
     return n_bytes_read;
 }
 
@@ -138,7 +139,8 @@ int ftpLogin(int sockFd, char *user, char *pass)
     {
         printf("Error: Incorrect Password\n");
         return -1;
-    }else if (strstr(buff, LOGIN_SUCCESSFUL) == NULL)
+    }
+    else if (strstr(buff, LOGIN_SUCCESSFUL) == NULL)
     {
         printf("Error: Error Logging In\n");
         return -1;
@@ -149,7 +151,7 @@ int ftpLogin(int sockFd, char *user, char *pass)
 
 int ftpSetPassiveMode(int sockFd)
 {
-    char pasvMsg[strlen(PASSIVE_MODE_CMD)+1];
+    char pasvMsg[strlen(PASSIVE_MODE_CMD) + 1];
     sprintf(pasvMsg, "%s\n", PASSIVE_MODE_CMD);
     // sprintf(userMsg, "%s%s\r\n", USER, user);
     // sprintf(passMsg, "%s%s\r\n", PASS, user);
@@ -161,34 +163,62 @@ int ftpSetPassiveMode(int sockFd)
         return -1;
     }
     char buff[MAX_SIZE];
-    if(ftpRead(sockFd,buff)<0){
+    if (ftpRead(sockFd, buff) < 0)
+    {
         printf("Error reading passive mode response\n");
         return -1;
     }
 
-    if (strstr(buff, PASSIVE_MODE_SUCC_CODE) == NULL) {
+    if (strstr(buff, PASSIVE_MODE_SUCC_CODE) == NULL)
+    {
         printf("Error setting passive mode\n");
         return -1;
     }
 
-    int ip1,ip2,ip3,ip4,portHigh,portLow;
+    int ip1, ip2, ip3, ip4, portHigh, portLow;
 
-    if(sscanf(buff,"227 Entering Passive Mode (%d,%d,%d,%d,%d,%d)",&ip1,&ip2,&ip3,&ip4,&portHigh,&portLow)<0){
+    if (sscanf(buff, "227 Entering Passive Mode (%d,%d,%d,%d,%d,%d)", &ip1, &ip2, &ip3, &ip4, &portHigh, &portLow) < 0)
+    {
         printf("Error parsing passive mode msg\n");
         return -1;
     }
     int portNumber = portHigh * 256 + portLow;
 
     char ipAdress[30];
-    sprintf(ipAdress,"%d.%d.%d.%d",ip1,ip2,ip3,ip4);
-    printf("Port Number: %d\n",portNumber);
-    printf("IP Adress: %s\n",ipAdress);
+    sprintf(ipAdress, "%d.%d.%d.%d", ip1, ip2, ip3, ip4);
+    printf("Port Number: %d\n", portNumber);
+    printf("IP Adress: %s\n", ipAdress);
 
-    if(ftpOpenConnection(ipAdress, portNumber)<0){
+    if (ftpOpenConnection(ipAdress, portNumber) < 0)
+    {
         printf("Error Opening new connection after passive mode\n");
         return -1;
     }
 
+    return 0;
+}
+
+int ftpsendRetr(int sockFd, char *path)
+{
+    char retrMsg[strlen(RETR_CMD) + 1];
+    sprintf(retrMsg, "%s%s\n", RETR_CMD, path);
+
+    // SEND RETR
+    if (ftpWrite(sockFd, retrMsg) < 0)
+    {
+        printf("Error: Sending RETR Command\n");
+        return -1;
+    }
+    char buff[MAX_SIZE];
+    if (ftpRead(sockFd, buff) < 0)
+    {
+        printf("Error reading RETR Response\n");
+        return -1;
+    }
+
+    printf("%s\n",path);
+
+    
     return 0;
 }
 

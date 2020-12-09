@@ -44,7 +44,18 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+	//After successful login, send another TYPE I command into binary mode, so that when file data is obtained, it will be sent as a binary byte stream.
+	//Avoid sending file data in ASCII format.
+	//TODO?
+
 	if(ftpSetPassiveMode(sockFd)<0){
+		printf("Error: Setting passive Mode\n");
+		return -1;
+	}
+
+	
+
+	if(ftpsendRetr(sockFd,args.url_path)<0){
 		printf("Error: Setting passive Mode\n");
 		return -1;
 	}
