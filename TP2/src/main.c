@@ -25,12 +25,12 @@ int main(int argc, char **argv)
 	printf("IP Address : %s\n", ipAddr);
 
 	//Establish a TCP connection. This protocol uses port 21 by default
-	int sockFd = ftpOpenConnection(ipAddr, SERVER_PORT); // O que por no sever port?
+	int sock_fd = ftpOpenConnection(ipAddr, SERVER_PORT); // O que por no sever port?
 
 	char buff[MAX_SIZE];
 
 	// After successful connection, the server sends a line of welcome text, for example, 220 welcome.
-	if (ftpPollRead(sockFd, READY_STATE_WELCOME, buff) < 0)
+	if (ftpPollRead(sock_fd, READY_STATE_WELCOME, buff) < 0)
 	{
 		printf("Error:  reading welcome message\n");
 		return -1;
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 	//Print Welcome Message
 	printf(">%s", buff);
 
-	if (ftpLogin(sockFd, args.user, args.password) < 0)
+	if (ftpLogin(sock_fd, args.user, args.password) < 0)
 	{
 		printf("Error: Logging In\n");
 		return -1;
@@ -48,18 +48,25 @@ int main(int argc, char **argv)
 	//Avoid sending file data in ASCII format.
 	//TODO?
 
-	if(ftpSetPassiveMode(sockFd)<0){
+	pasv_info pasv;
+	if (ftpSetPassiveMode(sock_fd, &pasv) < 0)
+	{
 		printf("Error: Setting passive Mode\n");
 		return -1;
 	}
 
-	
+	int recv_fd;
+	if ((recv_fd = ftpOpenConnection(pasv.ip_address, pasv.port_number)) < 0)
+    {
+        printf("Error Opening new connection after passive mode\n");
+        return -1;
+    }
 
-	if(ftpsendRetr(sockFd,args.url_path)<0){
+	if (ftpSendRetr(sock_fd, args.url_path) < 0)
+	{
 		printf("Error: Setting passive Mode\n");
 		return -1;
 	}
-
 
 	return 0;
 }

@@ -19,6 +19,10 @@ struct ftp {
     int data_socket_fd; 
 };
 
+typedef struct pasv {
+    int port_number;
+    char* ip_address;
+} pasv_info;
 
 
 int ftpOpenConnection(char *serverAddr, int serverPort);
@@ -26,5 +30,5 @@ int ftpWrite(int sockFd,char * buf);
 int ftpPollRead(int fd, const char *ready_state, char *buff);
 int ftpLogin(int sockFd, char * user, char * pass);
 int ftpRead(int fd, char *buff);
-int ftpSetPassiveMode(int sockFd);
-int ftpsendRetr(int sockFd, char *path);
+int ftpSetPassiveMode(int sockFd, pasv_info* pasv);
+int ftpSendRetr(int sockFd, char *path);
