@@ -25,10 +25,11 @@ typedef struct pasv {
 } pasv_info;
 
 
-int ftpOpenConnection(char *serverAddr, int serverPort);
-int ftpWrite(int sockFd,char * buf);
-int ftpPollRead(int fd, const char *ready_state, char *buff);
-int ftpLogin(int sockFd, char * user, char * pass);
-int ftpRead(int fd, char *buff);
-int ftpSetPassiveMode(int sockFd, pasv_info* pasv);
-int ftpSendRetr(int sockFd, char *path);
+int ftp_open_connection(char *serverAddr, int serverPort);
+int ftp_write(int sockFd,char * buf);
+int ftp_poll_read(int fd, const char *ready_state, char *buff);
+int ftp_login(int sockFd, char * user, char * pass);
+int ftp_read(int fd, char *buff);
+int ftp_set_passive_mode(int sockFd, pasv_info* pasv);
+int ftp_send_retr(int sockFd, char *path);
+int ftp_retr_file(int sock_fd, char* path);
