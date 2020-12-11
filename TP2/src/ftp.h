@@ -26,6 +26,7 @@ typedef struct pasv {
 
 
 int ftp_open_connection(char *serverAddr, int serverPort);
+int ftp_close_connection(int sock_fd);
 int ftp_write(int sockFd,char * buf);
 int ftp_poll_read(int fd, const char *ready_state, char *buff);
 int ftp_login(int sockFd, char * user, char * pass);

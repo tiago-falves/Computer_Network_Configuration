@@ -74,5 +74,8 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+	ftp_close_connection(sock_fd);
+	ftp_close_connection(recv_fd);
+
 	return 0;
 }

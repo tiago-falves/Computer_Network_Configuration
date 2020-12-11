@@ -215,15 +215,22 @@ int ftp_send_retr(int sock_fd, char *path)
         printf("Error reading RETR Response\n");
         return -1;
     }
-
-    printf("%s\n", path);
     return 0;
 }
 
 int ftp_retr_file(int sock_fd, char *path)
 {
+
+    char path_copy[strlen(path)+1];
+    memset(path_copy, 0, strlen(path) + 1);
+    if (path[0] == '/')
+        for (int i = 1; i < strlen(path); i++)
+            path_copy[i-1] = path[i];
+    else
+        strcpy(path_copy, path);
+
     int fd;
-    if ((fd = open(path, O_WRONLY | O_CREAT, 0660)) < 0)
+    if ((fd = open(path_copy, O_WRONLY | O_CREAT, 0660)) < 0)
     {
         perror("Error creating new file");
         return -1;
