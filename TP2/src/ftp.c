@@ -36,8 +36,7 @@ int ftp_open_connection(char *serverAddr, int serverPort)
     /*connect to the server*/
     if (connect(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
-        perror("connect\n");
-        printf("Error: connect()\n");
+        perror("connect");
         return -1;
     }
     return sock_fd;
