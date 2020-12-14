@@ -10,6 +10,8 @@
 #define RETR_CMD "retr "
 #define PASSIVE_MODE_SUCC_CODE "227"
 #define FAILED_OPEN_FILE "550"
+#define QUIT_CMD "quit"
+#define QUIT_SUCCESSFUL "221"
 
 /**
  * Struct that contains the control and data file descriptors for the FTP

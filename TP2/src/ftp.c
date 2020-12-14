@@ -221,16 +221,17 @@ int ftp_send_retr(int sock_fd, char *path)
 int ftp_retr_file(int sock_fd, char *path)
 {
 
-    char reversed[strlen(path)+1];
+    char reversed[strlen(path) + 1];
     memset(reversed, 0, strlen(path) + 1);
-    
+
     int counter = 0;
-    for (int i = strlen(path) - 1; i >= 0; i--){
-        if (path[i] == '/') break;
+    for (int i = strlen(path) - 1; i >= 0; i--)
+    {
+        if (path[i] == '/')
+            break;
         reversed[counter++] = path[i];
     }
-    char* path_copy = strrev(reversed);
-    printf("%s\n", path_copy);
+    char *path_copy = strrev(reversed);
 
     int fd;
     if ((fd = open(path_copy, O_WRONLY | O_CREAT, 0660)) < 0)
@@ -266,6 +267,18 @@ int ftp_retr_file(int sock_fd, char *path)
 
 int ftp_close_connection(int sock_fd)
 {
-    close(sock_fd);
+    char closeMsg[MAX_SIZE];
+    sprintf(closeMsg, "%s\n", QUIT_CMD);
+
+    if (write(sock_fd, closeMsg, strlen(closeMsg)) < 0)
+    {
+        perror("Closing connection");
+        return -1;
+    }
+
+    char buff[MAX_SIZE];
+    ftp_poll_read(sock_fd, QUIT_SUCCESSFUL, buff);
+    printf(">%s\n", buff);
+
     return 0;
 }

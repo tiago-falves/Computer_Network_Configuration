@@ -1,2 +1,2 @@
 make
-./main.out ftp://anonymous:rcom@netlab1.fe.up.pt/files/pic1.jpg
+./main.out ftp://rcom:rcom@netlab1.fe.up.pt/files/crab.mp4

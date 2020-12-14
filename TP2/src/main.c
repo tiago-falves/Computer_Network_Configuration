@@ -5,6 +5,7 @@
 #include "ftp.h"
 #include "getip.h"
 #include "string.h"
+#include <unistd.h>
 
 #define ARGUMENT_MAX_SIZE 255
 #define READY_STATE_WELCOME "220"
@@ -75,7 +76,9 @@ int main(int argc, char **argv)
 	}
 
 	ftp_close_connection(sock_fd);
-	ftp_close_connection(recv_fd);
+
+	close(sock_fd);
+	close(recv_fd);
 
 	return 0;
 }
