@@ -11,9 +11,10 @@
 #include <netdb.h>
 #include <strings.h>
 #include <fcntl.h>
-#include "string.h"
+#include <string.h>
 
 #include "ftp.h"
+#include "utils.h"
 
 int ftp_open_connection(char *serverAddr, int serverPort)
 {
@@ -220,13 +221,16 @@ int ftp_send_retr(int sock_fd, char *path)
 int ftp_retr_file(int sock_fd, char *path)
 {
 
-    char path_copy[strlen(path)+1];
-    memset(path_copy, 0, strlen(path) + 1);
-    if (path[0] == '/')
-        for (int i = 1; i < strlen(path); i++)
-            path_copy[i-1] = path[i];
-    else
-        strcpy(path_copy, path);
+    char reversed[strlen(path)+1];
+    memset(reversed, 0, strlen(path) + 1);
+    
+    int counter = 0;
+    for (int i = strlen(path) - 1; i >= 0; i--){
+        if (path[i] == '/') break;
+        reversed[counter++] = path[i];
+    }
+    char* path_copy = strrev(reversed);
+    printf("%s\n", path_copy);
 
     int fd;
     if ((fd = open(path_copy, O_WRONLY | O_CREAT, 0660)) < 0)

@@ -35,4 +35,5 @@ int parseUserPassword(char *str,arguments* args,int userPasswordEnd);
 
 void printSeparator();
 
+char *strrev(char *str);
 

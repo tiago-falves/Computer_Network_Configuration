@@ -23,7 +23,8 @@ void parse_arguments(arguments *args, int argc, char *argv[])
     int hostIndex = strlen(ARGUMENT_FTP);
     if (indexUserPasswordEnd > 0)
         hostIndex = parseUserPassword(argv[ARGUMENT_POSITION], args, indexUserPasswordEnd);
-    else{
+    else
+    {
         args->user = ANONYMOUS_USER;
         args->password = ANONYMOUS_PASS;
     }
@@ -33,19 +34,18 @@ void parse_arguments(arguments *args, int argc, char *argv[])
     {
         if (argv[ARGUMENT_POSITION][i] == '/')
         {
-            strncpy(args->host, argv[ARGUMENT_POSITION]+hostIndex, hostSize);
+            strncpy(args->host, argv[ARGUMENT_POSITION] + hostIndex, hostSize);
             break;
         }
         hostSize++;
     }
-    strcpy(args->url_path, argv[ARGUMENT_POSITION]+hostIndex +hostSize);
+    strcpy(args->url_path, argv[ARGUMENT_POSITION] + hostIndex + hostSize);
 
-    
     printSeparator();
     printf("Host: %s\n", args->host);
     printf("Url: %s\n", args->url_path);
-    printf("User: %s\n",args->user);
-    printf("Pass: %s\n",args->password);
+    printf("User: %s\n", args->user);
+    printf("Pass: %s\n", args->password);
     printSeparator();
 }
 
@@ -57,10 +57,10 @@ bool check_arg(int argc, char *argv[])
 
 int hasUserPassword(char *str)
 {
-    for (int i = strlen(ARGUMENT_FTP); i < strlen(str); i++) 
+    for (int i = strlen(ARGUMENT_FTP); i < strlen(str); i++)
         if (str[i] == '@')
             return i;
-    
+
     return -1;
 }
 
@@ -86,7 +86,7 @@ int parseUserPassword(char *str, arguments *args, int userPasswordEnd)
 
         if (str[i] == '@')
         {
-            strncpy(args->password, str+passwordBeggining, passwordSize);
+            strncpy(args->password, str + passwordBeggining, passwordSize);
             break;
         }
         passwordSize++;
@@ -94,7 +94,22 @@ int parseUserPassword(char *str, arguments *args, int userPasswordEnd)
     return passwordBeggining + passwordSize + 1;
 }
 
-
-void printSeparator(){
+void printSeparator()
+{
     printf("\n***************************\n\n");
+}
+
+char *strrev(char *str)
+{
+    char *p1, *p2;
+
+    if (!str || !*str)
+        return str;
+    for (p1 = str, p2 = str + strlen(str) - 1; p2 > p1; ++p1, --p2)
+    {
+        *p1 ^= *p2;
+        *p2 ^= *p1;
+        *p1 ^= *p2;
+    }
+    return str;
 }
