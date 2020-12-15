@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 	char *ipAddr = (char *)malloc(20);
 	ipAddr = getHostIP(args.host);
 
-	printf("IP Address : %s\n", ipAddr);
+	printf("IP Address : %s\n\n", ipAddr);
 
 	//Establish a TCP connection. This protocol uses port 21 by default
 	int sock_fd = ftp_open_connection(ipAddr, SERVER_PORT); // O que por no sever port?
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 	//Print Welcome Message
-	printf(">%s", buff);
+	printf("%s\n", buff);
 
 	if (ftp_login(sock_fd, args.user, args.password) < 0)
 	{

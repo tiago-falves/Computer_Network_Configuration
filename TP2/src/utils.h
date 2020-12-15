@@ -37,3 +37,4 @@ void printSeparator();
 
 char *strrev(char *str);
 
+char* hiddenPass(char* pass);

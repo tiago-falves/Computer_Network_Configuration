@@ -45,7 +45,7 @@ void parse_arguments(arguments *args, int argc, char *argv[])
     printf("Host: %s\n", args->host);
     printf("Url: %s\n", args->url_path);
     printf("User: %s\n", args->user);
-    printf("Pass: %s\n", args->password);
+    printf("Pass: %s\n", hiddenPass(args->password));
     printSeparator();
 }
 
@@ -99,7 +99,7 @@ void printSeparator()
     printf("\n***************************\n\n");
 }
 
-char *strrev(char *str)
+char* strrev(char* str)
 {
     char *p1, *p2;
 
@@ -112,4 +112,12 @@ char *strrev(char *str)
         *p1 ^= *p2;
     }
     return str;
+}
+
+char* hiddenPass(char* pass)
+{
+    char* buff = malloc(strlen(pass) + 1);
+    for (int i = 0; i < strlen(pass); i++)
+        buff[i] = '*';
+    return buff;
 }

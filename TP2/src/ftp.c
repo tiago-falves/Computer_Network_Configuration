@@ -80,7 +80,7 @@ int ftp_read(int fd, char *buff)
     }
 
     if (strlen(buff) != 0)
-        printf(">%s\n", buff);
+        printf("%s\n", buff);
     return n_bytes_read;
 }
 
@@ -101,8 +101,8 @@ int ftp_login(int sock_fd, char *user, char *pass)
     char passMsg[strlen(PASS) + strlen(pass) + 2];
     sprintf(userMsg, "%s%s\n", USER, user);
     sprintf(passMsg, "%s%s\n", PASS, pass);
-    // sprintf(userMsg, "%s%s\r\n", USER, user);
-    // sprintf(passMsg, "%s%s\r\n", PASS, user);
+
+    printf(">%s\n", userMsg);
 
     // SEND USER
     if (ftp_write(sock_fd, userMsg) < 0)
@@ -111,25 +111,30 @@ int ftp_login(int sock_fd, char *user, char *pass)
         return -1;
     }
 
-    // RECEIVE ANSWER
     char buff[MAX_SIZE];
-    if (ftp_read(sock_fd, buff) < 0)
+    if (strcmp("anonymous", user) != 0)
     {
-        printf("Error: Error receiving answer after sending user message\n");
-        return -1;
-    }
+        // RECEIVE ANSWER
+        if (ftp_read(sock_fd, buff) < 0)
+        {
+            printf("Error: Error receiving answer after sending user message\n");
+            return -1;
+        }
 
-    if (strstr(buff, USER_SUCCESSFUL) == NULL)
-    {
-        printf("Error: Received wrong message after user input\n");
-        return -1;
-    }
+        if (strstr(buff, USER_SUCCESSFUL) == NULL)
+        {
+            printf("Error: Received wrong message after user input\n");
+            return -1;
+        }
 
-    // SEND PASS
-    if (ftp_write(sock_fd, passMsg) < 0)
-    {
-        printf("Error: Sending Password\n");
-        return -1;
+        printf(">%s%s\n\n", PASS, hiddenPass(pass));
+
+        // SEND PASS
+        if (ftp_write(sock_fd, passMsg) < 0)
+        {
+            printf("Error: Sending Password\n");
+            return -1;
+        }
     }
 
     // RECEIVE ANSWER
@@ -156,6 +161,8 @@ int ftp_set_passive_mode(int sock_fd, pasv_info *pasv)
 {
     char pasvMsg[strlen(PASSIVE_MODE_CMD) + 1];
     sprintf(pasvMsg, "%s\n", PASSIVE_MODE_CMD);
+
+    printf(">%s\n", pasvMsg);
 
     // SEND USER
     if (ftp_write(sock_fd, pasvMsg) < 0)
@@ -187,8 +194,8 @@ int ftp_set_passive_mode(int sock_fd, pasv_info *pasv)
 
     char *ipAdress = malloc(MAX_SIZE);
     sprintf(ipAdress, "%d.%d.%d.%d", ip1, ip2, ip3, ip4);
-    printf("Port Number: %d\n", portNumber);
-    printf("IP Adress: %s\n", ipAdress);
+    printf("IP Address: %s\n", ipAdress);
+    printf("Port Number: %d\n\n", portNumber);
 
     pasv->ip_address = ipAdress;
     pasv->port_number = portNumber;
@@ -201,7 +208,7 @@ int ftp_send_retr(int sock_fd, char *path)
     char retrMsg[strlen(RETR_CMD) + 1];
     sprintf(retrMsg, "%s%s\n", RETR_CMD, path);
 
-    printf("%s\n", retrMsg);
+    printf(">%s\n", retrMsg);
 
     // SEND RETR
     if (ftp_write(sock_fd, retrMsg) < 0)
@@ -270,6 +277,8 @@ int ftp_close_connection(int sock_fd)
     char closeMsg[MAX_SIZE];
     sprintf(closeMsg, "%s\n", QUIT_CMD);
 
+    printf(">%s\n", closeMsg);
+
     if (write(sock_fd, closeMsg, strlen(closeMsg)) < 0)
     {
         perror("Closing connection");
@@ -278,7 +287,7 @@ int ftp_close_connection(int sock_fd)
 
     char buff[MAX_SIZE];
     ftp_poll_read(sock_fd, QUIT_SUCCESSFUL, buff);
-    printf(">%s\n", buff);
+    printf("%s\n", buff);
 
     return 0;
 }
