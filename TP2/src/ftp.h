@@ -9,9 +9,11 @@
 #define PASSIVE_MODE_CMD "pasv"
 #define RETR_CMD "retr "
 #define PASSIVE_MODE_SUCC_CODE "227"
+#define BINARY_COMMAND "TYPE I"
 #define FAILED_OPEN_FILE "550"
 #define QUIT_CMD "quit"
 #define QUIT_SUCCESSFUL "221"
+#define BYNARY_SUCCESS "200"
 
 /**
  * Struct that contains the control and data file descriptors for the FTP
@@ -36,3 +38,4 @@ int ftp_read(int fd, char *buff);
 int ftp_set_passive_mode(int sockFd, pasv_info* pasv);
 int ftp_send_retr(int sockFd, char *path);
 int ftp_retr_file(int sock_fd, char* path);
+int ftp_set_binary_mode(int sock_fd);

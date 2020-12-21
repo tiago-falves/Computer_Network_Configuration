@@ -272,6 +272,33 @@ int ftp_retr_file(int sock_fd, char *path)
     return 0;
 }
 
+int ftp_set_binary_mode(int sock_fd){
+    
+    char bynaryCmd[strlen(BINARY_COMMAND) + 1];
+    sprintf(bynaryCmd, "%s\n", BINARY_COMMAND);
+
+    // SEND USER
+    if (ftp_write(sock_fd, bynaryCmd) < 0)
+    {
+        printf("Error: Sending Binary command\n");
+        return -1;
+    }
+    char buff[MAX_SIZE];
+    if (ftp_read(sock_fd, buff) < 0)
+    {
+        printf("Error reading Bynary mode response\n");
+        return -1;
+    }
+
+    if (strstr(buff, BYNARY_SUCCESS) == NULL)
+    {
+        printf("Error setting binary mode\n");
+        return -1;
+    }
+    return 0;
+
+}
+
 int ftp_close_connection(int sock_fd)
 {
     char closeMsg[MAX_SIZE];
