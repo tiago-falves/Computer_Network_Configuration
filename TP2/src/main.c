@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 #define ARGUMENT_MAX_SIZE 255
-#define READY_STATE_WELCOME "220"
+#define READY_STATE_WELCOME "220 " //space needed for multiple line welcome message
 
 int main(int argc, char **argv)
 {

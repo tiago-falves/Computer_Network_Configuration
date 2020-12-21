@@ -112,29 +112,28 @@ int ftp_login(int sock_fd, char *user, char *pass)
     }
 
     char buff[MAX_SIZE];
-    if (strcmp("anonymous", user) != 0)
+    // RECEIVE ANSWER
+    if (ftp_read(sock_fd, buff) < 0)
     {
-        // RECEIVE ANSWER
-        if (ftp_read(sock_fd, buff) < 0)
-        {
-            printf("Error: Error receiving answer after sending user message\n");
-            return -1;
-        }
+        printf("Error: Error receiving answer after sending user message\n");
+        return -1;
+    }
 
-        if (strstr(buff, USER_SUCCESSFUL) == NULL)
-        {
-            printf("Error: Received wrong message after user input\n");
-            return -1;
-        }
+    if (strstr(buff, LOGIN_SUCCESSFUL) != NULL) return 0;
 
-        printf(">%s%s\n\n", PASS, hiddenPass(pass));
+    if (strstr(buff, USER_SUCCESSFUL) == NULL)
+    {
+        printf("Error: Received wrong message after user input\n");
+        return -1;
+    }
 
-        // SEND PASS
-        if (ftp_write(sock_fd, passMsg) < 0)
-        {
-            printf("Error: Sending Password\n");
-            return -1;
-        }
+    printf(">%s%s\n\n", PASS, hiddenPass(pass));
+
+    // SEND PASS
+    if (ftp_write(sock_fd, passMsg) < 0)
+    {
+        printf("Error: Sending Password\n");
+        return -1;
     }
 
     // RECEIVE ANSWER

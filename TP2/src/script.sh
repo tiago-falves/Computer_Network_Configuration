@@ -1,2 +1,2 @@
 make
-./download ftp://rcom:rcom@netlab1.fe.up.pt/pub.txt
+./download ftp://anonymous:rcom@ftp.up.pt/debian/README.html
