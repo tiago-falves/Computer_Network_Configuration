@@ -71,17 +71,24 @@ int ftp_poll_read(int fd, const char *ready_state, char *buff)
 
 int ftp_read(int fd, char *buff)
 {
-    memset(buff, 0, MAX_SIZE * sizeof(char));
-    int n_bytes_read = read(fd, buff, MAX_SIZE);
-    if (n_bytes_read < 0)
-    {
-        printf("Error: Reading from socket\n");
+    FILE *socket = fdopen(fd, "r");
+    if (socket == NULL)
         return -1;
-    }
 
-    if (strlen(buff) != 0)
-        printf("%s\n", buff);
-    return n_bytes_read;
+    memset(buff, 0, MAX_SIZE * sizeof(char));
+    size_t n_bytes_read;
+    while (getline(&buff, &n_bytes_read, socket) > 0)
+    {
+        if (strlen(buff) != 0)
+            printf("%s", buff);
+
+        if (buff[3] == ' ')
+        {
+            break;
+        }
+    }
+    printf("\n");
+    return 0;
 }
 
 int ftp_write(int sock_fd, char *buf)
@@ -119,7 +126,8 @@ int ftp_login(int sock_fd, char *user, char *pass)
         return -1;
     }
 
-    if (strstr(buff, LOGIN_SUCCESSFUL) != NULL) return 0;
+    if (strstr(buff, LOGIN_SUCCESSFUL) != NULL)
+        return 0;
 
     if (strstr(buff, USER_SUCCESSFUL) == NULL)
     {
@@ -204,7 +212,7 @@ int ftp_set_passive_mode(int sock_fd, pasv_info *pasv)
 
 int ftp_send_retr(int sock_fd, char *path)
 {
-    char retrMsg[strlen(RETR_CMD) + 1];
+    char retrMsg[strlen(RETR_CMD) + strlen(path) + 1];
     sprintf(retrMsg, "%s%s\n", RETR_CMD, path);
 
     printf(">%s\n", retrMsg);
@@ -271,8 +279,9 @@ int ftp_retr_file(int sock_fd, char *path)
     return 0;
 }
 
-int ftp_set_binary_mode(int sock_fd){
-    
+int ftp_set_binary_mode(int sock_fd)
+{
+
     char bynaryCmd[strlen(BINARY_COMMAND) + 1];
     sprintf(bynaryCmd, "%s\n", BINARY_COMMAND);
 
@@ -295,7 +304,6 @@ int ftp_set_binary_mode(int sock_fd){
         return -1;
     }
     return 0;
-
 }
 
 int ftp_close_connection(int sock_fd)
